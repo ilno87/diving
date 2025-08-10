@@ -1,17 +1,9 @@
-function mapTipo(tipo) {
-            if (!tipo) return 'Barca';
-            
-            const tipoLower = tipo.toLowerCase().trim();
-            
-            // Mappatura automatica con nuovi nomi
-            if (tipoLower.includes('barca') || tipoLower.includes('boat')) return 'Barca';
-            if (tipoLower.includes('riva') || tipoLower.includes('shore')) return 'Riva';
-            if (tipoLower.includes('gommone') || tipo<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DiveLog Pro - Registro Immersioni Completo</title>
+    <title>DiveLog Pro - Registro Immersioni</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -39,14 +31,11 @@ function mapTipo(tipo) {
             background: var(--bg-gradient);
             min-height: 100vh;
             padding: 20px;
-            position: relative;
         }
 
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            position: relative;
-            z-index: 1;
         }
 
         .app-header {
@@ -332,19 +321,16 @@ function mapTipo(tipo) {
             flex-wrap: wrap;
         }
 
-        .file-drop {
-            border: 2px dashed #ddd;
-            border-radius: 12px;
-            padding: 40px 20px;
+        .empty-state {
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #fafbfc;
+            padding: 60px 20px;
+            color: #6c757d;
         }
 
-        .file-drop:hover, .file-drop.dragover {
-            border-color: var(--primary);
-            background: rgba(0, 212, 170, 0.05);
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
         }
 
         .pagination {
@@ -357,18 +343,6 @@ function mapTipo(tipo) {
         .pagination .btn {
             padding: 8px 12px;
             min-width: auto;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-
-        .empty-state .icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
         }
 
         /* Responsive */
@@ -448,7 +422,6 @@ function mapTipo(tipo) {
             <div class="tab" onclick="switchTab('list')">📋 Elenco</div>
             <div class="tab" onclick="switchTab('import')">📥 Importa</div>
             <div class="tab" onclick="switchTab('export')">📤 Esporta</div>
-            <div class="tab" onclick="switchTab('settings')">⚙️ Gestione</div>
         </div>
 
         <!-- Messages -->
@@ -465,24 +438,23 @@ function mapTipo(tipo) {
                 <div class="form-container">
                     <form id="diveForm" name="dive-log" method="POST" data-netlify="true">
                         <input type="hidden" name="form-name" value="dive-log" />
-                        <input type="hidden" name="timestamp" id="timestamp" />
                         
                         <div class="input-row">
                             <div class="input-group">
-                                <label for="numeroimmersione">Immersione numero</label>
-                                <input type="number" id="numeroimmersione" name="numeroimmersione" 
-                                       placeholder="Auto" min="1" />
-                                <small style="color: #666; font-size: 12px;">Lascia vuoto per numerazione automatica</small>
+                                <label for="numeroImmersione">Immersione numero</label>
+                                <input type="number" id="numeroImmersione" name="numeroImmersione" 
+                                       placeholder="1" min="1" />
+                                <small style="color: #666; font-size: 12px;">Numerazione automatica</small>
                             </div>
                             <div class="input-group">
-                                <label for="dataimmersione">Data Immersione</label>
-                                <input type="date" id="dataimmersione" name="dataimmersione" required />
+                                <label for="dataImmersione">Data Immersione</label>
+                                <input type="date" id="dataImmersione" name="dataImmersione" required />
                             </div>
                         </div>
 
                         <div class="input-group">
-                            <label for="tipoimmersione">Tipo Immersione</label>
-                            <select id="tipoimmersione" name="tipoimmersione" required>
+                            <label for="tipoImmersione">Tipo Immersione</label>
+                            <select id="tipoImmersione" name="tipoImmersione" required>
                                 <option value="">Seleziona tipo</option>
                                 <option value="Barca">🚤 Barca</option>
                                 <option value="Riva">🏖️ Riva</option>
@@ -495,41 +467,41 @@ function mapTipo(tipo) {
 
                         <div class="input-row">
                             <div class="input-group">
-                                <label for="atmingresso">Atm Ingresso (bar)</label>
-                                <input type="number" id="atmingresso" name="atmingresso" 
+                                <label for="atmIngresso">Atm Ingresso (bar)</label>
+                                <input type="number" id="atmIngresso" name="atmIngresso" 
                                        placeholder="200" min="50" max="300" required />
                             </div>
                             <div class="input-group">
-                                <label for="atmuscita">Atm Uscita (bar)</label>
-                                <input type="number" id="atmuscita" name="atmuscita" 
+                                <label for="atmUscita">Atm Uscita (bar)</label>
+                                <input type="number" id="atmUscita" name="atmUscita" 
                                        placeholder="50" min="10" max="250" required />
                             </div>
                         </div>
 
                         <div class="input-row">
                             <div class="input-group">
-                                <label for="ariausata">Aria usata (bar)</label>
-                                <input type="number" id="ariausata" name="ariausata" 
-                                       placeholder="150" min="0" max="300" readonly 
+                                <label for="ariaUsata">Aria usata (bar)</label>
+                                <input type="number" id="ariaUsata" name="ariaUsata" 
+                                       placeholder="150" readonly 
                                        style="background: #f0f0f0;" />
                                 <small style="color: #666; font-size: 12px;">Calcolato automaticamente</small>
                             </div>
                             <div class="input-group">
-                                <label for="tempoimmersione">Tempo immersione (minuti)</label>
-                                <input type="number" id="tempoimmersione" name="tempoimmersione" 
+                                <label for="tempoImmersione">Tempo immersione (minuti)</label>
+                                <input type="number" id="tempoImmersione" name="tempoImmersione" 
                                        placeholder="45" min="1" max="300" required />
                             </div>
                         </div>
 
                         <div class="input-row">
                             <div class="input-group">
-                                <label for="profonditamassima">Profondità massima (metri)</label>
-                                <input type="number" id="profonditamassima" name="profonditamassima" 
+                                <label for="profonditaMassima">Profondità massima (metri)</label>
+                                <input type="number" id="profonditaMassima" name="profonditaMassima" 
                                        placeholder="25.5" min="0" max="200" step="0.1" required />
                             </div>
                             <div class="input-group">
-                                <label for="temperaturaacqua">Temperatura acqua (°C)</label>
-                                <input type="number" id="temperaturaacqua" name="temperaturaacqua" 
+                                <label for="temperaturaAcqua">Temperatura acqua (°C)</label>
+                                <input type="number" id="temperaturaAcqua" name="temperaturaAcqua" 
                                        placeholder="18.5" min="-5" max="40" step="0.1" required />
                             </div>
                         </div>
@@ -595,28 +567,30 @@ function mapTipo(tipo) {
             <div class="main-card">
                 <div class="card-header">
                     <h2>📥 Importa Dati</h2>
-                    <p>Carica immersioni da file CSV o incolla dati</p>
+                    <p>Carica immersioni da file CSV</p>
                 </div>
                 <div class="form-container">
-                    <div class="file-drop" id="fileDrop">
-                        <div style="font-size: 48px; margin-bottom: 15px;">📄</div>
-                        <h3>Trascina un file CSV qui</h3>
-                        <p>oppure clicca per selezionare</p>
-                        <input type="file" id="csvFile" accept=".csv" style="display: none;">
-                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('csvFile').click()">
-                            📁 Seleziona File
-                        </button>
+                    <div style="margin-bottom: 20px;">
+                        <h4>Formato CSV richiesto:</h4>
+                        <code style="background: #f8f9fa; padding: 10px; border-radius: 6px; display: block; margin: 10px 0; font-size: 12px;">
+                            Immersione numero,Data Immersione,Tipo Immersione,Atm Ingresso,Atm Uscita,Aria usata,Tempo immersione (minuti),Profondità massima (metri),Temperatura acqua,Località,Note
+                        </code>
                     </div>
                     
                     <div style="margin: 30px 0;">
-                        <h4>Oppure incolla i dati CSV qui:</h4>
-                        <textarea id="csvData" rows="10" placeholder="Data,Tipo,Pressione Iniziale,Pressione Finale,Durata,Profondità,Temperatura,Luogo,Note
-2024-08-01,barca,200,50,45,25.5,18,Portofino,Bellissima immersione"></textarea>
+                        <label for="csvData">Incolla i dati CSV qui:</label>
+                        <textarea id="csvData" rows="10" 
+                                  placeholder="1,2024-08-10,Barca,200,50,150,45,25.5,18,Portofino,Ottima visibilità"></textarea>
                     </div>
 
-                    <button type="button" class="btn btn-primary" onclick="importCSV()">
-                        📥 Importa Dati
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn btn-secondary" onclick="generateTemplate()">
+                            📝 Genera Template
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="importCSV()">
+                            📥 Importa Dati
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -626,7 +600,7 @@ function mapTipo(tipo) {
             <div class="main-card">
                 <div class="card-header">
                     <h2>📤 Esporta Dati</h2>
-                    <p>Scarica le tue immersioni in vari formati</p>
+                    <p>Scarica le tue immersioni</p>
                 </div>
                 <div class="form-container">
                     <div class="input-row">
@@ -639,49 +613,10 @@ function mapTipo(tipo) {
                     </div>
                     
                     <div style="margin-top: 30px;">
-                        <h4>Statistiche Export:</h4>
+                        <h4>Statistiche:</h4>
                         <div id="exportStats" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px;">
                             <!-- Statistiche export -->
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Gestione -->
-        <div id="tab-settings" class="tab-content">
-            <div class="main-card">
-                <div class="card-header">
-                    <h2>⚙️ Gestione Dati</h2>
-                    <p>Backup, ripristino e manutenzione</p>
-                </div>
-                <div class="form-container">
-                    <div class="input-group">
-                        <label>Backup Automatico</label>
-                        <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                            I tuoi dati sono salvati automaticamente nel browser e inviati a Netlify Forms
-                        </p>
-                        <button type="button" class="btn btn-warning" onclick="backupData()">
-                            💾 Scarica Backup Completo
-                        </button>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Ripristina da Backup</label>
-                        <input type="file" id="backupFile" accept=".json">
-                        <button type="button" class="btn btn-secondary" onclick="restoreBackup()">
-                            📂 Ripristina Backup
-                        </button>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Gestione Storage</label>
-                        <div id="storageInfo" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                            <!-- Info storage -->
-                        </div>
-                        <button type="button" class="btn btn-danger" onclick="clearAllData()">
-                            🗑️ Cancella Tutti i Dati
-                        </button>
                     </div>
                 </div>
             </div>
@@ -694,18 +629,19 @@ function mapTipo(tipo) {
             dives: [],
             currentPage: 1,
             itemsPerPage: 10,
-            filteredDives: [],
-            isEditing: false,
-            editingId: null
+            filteredDives: []
         };
 
-        // Carica dati al startup
+        // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
             updateStats();
             updateDivesList();
-            updateStorageInfo();
-            setupEventListeners();
+            setupForm();
+            
+            // Set data default
+            document.getElementById('dataImmersione').value = new Date().toISOString().split('T')[0];
+            updateNumeroImmersione();
         });
 
         function loadData() {
@@ -714,7 +650,7 @@ function mapTipo(tipo) {
                 try {
                     appState.dives = JSON.parse(saved);
                 } catch (error) {
-                    console.error('Errore caricamento dati:', error);
+                    console.error('Errore caricamento:', error);
                     appState.dives = [];
                 }
             }
@@ -730,168 +666,100 @@ function mapTipo(tipo) {
             }
         }
 
-        function setupEventListeners() {
-            // Form submit
-            document.getElementById('diveForm').addEventListener('submit', handleFormSubmit);
-            
+        function setupForm() {
+            const form = document.getElementById('diveForm');
+            const atmIngresso = document.getElementById('atmIngresso');
+            const atmUscita = document.getElementById('atmUscita');
+            const ariaUsata = document.getElementById('ariaUsata');
+
             // Calcolo automatico aria usata
-            const atmIngresso = document.getElementById('atmingresso');
-            const atmUscita = document.getElementById('atmuscita');
-            const ariaUsata = document.getElementById('ariausata');
-            
-            function calcolaAriaUsata() {
+            function calcolaAria() {
                 const ingresso = parseInt(atmIngresso.value) || 0;
                 const uscita = parseInt(atmUscita.value) || 0;
                 ariaUsata.value = Math.max(0, ingresso - uscita);
             }
-            
-            atmIngresso.addEventListener('input', calcolaAriaUsata);
-            atmUscita.addEventListener('input', calcolaAriaUsata);
-            
-            // Auto-numerazione immersione
-            const numeroImmersione = document.getElementById('numeroimmersione');
-            numeroImmersione.value = (appState.dives.length + 1);
-            
-            // Data di default oggi
-            const dataImmersione = document.getElementById('dataimmersione');
-            if (!dataImmersione.value) {
-                dataImmersione.value = new Date().toISOString().split('T')[0];
-            }
-            
-            // File drop
-            const fileDrop = document.getElementById('fileDrop');
-            fileDrop.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                fileDrop.classList.add('dragover');
-            });
-            
-            fileDrop.addEventListener('dragleave', () => {
-                fileDrop.classList.remove('dragover');
-            });
-            
-            fileDrop.addEventListener('drop', (e) => {
-                e.preventDefault();
-                fileDrop.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleFileUpload(files[0]);
-                }
-            });
-            
-            fileDrop.addEventListener('click', () => {
-                document.getElementById('csvFile').click();
-            });
-            
-            document.getElementById('csvFile').addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    handleFileUpload(e.target.files[0]);
-                }
-            });
-        }
 
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            
-            if (!validateForm()) return;
-            
-            const formData = new FormData(e.target);
-            const diveData = {
-                id: appState.isEditing ? appState.editingId : Date.now(),
-                numeroImmersione: parseInt(formData.get('numeroimmersione')) || (appState.dives.length + 1),
-                dataImmersione: formData.get('dataimmersione'),
-                timestamp: new Date(formData.get('dataimmersione')).toISOString(),
-                tipoImmersione: formData.get('tipoimmersione'),
-                atmIngresso: parseInt(formData.get('atmingresso')),
-                atmUscita: parseInt(formData.get('atmuscita')),
-                ariaUsata: parseInt(formData.get('ariausata')),
-                tempoImmersione: parseInt(formData.get('tempoimmersione')),
-                profonditaMassima: parseFloat(formData.get('profonditamassima')),
-                temperaturaAcqua: parseFloat(formData.get('temperaturaacqua')),
-                localita: formData.get('localita'),
-                note: formData.get('note') || '',
+            atmIngresso.addEventListener('input', calcolaAria);
+            atmUscita.addEventListener('input', calcolaAria);
+
+            // Submit form
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
                 
-                // Mantieni compatibilità con vecchi campi
-                tipo: formData.get('tipoimmersione'),
-                durata: parseInt(formData.get('tempoimmersione')),
-                profondita: parseFloat(formData.get('profonditamassima')),
-                temperatura: parseFloat(formData.get('temperaturaacqua')),
-                luogo: formData.get('localita')
-            };
+                if (!validateForm()) return;
+                
+                const formData = new FormData(form);
+                const dive = {
+                    id: Date.now(),
+                    numeroImmersione: parseInt(formData.get('numeroImmersione')) || (appState.dives.length + 1),
+                    dataImmersione: formData.get('dataImmersione'),
+                    tipoImmersione: formData.get('tipoImmersione'),
+                    atmIngresso: parseInt(formData.get('atmIngresso')),
+                    atmUscita: parseInt(formData.get('atmUscita')),
+                    ariaUsata: parseInt(formData.get('ariaUsata')),
+                    tempoImmersione: parseInt(formData.get('tempoImmersione')),
+                    profonditaMassima: parseFloat(formData.get('profonditaMassima')),
+                    temperaturaAcqua: parseFloat(formData.get('temperaturaAcqua')),
+                    localita: formData.get('localita'),
+                    note: formData.get('note') || ''
+                };
 
-            // Salva localmente
-            if (appState.isEditing) {
-                const index = appState.dives.findIndex(d => d.id === appState.editingId);
-                if (index !== -1) {
-                    appState.dives[index] = diveData;
-                }
-            } else {
-                appState.dives.push(diveData);
-            }
-
-            saveData();
-            
-            // UI feedback
-            setSubmitLoading(true);
-            
-            try {
-                // Invia a Netlify (solo per nuove immersioni)
-                if (!appState.isEditing) {
-                    formData.set('timestamp', diveData.timestamp);
-                    
+                // Salva
+                appState.dives.push(dive);
+                saveData();
+                
+                // UI
+                setLoading(true);
+                
+                try {
+                    // Invia a Netlify
                     const response = await fetch('/', {
                         method: 'POST',
                         headers: { "Content-Type": "application/x-www-form-urlencoded" },
                         body: new URLSearchParams(formData).toString()
                     });
                     
-                    if (!response.ok) throw new Error('Errore Netlify');
+                    showSuccess('✅ Immersione salvata!');
+                } catch (error) {
+                    showSuccess('💾 Immersione salvata localmente!');
                 }
                 
-                showSuccess(appState.isEditing ? '✏️ Immersione modificata!' : '✅ Immersione salvata!');
                 resetForm();
                 updateStats();
                 updateDivesList();
-                
-            } catch (error) {
-                console.error('Errore invio:', error);
-                showError('⚠️ Dati salvati localmente, ma errore sincronizzazione cloud');
-            } finally {
-                setSubmitLoading(false);
-            }
+                setLoading(false);
+            });
         }
 
         function validateForm() {
-            const atmIngresso = parseInt(document.getElementById('atmingresso').value);
-            const atmUscita = parseInt(document.getElementById('atmuscita').value);
+            const atmIngresso = parseInt(document.getElementById('atmIngresso').value);
+            const atmUscita = parseInt(document.getElementById('atmUscita').value);
             
             if (atmUscita >= atmIngresso) {
-                showError('⚠️ L\'Atm Uscita deve essere minore dell\'Atm Ingresso!');
-                return false;
-            }
-            
-            // Validazione data
-            const dataImmersione = document.getElementById('dataimmersione').value;
-            if (new Date(dataImmersione) > new Date()) {
-                showError('⚠️ La data immersione non può essere nel futuro!');
+                showError('⚠️ Atm Uscita deve essere minore di Atm Ingresso!');
                 return false;
             }
             
             return true;
         }
 
-        function setSubmitLoading(loading) {
+        function resetForm() {
+            document.getElementById('diveForm').reset();
+            document.getElementById('dataImmersione').value = new Date().toISOString().split('T')[0];
+            updateNumeroImmersione();
+            document.getElementById('ariaUsata').value = '';
+        }
+
+        function updateNumeroImmersione() {
+            document.getElementById('numeroImmersione').value = appState.dives.length + 1;
+        }
+
+        function setLoading(loading) {
             const btn = document.querySelector('#diveForm button[type="submit"]');
             const text = document.getElementById('submitText');
             
             btn.disabled = loading;
             text.textContent = loading ? '⏳ Salvataggio...' : '💾 Salva Immersione';
-        }
-
-        function resetForm() {
-            document.getElementById('diveForm').reset();
-            appState.isEditing = false;
-            appState.editingId = null;
-            document.getElementById('submitText').textContent = '💾 Salva Immersione';
         }
 
         function updateStats() {
@@ -900,11 +768,11 @@ function mapTipo(tipo) {
             
             const stats = {
                 total: dives.length,
-                maxDepth: dives.length > 0 ? Math.max(...dives.map(d => d.profonditaMassima || d.profondita || 0)) : 0,
-                totalTime: dives.reduce((sum, d) => sum + (d.tempoImmersione || d.durata || 0), 0),
+                maxDepth: dives.length > 0 ? Math.max(...dives.map(d => d.profonditaMassima || 0)) : 0,
+                totalTime: dives.reduce((sum, d) => sum + (d.tempoImmersione || 0), 0),
                 avgTemp: dives.length > 0 ? 
-                    (dives.reduce((sum, d) => sum + (d.temperaturaAcqua || d.temperatura || 0), 0) / dives.length).toFixed(1) : 0,
-                thisYear: dives.filter(d => new Date(d.dataImmersione || d.timestamp).getFullYear() === currentYear).length
+                    (dives.reduce((sum, d) => sum + (d.temperaturaAcqua || 0), 0) / dives.length).toFixed(1) : 0,
+                thisYear: dives.filter(d => new Date(d.dataImmersione).getFullYear() === currentYear).length
             };
 
             document.getElementById('statTotal').textContent = stats.total;
@@ -922,7 +790,7 @@ function mapTipo(tipo) {
 
         function updateYearFilter() {
             const yearSelect = document.getElementById('filterYear');
-            const years = [...new Set(appState.dives.map(d => new Date(d.dataImmersione || d.timestamp).getFullYear()))].sort((a, b) => b - a);
+            const years = [...new Set(appState.dives.map(d => new Date(d.dataImmersione).getFullYear()))].sort((a, b) => b - a);
             
             const currentValue = yearSelect.value;
             yearSelect.innerHTML = '<option value="">Tutti gli anni</option>';
@@ -941,615 +809,18 @@ function mapTipo(tipo) {
             const typeFilter = document.getElementById('filterType').value;
             
             appState.filteredDives = appState.dives.filter(dive => {
-                if (yearFilter && new Date(dive.dataImmersione || dive.timestamp).getFullYear().toString() !== yearFilter) {
+                if (yearFilter && new Date(dive.dataImmersione).getFullYear().toString() !== yearFilter) {
                     return false;
                 }
-                if (typeFilter && (dive.tipoImmersione || dive.tipo) !== typeFilter) {
+                if (typeFilter && dive.tipoImmersione !== typeFilter) {
                     return false;
                 }
                 return true;
-            }).sort((a, b) => new Date(b.dataImmersione || b.timestamp) - new Date(a.dataImmersione || a.timestamp));
+            }).sort((a, b) => new Date(b.dataImmersione) - new Date(a.dataImmersione));
             
             appState.currentPage = 1;
         }
 
         function renderDives() {
             const container = document.getElementById('divesContainer');
-            const dives = appState.filteredDives;
-            
-            if (dives.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">🌊</div>
-                        <h3>Nessuna immersione trovata</h3>
-                        <p>Aggiungi la tua prima immersione o modifica i filtri</p>
-                    </div>
-                `;
-                document.getElementById('pagination').innerHTML = '';
-                return;
-            }
-
-            // Paginazione
-            const totalPages = Math.ceil(dives.length / appState.itemsPerPage);
-            const startIndex = (appState.currentPage - 1) * appState.itemsPerPage;
-            const endIndex = startIndex + appState.itemsPerPage;
-            const currentDives = dives.slice(startIndex, endIndex);
-
-            // Tabella
-            let html = `
-                <table class="dive-table">
-                    <thead>
-                        <tr>
-                            <th>Num.</th>
-                            <th>Data</th>
-                            <th>Località</th>
-                            <th>Tipo</th>
-                            <th>Profondità</th>
-                            <th>Tempo</th>
-                            <th>Aria usata</th>
-                            <th>Temp</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            currentDives.forEach(dive => {
-                const date = new Date(dive.dataImmersione || dive.timestamp).toLocaleDateString('it-IT');
-                const ariaUsata = (dive.atmIngresso || 0) - (dive.atmUscita || 0);
-                html += `
-                    <tr>
-                        <td><strong>#${dive.numeroImmersione || dive.id}</strong></td>
-                        <td>${date}</td>
-                        <td>${dive.localita || dive.luogo || 'Mare'}</td>
-                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 11px;">${dive.tipoImmersione || dive.tipo}</span></td>
-                        <td><strong>${dive.profonditaMassima || dive.profondita}m</strong></td>
-                        <td>${dive.tempoImmersione || dive.durata}min</td>
-                        <td>${dive.ariaUsata || ariaUsata}bar</td>
-                        <td>${dive.temperaturaAcqua || dive.temperatura}°C</td>
-                        <td class="actions">
-                            <button class="btn btn-secondary" onclick="editDive(${dive.id})" title="Modifica">✏️</button>
-                            <button class="btn btn-danger" onclick="deleteDive(${dive.id})" title="Elimina">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-
-            // Paginazione
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            const pagination = document.getElementById('pagination');
-            
-            if (totalPages <= 1) {
-                pagination.innerHTML = '';
-                return;
-            }
-
-            let html = '';
-            
-            // Precedente
-            html += `<button class="btn btn-secondary" ${appState.currentPage === 1 ? 'disabled' : ''} onclick="changePage(${appState.currentPage - 1})">‹ Prec</button>`;
-            
-            // Pagine
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === appState.currentPage) {
-                    html += `<button class="btn btn-primary">${i}</button>`;
-                } else {
-                    html += `<button class="btn btn-secondary" onclick="changePage(${i})">${i}</button>`;
-                }
-            }
-            
-            // Successiva
-            html += `<button class="btn btn-secondary" ${appState.currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${appState.currentPage + 1})">Succ ›</button>`;
-            
-            pagination.innerHTML = html;
-        }
-
-        function changePage(page) {
-            appState.currentPage = page;
-            renderDives();
-        }
-
-        function editDive(diveId) {
-            const dive = appState.dives.find(d => d.id === diveId);
-            if (!dive) return;
-
-            // Popola form con nuovi campi
-            document.getElementById('numeroimmersione').value = dive.numeroImmersione || dive.id;
-            document.getElementById('dataimmersione').value = dive.dataImmersione || new Date(dive.timestamp).toISOString().split('T')[0];
-            document.getElementById('tipoimmersione').value = dive.tipoImmersione || dive.tipo || '';
-            document.getElementById('atmingresso').value = dive.atmIngresso || '';
-            document.getElementById('atmuscita').value = dive.atmUscita || '';
-            document.getElementById('ariausata').value = dive.ariaUsata || ((dive.atmIngresso || 0) - (dive.atmUscita || 0));
-            document.getElementById('tempoimmersione').value = dive.tempoImmersione || dive.durata || '';
-            document.getElementById('profonditamassima').value = dive.profonditaMassima || dive.profondita || '';
-            document.getElementById('temperaturaacqua').value = dive.temperaturaAcqua || dive.temperatura || '';
-            document.getElementById('localita').value = dive.localita || dive.luogo || '';
-            document.getElementById('note').value = dive.note || '';
-
-            // Modalità modifica
-            appState.isEditing = true;
-            appState.editingId = diveId;
-            document.getElementById('submitText').textContent = '✏️ Modifica Immersione';
-
-            // Vai al tab aggiungi
-            switchTab('add');
-            
-            showSuccess('✏️ Immersione caricata per la modifica');
-        }
-
-        function deleteDive(diveId) {
-            if (!confirm('Sei sicuro di voler eliminare questa immersione?')) return;
-
-            appState.dives = appState.dives.filter(d => d.id !== diveId);
-            saveData();
-            updateStats();
-            updateDivesList();
-            
-            showSuccess('🗑️ Immersione eliminata');
-        }
-
-        // Import/Export Functions
-        function handleFileUpload(file) {
-            if (!file.name.endsWith('.csv')) {
-                showError('⚠️ Seleziona un file CSV');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('csvData').value = e.target.result;
-                showSuccess('📄 File caricato! Clicca "Importa Dati" per procedere');
-            };
-            reader.readAsText(file);
-        }
-
-        function importCSV() {
-            const csvData = document.getElementById('csvData').value.trim();
-            if (!csvData) {
-                showError('⚠️ Inserisci i dati CSV');
-                return;
-            }
-
-            try {
-                const lines = csvData.split('\n');
-                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                
-                const imported = [];
-                for (let i = 1; i < lines.length; i++) {
-                    if (!lines[i].trim()) continue;
-                    
-                    const values = parseCSVLine(lines[i]);
-                    if (values.length !== headers.length) continue;
-
-                    const dive = {
-                        id: Date.now() + i,
-                        numeroImmersione: parseInt(values[0]) || (appState.dives.length + i + 1),
-                        dataImmersione: parseDate(values[1]) ? parseDate(values[1]).split('T')[0] : new Date().toISOString().split('T')[0],
-                        timestamp: parseDate(values[1]) || new Date().toISOString(),
-                        tipoImmersione: mapTipo(values[2]) || 'Barca',
-                        atmIngresso: parseInt(values[3]) || 200,
-                        atmUscita: parseInt(values[4]) || 50,
-                        ariaUsata: parseInt(values[5]) || (parseInt(values[3]) - parseInt(values[4])) || 150,
-                        tempoImmersione: parseInt(values[6]) || 30,
-                        profonditaMassima: parseFloat(values[7]) || 10,
-                        temperaturaAcqua: parseFloat(values[8]) || 20,
-                        localita: values[9] || 'Mare',
-                        note: values[10] || '',
-                        
-                        // Mantieni compatibilità
-                        tipo: mapTipo(values[2]) || 'Barca',
-                        durata: parseInt(values[6]) || 30,
-                        profondita: parseFloat(values[7]) || 10,
-                        temperatura: parseFloat(values[8]) || 20,
-                        luogo: values[9] || 'Mare'
-                    };
-
-                    imported.push(dive);
-                }
-
-                if (imported.length === 0) {
-                    showError('⚠️ Nessuna riga valida trovata');
-                    return;
-                }
-
-                // Aggiungi alle immersioni esistenti
-                appState.dives.push(...imported);
-                saveData();
-                updateStats();
-                updateDivesList();
-
-                showSuccess(`✅ Importate ${imported.length} immersioni!`);
-                document.getElementById('csvData').value = '';
-
-            } catch (error) {
-                console.error('Errore import:', error);
-                showError('❌ Errore nell\'importazione: ' + error.message);
-            }
-        }
-
-        function parseCSVLine(line) {
-            const values = [];
-            let current = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    values.push(current.trim());
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            values.push(current.trim());
-            
-            return values;
-        }
-
-        function parseDate(dateStr) {
-            if (!dateStr) return null;
-            
-            try {
-                // Formati supportati
-                const formats = [
-                    /(\d{4})-(\d{1,2})-(\d{1,2})/, // 2024-08-01
-                    /(\d{1,2})\/(\d{1,2})\/(\d{4})/, // 01/08/2024
-                    /(\d{1,2})-(\d{1,2})-(\d{4})/, // 01-08-2024
-                ];
-
-                for (const format of formats) {
-                    const match = dateStr.match(format);
-                    if (match) {
-                        let year, month, day;
-                        
-                        if (format.source.startsWith('(\\d{4})')) {
-                            [, year, month, day] = match;
-                        } else {
-                            [, day, month, year] = match;
-                        }
-                        
-                        return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`).toISOString();
-                    }
-                }
-                
-                return new Date(dateStr).toISOString();
-            } catch {
-                return new Date().toISOString();
-            }
-        }
-
-        function mapTipo(tipo) {
-            if (!tipo) return 'Barca';
-            
-            const tipoLower = tipo.toLowerCase().trim();
-            
-            // Mappatura automatica con nuovi nomi
-            if (tipoLower.includes('barca') || tipoLower.includes('boat')) return 'Barca';
-            if (tipoLower.includes('riva') || tipoLower.includes('shore')) return 'Riva';
-            if (tipoLower.includes('gommone') || tipoLower.includes('inflatable')) return 'Gommone';
-            if (tipoLower.includes('corso') || tipoLower.includes('course') || tipoLower.includes('skill')) return 'Corso';
-            if (tipoLower.includes('apnea') || tipoLower.includes('free')) return 'Apnea';
-            
-            // Se è un numero (vecchio formato), converti in Barca
-            if (!isNaN(tipo)) return 'Barca';
-            
-            // Capitalizza prima lettera
-            return tipo.charAt(0).toUpperCase() + tipo.slice(1).toLowerCase();
-        }
-
-        function exportCSV() {
-            if (appState.dives.length === 0) {
-                showError('⚠️ Nessuna immersione da esportare');
-                return;
-            }
-
-            const headers = ['Immersione numero', 'Data Immersione', 'Tipo Immersione', 'Atm Ingresso', 'Atm Uscita', 'Aria usata', 'Tempo immersione (minuti)', 'Profondità massima (metri)', 'Temperatura acqua', 'Località', 'Note'];
-            const csvContent = [
-                headers.join(','),
-                ...appState.dives.map(dive => [
-                    dive.numeroImmersione || dive.id,
-                    dive.dataImmersione || new Date(dive.timestamp).toLocaleDateString('it-IT'),
-                    dive.tipoImmersione || dive.tipo || '',
-                    dive.atmIngresso || '',
-                    dive.atmUscita || '',
-                    dive.ariaUsata || ((dive.atmIngresso || 0) - (dive.atmUscita || 0)),
-                    dive.tempoImmersione || dive.durata || '',
-                    dive.profonditaMassima || dive.profondita || '',
-                    dive.temperaturaAcqua || dive.temperatura || '',
-                    `"${(dive.localita || dive.luogo || '').replace(/"/g, '""')}"`,
-                    `"${(dive.note || '').replace(/"/g, '""')}"`
-                ].join(','))
-            ].join('\n');
-
-            downloadFile(`immersioni_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
-            showSuccess('📊 Export CSV completato!');
-        }
-
-        function resetForm() {
-            document.getElementById('diveForm').reset();
-            appState.isEditing = false;
-            appState.editingId = null;
-            document.getElementById('submitText').textContent = '💾 Salva Immersione';
-            
-            // Ripristina valori default
-            document.getElementById('numeroimmersione').value = (appState.dives.length + 1);
-            document.getElementById('dataimmersione').value = new Date().toISOString().split('T')[0];
-            document.getElementById('ariausata').value = '';
-        }
-
-        function updateStorageInfo() {
-            const data = localStorage.getItem('divelog_data');
-            const size = data ? new Blob([data]).size : 0;
-            const sizeKB = (size / 1024).toFixed(2);
-            
-            document.getElementById('storageInfo').innerHTML = `
-                <strong>Spazio utilizzato:</strong> ${sizeKB} KB<br>
-                <strong>Immersioni salvate:</strong> ${appState.dives.length}<br>
-                <strong>Ultimo salvataggio:</strong> ${data ? new Date().toLocaleString('it-IT') : 'Mai'}
-            `;
-
-            // Export stats
-            const exportStats = document.getElementById('exportStats');
-            if (exportStats) {
-                const sortedDives = appState.dives.sort((a, b) => new Date(a.dataImmersione || a.timestamp) - new Date(b.dataImmersione || b.timestamp));
-                exportStats.innerHTML = `
-                    <strong>Totale immersioni:</strong> ${appState.dives.length}<br>
-                    <strong>Dimensione dati:</strong> ${sizeKB} KB<br>
-                    <strong>Prima immersione:</strong> ${sortedDives.length > 0 ? new Date(sortedDives[0].dataImmersione || sortedDives[0].timestamp).toLocaleDateString('it-IT') : 'N/A'}<br>
-                    <strong>Ultima immersione:</strong> ${sortedDives.length > 0 ? new Date(sortedDives[sortedDives.length - 1].dataImmersione || sortedDives[sortedDives.length - 1].timestamp).toLocaleDateString('it-IT') : 'N/A'}<br>
-                    <strong>Profondità massima:</strong> ${appState.dives.length > 0 ? Math.max(...appState.dives.map(d => d.profonditaMassima || d.profondita || 0)) : 0}m
-                `;
-            }
-        }
-
-        // CSV Import template generator
-        function generateCSVTemplate() {
-            const headers = ['Immersione numero', 'Data Immersione', 'Tipo Immersione', 'Atm Ingresso', 'Atm Uscita', 'Aria usata', 'Tempo immersione (minuti)', 'Profondità massima (metri)', 'Temperatura acqua', 'Località', 'Note'];
-            const exampleRow = ['1', '2024-08-10', 'Barca', '200', '50', '150', '45', '25.5', '18', 'Portofino', 'Ottima visibilità'];
-            
-            const csvContent = [
-                headers.join(','),
-                exampleRow.join(',')
-            ].join('\n');
-            
-            document.getElementById('csvData').value = csvContent;
-            showSuccess('📝 Template CSV generato! Modifica i dati e clicca "Importa Dati"');
-        }
-
-        // Aggiungi pulsante template nella sezione import
-        document.addEventListener('DOMContentLoaded', function() {
-            const importSection = document.querySelector('#tab-import .form-container');
-            if (importSection) {
-                const templateBtn = document.createElement('button');
-                templateBtn.type = 'button';
-                templateBtn.className = 'btn btn-secondary';
-                templateBtn.style.marginLeft = '10px';
-                templateBtn.innerHTML = '📝 Genera Template';
-                templateBtn.onclick = generateCSVTemplate;
-                
-                const importBtn = importSection.querySelector('button');
-                if (importBtn) {
-                    importBtn.parentNode.insertBefore(templateBtn, importBtn);
-                }
-            }
-        });
-
-        // Auto-save ogni 30 secondi (backup di sicurezza)
-        setInterval(() => {
-            if (appState.dives.length > 0) {
-                saveData();
-            }
-        }, 30000);
-
-        console.log('🌊 DiveLog Pro - Applicazione aggiornata con nuovi campi CSV');
-        console.log('📊 Campi supportati: Immersione numero, Data Immersione, Tipo Immersione, Atm Ingresso, Atm Uscita, Aria usata, Tempo immersione, Profondità massima, Temperatura acqua, Località, Note');
-    </script>
-</body>
-</html>Lower.includes('inflatable')) return 'gommone';
-            if (tipoLower.includes('corso') || tipoLower.includes('course') || tipoLower.includes('skill')) return 'corso';
-            if (tipoLower.includes('apnea') || tipoLower.includes('free')) return 'apnea';
-            
-            // Se è un numero (vecchio formato), converti in barca
-            if (!isNaN(tipo)) return 'barca';
-            
-            return tipo;
-        }
-
-        function exportCSV() {
-            if (appState.dives.length === 0) {
-                showError('⚠️ Nessuna immersione da esportare');
-                return;
-            }
-
-            const headers = ['Data', 'Tipo', 'Pressione Iniziale', 'Pressione Finale', 'Durata', 'Profondità', 'Temperatura', 'Luogo', 'Note'];
-            const csvContent = [
-                headers.join(','),
-                ...appState.dives.map(dive => [
-                    new Date(dive.timestamp).toLocaleDateString('it-IT'),
-                    dive.tipo || '',
-                    dive.atmIngresso || '',
-                    dive.atmUscita || '',
-                    dive.durata || '',
-                    dive.profondita || '',
-                    dive.temperatura || '',
-                    `"${(dive.luogo || '').replace(/"/g, '""')}"`,
-                    `"${(dive.note || '').replace(/"/g, '""')}"`
-                ].join(','))
-            ].join('\n');
-
-            downloadFile(`immersioni_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
-            showSuccess('📊 Export CSV completato!');
-        }
-
-        function exportJSON() {
-            if (appState.dives.length === 0) {
-                showError('⚠️ Nessuna immersione da esportare');
-                return;
-            }
-
-            const jsonContent = JSON.stringify(appState.dives, null, 2);
-            downloadFile(`immersioni_backup_${new Date().toISOString().split('T')[0]}.json`, jsonContent, 'application/json');
-            showSuccess('🔧 Export JSON completato!');
-        }
-
-        function backupData() {
-            const backupData = {
-                version: '1.0',
-                timestamp: new Date().toISOString(),
-                dives: appState.dives,
-                stats: {
-                    total: appState.dives.length,
-                    exported: new Date().toISOString()
-                }
-            };
-
-            const content = JSON.stringify(backupData, null, 2);
-            downloadFile(`divelog_backup_${new Date().toISOString().split('T')[0]}.json`, content, 'application/json');
-            showSuccess('💾 Backup completo scaricato!');
-        }
-
-        function restoreBackup() {
-            const fileInput = document.getElementById('backupFile');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                showError('⚠️ Seleziona un file di backup');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const backupData = JSON.parse(e.target.result);
-                    
-                    if (backupData.dives && Array.isArray(backupData.dives)) {
-                        if (confirm(`Ripristinare ${backupData.dives.length} immersioni? I dati attuali saranno sostituiti.`)) {
-                            appState.dives = backupData.dives;
-                            saveData();
-                            updateStats();
-                            updateDivesList();
-                            showSuccess('📂 Backup ripristinato con successo!');
-                        }
-                    } else {
-                        showError('⚠️ File di backup non valido');
-                    }
-                } catch (error) {
-                    showError('❌ Errore nel ripristino: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function clearAllData() {
-            if (!confirm('⚠️ ATTENZIONE: Questo cancellerà TUTTE le immersioni. Sei sicuro?')) return;
-            if (!confirm('Ultima conferma: cancellerò tutto lo storico. Procedo?')) return;
-
-            appState.dives = [];
-            localStorage.removeItem('divelog_data');
-            updateStats();
-            updateDivesList();
-            updateStorageInfo();
-            
-            showSuccess('🗑️ Tutti i dati sono stati cancellati');
-        }
-
-        function updateStorageInfo() {
-            const data = localStorage.getItem('divelog_data');
-            const size = data ? new Blob([data]).size : 0;
-            const sizeKB = (size / 1024).toFixed(2);
-            
-            document.getElementById('storageInfo').innerHTML = `
-                <strong>Spazio utilizzato:</strong> ${sizeKB} KB<br>
-                <strong>Immersioni salvate:</strong> ${appState.dives.length}<br>
-                <strong>Ultimo salvataggio:</strong> ${data ? new Date().toLocaleString('it-IT') : 'Mai'}
-            `;
-
-            // Export stats
-            const exportStats = document.getElementById('exportStats');
-            if (exportStats) {
-                exportStats.innerHTML = `
-                    <strong>Totale immersioni:</strong> ${appState.dives.length}<br>
-                    <strong>Dimensione dati:</strong> ${sizeKB} KB<br>
-                    <strong>Primo record:</strong> ${appState.dives.length > 0 ? new Date(Math.min(...appState.dives.map(d => new Date(d.timestamp)))).toLocaleDateString('it-IT') : 'N/A'}<br>
-                    <strong>Ultimo record:</strong> ${appState.dives.length > 0 ? new Date(Math.max(...appState.dives.map(d => new Date(d.timestamp)))).toLocaleDateString('it-IT') : 'N/A'}
-                `;
-            }
-        }
-
-        function downloadFile(filename, content, contentType) {
-            const blob = new Blob([content], { type: contentType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // Tab Management
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Show selected tab
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            event.target.classList.add('active');
-
-            // Update data if needed
-            if (tabName === 'list') {
-                updateDivesList();
-            } else if (tabName === 'export' || tabName === 'settings') {
-                updateStorageInfo();
-            }
-        }
-
-        // Utility Functions
-        function showSuccess(message) {
-            const el = document.getElementById('successMessage');
-            el.textContent = message;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 5000);
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showError(message) {
-            const el = document.getElementById('errorMessage');
-            el.textContent = message;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 6000);
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Auto-save ogni 30 secondi (backup di sicurezza)
-        setInterval(() => {
-            if (appState.dives.length > 0) {
-                saveData();
-            }
-        }, 30000);
-
-        console.log('🌊 DiveLog Pro - Applicazione caricata');
-        console.log('📊 Dati disponibili:', appState.dives.length, 'immersioni');
-    </script>
-</body>
-</html>
+            const dives = appState.
