@@ -408,6 +408,7 @@
             <div class="tab" onclick="switchTab('list')">📋 Elenco</div>
             <div class="tab" onclick="switchTab('import')">📥 Importa</div>
             <div class="tab" onclick="switchTab('export')">📤 Esporta</div>
+            <div class="tab" onclick="switchTab('manage')">⚙️ Gestione</div>
         </div>
 
         <!-- Messages -->
@@ -563,21 +564,109 @@
                             Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
                         </code>
                     </div>
+
+                    <!-- Upload File CSV -->
+                    <div style="margin-bottom: 30px;">
+                        <h4>📁 Carica file CSV:</h4>
+                        <div class="file-drop" id="fileDrop" style="border: 2px dashed #ddd; border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: #fafbfc; margin: 15px 0;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">📄</div>
+                            <h3>Trascina un file CSV qui</h3>
+                            <p>oppure clicca per selezionare</p>
+                            <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('csvFile').click()" style="margin-top: 15px;">
+                                📁 Seleziona File CSV
+                            </button>
+                        </div>
+                    </div>
                     
                     <div style="margin: 30px 0;">
-                        <label for="csvData">Incolla i dati CSV qui:</label>
+                        <h4>📝 Oppure incolla i dati CSV:</h4>
                         <textarea id="csvData" rows="10" 
                                   placeholder="Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
 2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità"></textarea>
                     </div>
 
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button type="button" class="btn btn-secondary" onclick="generateTemplate()">
                             📝 Genera Template
                         </button>
                         <button type="button" class="btn btn-primary" onclick="importCSV()">
                             📥 Importa Dati
                         </button>
+                        <button type="button" class="btn btn-warning" onclick="clearCSVData()">
+                            🧹 Pulisci Area
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Gestione -->
+        <div id="tab-manage" class="tab-content">
+            <div class="main-card">
+                <div class="card-header">
+                    <h2>⚙️ Gestione Dati</h2>
+                    <p>Backup, ripristino e manutenzione delle immersioni</p>
+                </div>
+                <div class="form-container">
+                    <!-- Info Storage -->
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                        <h4 style="color: #1976d2; margin-bottom: 15px;">💾 Informazioni Storage</h4>
+                        <div id="storageInfo">
+                            <!-- Info storage -->
+                        </div>
+                    </div>
+
+                    <!-- Backup e Ripristino -->
+                    <div style="margin-bottom: 30px;">
+                        <h4>🔄 Backup e Ripristino:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                            <button type="button" class="btn btn-success" onclick="downloadBackup()">
+                                💾 Scarica Backup Completo
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('backupFile').click()">
+                                📂 Ripristina da Backup
+                            </button>
+                        </div>
+                        <input type="file" id="backupFile" accept=".json" style="display: none;" onchange="restoreBackup()">
+                    </div>
+
+                    <!-- Pulizia Dati -->
+                    <div style="background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                        <h4 style="color: #856404; margin-bottom: 15px;">⚠️ Zona Pericolosa</h4>
+                        <p style="color: #856404; margin-bottom: 15px;">
+                            Queste azioni sono irreversibili. Assicurati di aver fatto un backup prima di procedere.
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-warning" onclick="clearDuplicates()">
+                                🧹 Rimuovi Duplicati
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="clearAllData()">
+                                🗑️ Elimina Tutte le Immersioni
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Strumenti Avanzati -->
+                    <div style="margin-bottom: 25px;">
+                        <h4>🔧 Strumenti Avanzati:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                            <button type="button" class="btn btn-secondary" onclick="validateData()">
+                                ✅ Valida Dati
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="compactData()">
+                                📦 Compatta Storage
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="showDataInfo()">
+                                📊 Info Dettagliate
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Risultati Operazioni -->
+                    <div id="operationResult" style="margin-top: 25px; display: none;">
+                        <h4>📋 Risultato Operazione:</h4>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; font-family: monospace; white-space: pre-wrap;"></div>
                     </div>
                 </div>
             </div>
@@ -626,6 +715,8 @@
             updateStats();
             updateDivesList();
             setupForm();
+            setupFileUpload();
+            updateStorageInfo();
             
             // Set data default
             document.getElementById('data').value = new Date().toISOString().split('T')[0];
@@ -716,6 +807,65 @@
                 updateDivesList();
                 setLoading(false);
             });
+        }
+
+        function setupFileUpload() {
+            const fileDrop = document.getElementById('fileDrop');
+            const csvFile = document.getElementById('csvFile');
+
+            // Drag & Drop
+            fileDrop.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileDrop.style.borderColor = '#00d4aa';
+                fileDrop.style.backgroundColor = 'rgba(0, 212, 170, 0.05)';
+            });
+            
+            fileDrop.addEventListener('dragleave', () => {
+                fileDrop.style.borderColor = '#ddd';
+                fileDrop.style.backgroundColor = '#fafbfc';
+            });
+            
+            fileDrop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileDrop.style.borderColor = '#ddd';
+                fileDrop.style.backgroundColor = '#fafbfc';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+
+            // File input
+            csvFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+
+            // Click on drop area
+            fileDrop.addEventListener('click', () => {
+                csvFile.click();
+            });
+        }
+
+        function handleFileUpload(file) {
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showError('⚠️ Seleziona solo file CSV');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('csvData').value = e.target.result;
+                showSuccess(`📄 File "${file.name}" caricato! Clicca "Importa Dati" per procedere`);
+            };
+            
+            reader.onerror = function() {
+                showError('❌ Errore nella lettura del file');
+            };
+            
+            reader.readAsText(file);
         }
 
         function validateForm() {
@@ -1106,7 +1256,209 @@
                 updateDivesList();
             } else if (tabName === 'export') {
                 updateExportStats();
+            } else if (tabName === 'manage') {
+                updateStorageInfo();
             }
+        }
+
+        // Funzioni di gestione
+        function updateStorageInfo() {
+            const info = document.getElementById('storageInfo');
+            if (!info) return;
+
+            const data = localStorage.getItem('divelog_data');
+            const size = data ? new Blob([data]).size : 0;
+            const sizeKB = (size / 1024).toFixed(2);
+            
+            info.innerHTML = `
+                <strong>Immersioni salvate:</strong> ${appState.dives.length}<br>
+                <strong>Spazio utilizzato:</strong> ${sizeKB} KB<br>
+                <strong>Ultimo salvataggio:</strong> ${data ? new Date().toLocaleString('it-IT') : 'Mai'}<br>
+                <strong>Browser:</strong> ${navigator.userAgent.split(' ')[0]}
+            `;
+        }
+
+        function downloadBackup() {
+            const backupData = {
+                version: '1.0',
+                timestamp: new Date().toISOString(),
+                totalDives: appState.dives.length,
+                dives: appState.dives,
+                metadata: {
+                    exported: new Date().toISOString(),
+                    browser: navigator.userAgent,
+                    app: 'DiveLog Pro'
+                }
+            };
+
+            const content = JSON.stringify(backupData, null, 2);
+            downloadFile(`divelog_backup_${new Date().toISOString().split('T')[0]}.json`, content, 'application/json');
+            showSuccess('💾 Backup completo scaricato!');
+        }
+
+        function restoreBackup() {
+            const fileInput = document.getElementById('backupFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('⚠️ Seleziona un file di backup');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    if (backupData.dives && Array.isArray(backupData.dives)) {
+                        const confirmMessage = `Ripristinare ${backupData.dives.length} immersioni?\n\n⚠️ I dati attuali (${appState.dives.length} immersioni) saranno sostituiti.\n\nContinuare?`;
+                        
+                        if (confirm(confirmMessage)) {
+                            appState.dives = backupData.dives;
+                            saveData();
+                            updateStats();
+                            updateDivesList();
+                            updateStorageInfo();
+                            showSuccess(`📂 Backup ripristinato! ${backupData.dives.length} immersioni caricate.`);
+                        }
+                    } else {
+                        showError('⚠️ File di backup non valido');
+                    }
+                } catch (error) {
+                    showError('❌ Errore nel ripristino: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            const confirmMsg = `⚠️ ATTENZIONE: Eliminare TUTTE le ${appState.dives.length} immersioni?\n\nQuesta azione è IRREVERSIBILE!\n\nDigita "ELIMINA TUTTO" per confermare:`;
+            const userInput = prompt(confirmMsg);
+            
+            if (userInput === 'ELIMINA TUTTO') {
+                appState.dives = [];
+                localStorage.removeItem('divelog_data');
+                updateStats();
+                updateDivesList();
+                updateStorageInfo();
+                showSuccess('🗑️ Tutte le immersioni sono state eliminate');
+            } else if (userInput !== null) {
+                showError('❌ Operazione annullata - testo non corrispondente');
+            }
+        }
+
+        function clearDuplicates() {
+            const originalCount = appState.dives.length;
+            
+            // Rimuovi duplicati basati su data + profondità + durata
+            const unique = appState.dives.filter((dive, index, arr) => {
+                return index === arr.findIndex(d => 
+                    d.data === dive.data && 
+                    d.profMAX === dive.profMAX && 
+                    d.tempoMinuti === dive.tempoMinuti
+                );
+            });
+            
+            const duplicatesRemoved = originalCount - unique.length;
+            
+            if (duplicatesRemoved > 0) {
+                appState.dives = unique;
+                saveData();
+                updateStats();
+                updateDivesList();
+                updateStorageInfo();
+                showSuccess(`🧹 Rimossi ${duplicatesRemoved} duplicati`);
+            } else {
+                showSuccess('✅ Nessun duplicato trovato');
+            }
+        }
+
+        function validateData() {
+            const issues = [];
+            
+            appState.dives.forEach((dive, index) => {
+                if (!dive.data) issues.push(`Immersione ${index + 1}: data mancante`);
+                if (!dive.tipo) issues.push(`Immersione ${index + 1}: tipo mancante`);
+                if (dive.atmOUT >= dive.atmIN) issues.push(`Immersione ${index + 1}: pressioni non valide`);
+                if (dive.profMAX <= 0) issues.push(`Immersione ${index + 1}: profondità non valida`);
+                if (dive.tempoMinuti <= 0) issues.push(`Immersione ${index + 1}: durata non valida`);
+            });
+
+            const result = document.getElementById('operationResult');
+            const resultText = result.querySelector('div');
+            
+            if (issues.length === 0) {
+                resultText.textContent = '✅ Tutti i dati sono validi!\n\nNessun problema rilevato.';
+                result.style.display = 'block';
+                showSuccess('✅ Validazione completata - tutto OK');
+            } else {
+                resultText.textContent = `⚠️ Trovati ${issues.length} problemi:\n\n${issues.join('\n')}`;
+                result.style.display = 'block';
+                showError(`⚠️ Validazione completata - ${issues.length} problemi trovati`);
+            }
+        }
+
+        function compactData() {
+            // Rimuovi campi non necessari e ottimizza
+            const originalSize = JSON.stringify(appState.dives).length;
+            
+            appState.dives = appState.dives.map(dive => ({
+                id: dive.id,
+                data: dive.data,
+                tipo: dive.tipo,
+                atmIN: dive.atmIN,
+                atmOUT: dive.atmOUT,
+                ariaUsata: dive.ariaUsata,
+                tempoMinuti: dive.tempoMinuti,
+                profMAX: dive.profMAX,
+                tempH2Omin: dive.tempH2Omin,
+                tempH2Omax: dive.tempH2Omax,
+                sito: dive.sito,
+                note: dive.note || ''
+            }));
+            
+            const newSize = JSON.stringify(appState.dives).length;
+            const saved = originalSize - newSize;
+            
+            saveData();
+            updateStorageInfo();
+            
+            showSuccess(`📦 Compattazione completata - risparmiati ${saved} caratteri`);
+        }
+
+        function showDataInfo() {
+            const result = document.getElementById('operationResult');
+            const resultText = result.querySelector('div');
+            
+            const stats = {
+                total: appState.dives.length,
+                types: [...new Set(appState.dives.map(d => d.tipo))],
+                years: [...new Set(appState.dives.map(d => new Date(d.data).getFullYear()))],
+                maxDepth: Math.max(...appState.dives.map(d => d.profMAX), 0),
+                totalTime: appState.dives.reduce((sum, d) => sum + d.tempoMinuti, 0),
+                avgDepth: appState.dives.length > 0 ? (appState.dives.reduce((sum, d) => sum + d.profMAX, 0) / appState.dives.length).toFixed(1) : 0
+            };
+            
+            resultText.textContent = `📊 INFORMAZIONI DETTAGLIATE:
+
+Totale immersioni: ${stats.total}
+Anni coperti: ${stats.years.sort().join(', ')}
+Tipi immersione: ${stats.types.join(', ')}
+
+Profondità massima: ${stats.maxDepth}m
+Profondità media: ${stats.avgDepth}m
+Tempo totale: ${stats.totalTime} minuti (${(stats.totalTime / 60).toFixed(1)} ore)
+
+Dimensione dati: ${(JSON.stringify(appState.dives).length / 1024).toFixed(2)} KB
+Prima immersione: ${appState.dives.length > 0 ? new Date(Math.min(...appState.dives.map(d => new Date(d.data)))).toLocaleDateString('it-IT') : 'N/A'}
+Ultima immersione: ${appState.dives.length > 0 ? new Date(Math.max(...appState.dives.map(d => new Date(d.data)))).toLocaleDateString('it-IT') : 'N/A'}`;
+            
+            result.style.display = 'block';
+        }
+
+        function clearCSVData() {
+            document.getElementById('csvData').value = '';
+            showSuccess('🧹 Area CSV pulita');
         }
 
         function updateExportStats() {
