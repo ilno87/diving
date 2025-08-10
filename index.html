@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DiveLog Pro - Netlify Edition</title>
+    <title>DiveLog Pro - Registro Immersioni Completo</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -34,20 +34,8 @@
             position: relative;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.06)"/></svg>');
-            pointer-events: none;
-            z-index: 0;
-        }
-
         .container {
-            max-width: 700px;
+            max-width: 1000px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
@@ -64,10 +52,6 @@
             font-weight: 700;
             margin-bottom: 10px;
             text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            background: linear-gradient(45deg, #00d4aa, #0984e3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .app-subtitle {
@@ -76,155 +60,98 @@
             font-weight: 300;
         }
 
-        .netlify-badge {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-bar {
+        .tabs {
+            display: flex;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
             border-radius: 15px;
-            padding: 15px 20px;
+            padding: 8px;
             margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             box-shadow: var(--card-shadow);
+            overflow-x: auto;
         }
 
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
             font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-            animation: pulse 2s infinite;
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
+        .tab:not(.active):hover {
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .main-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
+            border-radius: 20px;
             box-shadow: var(--card-shadow);
             overflow: hidden;
             margin-bottom: 20px;
-            position: relative;
-        }
-
-        .main-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
         }
 
         .card-header {
             background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
             color: white;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-            50% { transform: translate(-50%, -50%) rotate(180deg); }
         }
 
         .card-header h2 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 600;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .card-header p {
-            opacity: 0.9;
-            font-size: 16px;
-            position: relative;
-            z-index: 2;
+            margin-bottom: 5px;
         }
 
         .form-container {
-            padding: 35px;
+            padding: 30px;
         }
 
         .input-group {
-            margin-bottom: 25px;
-            position: relative;
+            margin-bottom: 20px;
         }
 
         .input-group label {
             display: block;
-            font-weight: 600;
+            font-weight: 500;
             color: #2d3436;
             margin-bottom: 8px;
-            font-size: 15px;
-            position: relative;
-        }
-
-        .input-group label::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 30px;
-            height: 2px;
-            background: var(--primary);
-            border-radius: 1px;
+            font-size: 14px;
         }
 
         .input-group input, 
         .input-group select, 
         .input-group textarea {
             width: 100%;
-            padding: 16px 20px;
+            padding: 12px 16px;
             border: 2px solid #e8ecf4;
-            border-radius: 16px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 14px;
             font-family: inherit;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             background: #fafbfc;
-            position: relative;
         }
 
         .input-group input:focus, 
@@ -233,109 +160,69 @@
             outline: none;
             border-color: var(--primary);
             background: white;
-            box-shadow: 0 0 0 4px rgba(0, 212, 170, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .input-group textarea {
-            resize: vertical;
-            min-height: 80px;
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
         }
 
         .input-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 15px;
         }
 
-        .submit-section {
-            border-top: 1px solid #e8ecf4;
-            padding-top: 30px;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, var(--success) 0%, var(--primary) 100%);
-            color: white;
+        .btn {
+            padding: 12px 24px;
             border: none;
-            padding: 20px 40px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: inherit;
-            position: relative;
-            overflow: hidden;
-            min-width: 200px;
-            box-shadow: 0 8px 25px rgba(0, 181, 148, 0.3);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
         }
 
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.6s;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(0, 181, 148, 0.4);
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
         }
 
-        .submit-btn:hover::before {
-            left: 100%;
+        .btn-success {
+            background: var(--success);
+            color: white;
         }
 
-        .submit-btn:active {
-            transform: translateY(-1px);
+        .btn-warning {
+            background: var(--warning);
+            color: #333;
         }
 
-        .submit-btn:disabled {
-            background: #bdc3c7;
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            background: #ccc;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
-        }
-
-        .success-message {
-            background: linear-gradient(135deg, #d1f2eb 0%, #a3e4d7 100%);
-            color: #0e6b47;
-            padding: 20px 25px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            border-left: 4px solid var(--success);
-            display: none;
-            font-weight: 500;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        .error-message {
-            background: linear-gradient(135deg, #fadbd8 0%, #f1948a 100%);
-            color: #922b21;
-            padding: 20px 25px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            border-left: 4px solid var(--error);
-            display: none;
-            font-weight: 500;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
             margin-bottom: 25px;
         }
 
@@ -343,67 +230,137 @@
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 25px 20px;
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
         .stat-value {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            color: var(--secondary);
-            margin-bottom: 8px;
+            color: var(--primary);
+            margin-bottom: 5px;
         }
 
         .stat-label {
             font-size: 12px;
-            color: #636e72;
+            color: #666;
             text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .dive-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .dive-table th {
+            background: var(--primary);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
             font-weight: 600;
-            letter-spacing: 1px;
+            font-size: 13px;
         }
 
-        .features-info {
-            background: linear-gradient(135deg, #e8f4f8 0%, #d1ecf1 100%);
-            border: 1px solid #bee5eb;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 25px;
-            font-size: 14px;
-            color: #0c5460;
+        .dive-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
         }
 
-        .features-info h4 {
-            color: var(--secondary);
-            margin-bottom: 10px;
-            font-size: 16px;
+        .dive-table tr:hover {
+            background: #f8f9fa;
         }
 
-        .features-info ul {
-            margin: 10px 0;
-            padding-left: 20px;
+        .dive-table .actions {
+            display: flex;
+            gap: 5px;
         }
 
-        .features-info li {
-            margin: 5px 0;
+        .dive-table .btn {
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-drop {
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .file-drop:hover, .file-drop.dragover {
+            border-color: var(--primary);
+            background: rgba(0, 212, 170, 0.05);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .pagination .btn {
+            padding: 8px 12px;
+            min-width: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
         }
 
         /* Responsive */
@@ -416,38 +373,32 @@
                 grid-template-columns: repeat(2, 1fr);
             }
             
-            .form-container {
-                padding: 25px 20px;
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
             }
             
-            .card-header {
-                padding: 25px 20px;
+            .dive-table {
+                font-size: 12px;
+            }
+            
+            .dive-table th, .dive-table td {
+                padding: 8px 6px;
             }
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 10px;
+            .container {
+                padding: 0 10px;
             }
             
-            .container {
-                padding: 0 5px;
+            .form-container {
+                padding: 20px;
             }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            
+            .card-header {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -455,24 +406,16 @@
     <div class="container">
         <!-- Header -->
         <div class="app-header">
-            <div class="netlify-badge">🚀 Powered by Netlify</div>
             <h1 class="app-title">🌊 DiveLog Pro</h1>
-            <p class="app-subtitle">Registro immersioni moderno e affidabile</p>
+            <p class="app-subtitle">Registro completo delle tue immersioni subacquee</p>
         </div>
 
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <div class="status-item">
-                <div class="status-dot"></div>
-                <span>Netlify Forms Attivo</span>
-            </div>
-            <div class="status-item">
-                <strong id="totalDives">0</strong> immersioni salvate
-            </div>
-        </div>
-
-        <!-- Stats -->
+        <!-- Statistiche -->
         <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Immersioni Totali</div>
+            </div>
             <div class="stat-card">
                 <div class="stat-value" id="statMaxDepth">0m</div>
                 <div class="stat-label">Profondità Max</div>
@@ -486,111 +429,231 @@
                 <div class="stat-label">Temp. Media</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value" id="statThisMonth">0</div>
-                <div class="stat-label">Questo Mese</div>
+                <div class="stat-value" id="statThisYear">0</div>
+                <div class="stat-label">Quest'Anno</div>
             </div>
         </div>
 
-        <!-- Info Features -->
-        <div class="features-info">
-            <h4>✨ Funzionalità Netlify</h4>
-            <ul>
-                <li>📧 <strong>Email automatiche</strong> - Ricevi copia di ogni immersione</li>
-                <li>📊 <strong>Export dati</strong> - Scarica tutto in CSV dalla dashboard</li>
-                <li>🔒 <strong>100% sicuro</strong> - Dati crittografati e backup automatici</li>
-                <li>⚡ <strong>Ultra veloce</strong> - CDN globale Netlify</li>
-            </ul>
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('add')">➕ Aggiungi</div>
+            <div class="tab" onclick="switchTab('list')">📋 Elenco</div>
+            <div class="tab" onclick="switchTab('import')">📥 Importa</div>
+            <div class="tab" onclick="switchTab('export')">📤 Esporta</div>
+            <div class="tab" onclick="switchTab('settings')">⚙️ Gestione</div>
         </div>
 
         <!-- Messages -->
-        <div id="successMessage" class="success-message"></div>
-        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="message success"></div>
+        <div id="errorMessage" class="message error"></div>
 
-        <!-- Main Form -->
-        <div class="main-card">
-            <div class="card-header">
-                <h2>📝 Nuova Immersione</h2>
-                <p>I tuoi dati verranno salvati automaticamente e riceverai una email di conferma</p>
-            </div>
-
-            <div class="form-container">
-                <!-- FORM con Netlify Forms -->
-                <form name="dive-log" method="POST" data-netlify="true" data-netlify-recaptcha="true" id="diveForm">
-                    <input type="hidden" name="form-name" value="dive-log" />
-                    <input type="hidden" name="timestamp" id="timestamp" />
-                    
-                    <div class="input-group">
-                        <label for="tipoimmersione">Tipo di immersione</label>
-                        <select id="tipoimmersione" name="tipoimmersione" required>
-                            <option value="">Seleziona tipo</option>
-                            <option value="barca">🚤 Barca</option>
-                            <option value="riva">🏖️ Riva</option>
-                            <option value="gommone">⛵ Gommone</option>
-                            <option value="apnea">🤿 Apnea</option>
-                            <option value="corso">📚 Corso</option>
-                            <option value="altro">🔧 Altro</option>
-                        </select>
-                    </div>
-
-                    <div class="input-row">
+        <!-- TAB: Aggiungi Immersione -->
+        <div id="tab-add" class="tab-content active">
+            <div class="main-card">
+                <div class="card-header">
+                    <h2>➕ Nuova Immersione</h2>
+                    <p>Registra la tua ultima avventura subacquea</p>
+                </div>
+                <div class="form-container">
+                    <form id="diveForm" name="dive-log" method="POST" data-netlify="true">
+                        <input type="hidden" name="form-name" value="dive-log" />
+                        <input type="hidden" name="timestamp" id="timestamp" />
+                        
                         <div class="input-group">
-                            <label for="atmingresso">Pressione iniziale (bar)</label>
-                            <input type="number" id="atmingresso" name="atmingresso" 
-                                   placeholder="200" min="50" max="300" required />
+                            <label for="tipoimmersione">Tipo di immersione</label>
+                            <select id="tipoimmersione" name="tipoimmersione" required>
+                                <option value="">Seleziona tipo</option>
+                                <option value="barca">🚤 Barca</option>
+                                <option value="riva">🏖️ Riva</option>
+                                <option value="gommone">⛵ Gommone</option>
+                                <option value="corso">📚 Corso</option>
+                                <option value="apnea">🤿 Apnea</option>
+                                <option value="altro">🔧 Altro</option>
+                            </select>
                         </div>
+
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="atmingresso">Pressione iniziale (bar)</label>
+                                <input type="number" id="atmingresso" name="atmingresso" 
+                                       placeholder="200" min="50" max="300" required />
+                            </div>
+                            <div class="input-group">
+                                <label for="atmuscita">Pressione finale (bar)</label>
+                                <input type="number" id="atmuscita" name="atmuscita" 
+                                       placeholder="50" min="10" max="250" required />
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="durataimmersione">Durata (minuti)</label>
+                                <input type="number" id="durataimmersione" name="durataimmersione" 
+                                       placeholder="45" min="1" max="300" required />
+                            </div>
+                            <div class="input-group">
+                                <label for="profmax">Profondità max (metri)</label>
+                                <input type="number" id="profmax" name="profmax" 
+                                       placeholder="25.5" min="0" max="200" step="0.1" required />
+                            </div>
+                        </div>
+
                         <div class="input-group">
-                            <label for="atmuscita">Pressione finale (bar)</label>
-                            <input type="number" id="atmuscita" name="atmuscita" 
-                                   placeholder="50" min="10" max="250" required />
+                            <label for="tempacqua">Temperatura acqua (°C)</label>
+                            <input type="number" id="tempacqua" name="tempacqua" 
+                                   placeholder="18.5" min="-5" max="40" step="0.1" required />
                         </div>
-                    </div>
 
-                    <div class="input-row">
                         <div class="input-group">
-                            <label for="durataimmersione">Durata (minuti)</label>
-                            <input type="number" id="durataimmersione" name="durataimmersione" 
-                                   placeholder="45" min="1" max="300" required />
+                            <label for="location">Luogo immersione</label>
+                            <input type="text" id="location" name="location" 
+                                   placeholder="es. Portofino, Liguria" required />
                         </div>
+
                         <div class="input-group">
-                            <label for="profmax">Profondità max (metri)</label>
-                            <input type="number" id="profmax" name="profmax" 
-                                   placeholder="25.5" min="0" max="200" step="0.1" required />
+                            <label for="note">Note aggiuntive</label>
+                            <textarea id="note" name="note" rows="3"
+                                      placeholder="Descrivi la tua immersione: visibilità, correnti, fauna vista..."></textarea>
                         </div>
-                    </div>
 
-                    <div class="input-group">
-                        <label for="tempacqua">Temperatura acqua (°C)</label>
-                        <input type="number" id="tempacqua" name="tempacqua" 
-                               placeholder="18.5" min="-5" max="40" step="0.1" required />
-                    </div>
-
-                    <div class="input-group">
-                        <label for="location">Luogo immersione</label>
-                        <input type="text" id="location" name="location" 
-                               placeholder="es. Portofino, Liguria" required />
-                    </div>
-
-                    <div class="input-group">
-                        <label for="note">Note aggiuntive</label>
-                        <textarea id="note" name="note" 
-                                  placeholder="Descrivi la tua immersione: visibilità, correnti, fauna vista, sensazioni..."></textarea>
-                    </div>
-
-                    <!-- Email field (hidden but accessible for notifications) -->
-                    <input type="hidden" name="notifica_email" value="true" />
-
-                    <!-- reCAPTCHA -->
-                    <div data-netlify-recaptcha="true" style="margin: 20px 0;"></div>
-
-                    <div class="submit-section">
-                        <button type="submit" class="submit-btn">
-                            <span id="btnText">💾 Salva Immersione</span>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <span id="submitText">💾 Salva Immersione</span>
                         </button>
-                        <p style="margin-top: 15px; font-size: 14px; color: #636e72;">
-                            🔐 I tuoi dati sono protetti e riceverai una email di conferma
-                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Lista Immersioni -->
+        <div id="tab-list" class="tab-content">
+            <div class="main-card">
+                <div class="card-header">
+                    <h2>📋 Le Tue Immersioni</h2>
+                    <p>Storico completo delle immersioni registrate</p>
+                </div>
+                <div class="form-container">
+                    <div class="toolbar">
+                        <div class="filters">
+                            <select id="filterYear" onchange="filterDives()">
+                                <option value="">Tutti gli anni</option>
+                            </select>
+                            <select id="filterType" onchange="filterDives()">
+                                <option value="">Tutti i tipi</option>
+                                <option value="barca">Barca</option>
+                                <option value="riva">Riva</option>
+                                <option value="gommone">Gommone</option>
+                                <option value="corso">Corso</option>
+                                <option value="apnea">Apnea</option>
+                                <option value="altro">Altro</option>
+                            </select>
+                        </div>
                     </div>
-                </form>
+                    
+                    <div id="divesContainer">
+                        <!-- Lista immersioni -->
+                    </div>
+
+                    <div id="pagination" class="pagination">
+                        <!-- Paginazione -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Importa CSV -->
+        <div id="tab-import" class="tab-content">
+            <div class="main-card">
+                <div class="card-header">
+                    <h2>📥 Importa Dati</h2>
+                    <p>Carica immersioni da file CSV o incolla dati</p>
+                </div>
+                <div class="form-container">
+                    <div class="file-drop" id="fileDrop">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📄</div>
+                        <h3>Trascina un file CSV qui</h3>
+                        <p>oppure clicca per selezionare</p>
+                        <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('csvFile').click()">
+                            📁 Seleziona File
+                        </button>
+                    </div>
+                    
+                    <div style="margin: 30px 0;">
+                        <h4>Oppure incolla i dati CSV qui:</h4>
+                        <textarea id="csvData" rows="10" placeholder="Data,Tipo,Pressione Iniziale,Pressione Finale,Durata,Profondità,Temperatura,Luogo,Note
+2024-08-01,barca,200,50,45,25.5,18,Portofino,Bellissima immersione"></textarea>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="importCSV()">
+                        📥 Importa Dati
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Esporta -->
+        <div id="tab-export" class="tab-content">
+            <div class="main-card">
+                <div class="card-header">
+                    <h2>📤 Esporta Dati</h2>
+                    <p>Scarica le tue immersioni in vari formati</p>
+                </div>
+                <div class="form-container">
+                    <div class="input-row">
+                        <button type="button" class="btn btn-success" onclick="exportCSV()">
+                            📊 Esporta CSV
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="exportJSON()">
+                            🔧 Esporta JSON
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <h4>Statistiche Export:</h4>
+                        <div id="exportStats" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px;">
+                            <!-- Statistiche export -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Gestione -->
+        <div id="tab-settings" class="tab-content">
+            <div class="main-card">
+                <div class="card-header">
+                    <h2>⚙️ Gestione Dati</h2>
+                    <p>Backup, ripristino e manutenzione</p>
+                </div>
+                <div class="form-container">
+                    <div class="input-group">
+                        <label>Backup Automatico</label>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                            I tuoi dati sono salvati automaticamente nel browser e inviati a Netlify Forms
+                        </p>
+                        <button type="button" class="btn btn-warning" onclick="backupData()">
+                            💾 Scarica Backup Completo
+                        </button>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Ripristina da Backup</label>
+                        <input type="file" id="backupFile" accept=".json">
+                        <button type="button" class="btn btn-secondary" onclick="restoreBackup()">
+                            📂 Ripristina Backup
+                        </button>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Gestione Storage</label>
+                        <div id="storageInfo" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                            <!-- Info storage -->
+                        </div>
+                        <button type="button" class="btn btn-danger" onclick="clearAllData()">
+                            🗑️ Cancella Tutti i Dati
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -598,76 +661,88 @@
     <script>
         // Stato dell'applicazione
         let appState = {
-            dives: JSON.parse(localStorage.getItem('divelog_data') || '[]'),
-            stats: {
-                totalDives: 0,
-                maxDepth: 0,
-                totalTime: 0,
-                avgTemp: 0,
-                thisMonth: 0
-            }
+            dives: [],
+            currentPage: 1,
+            itemsPerPage: 10,
+            filteredDives: [],
+            isEditing: false,
+            editingId: null
         };
 
-        // Inizializzazione
+        // Carica dati al startup
         document.addEventListener('DOMContentLoaded', function() {
+            loadData();
             updateStats();
-            setupForm();
-            
-            // Auto-focus primo campo
-            document.getElementById('tipoimmersione').focus();
+            updateDivesList();
+            updateStorageInfo();
+            setupEventListeners();
         });
 
-        function setupForm() {
-            const form = document.getElementById('diveForm');
-            
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Validazione personalizzata
-                if (!validateForm()) {
-                    return false;
+        function loadData() {
+            const saved = localStorage.getItem('divelog_data');
+            if (saved) {
+                try {
+                    appState.dives = JSON.parse(saved);
+                } catch (error) {
+                    console.error('Errore caricamento dati:', error);
+                    appState.dives = [];
                 }
-                
-                // Aggiungi timestamp
-                document.getElementById('timestamp').value = new Date().toISOString();
-                
-                // Salva localmente prima dell'invio
-                saveLocallyBeforeSubmit();
-                
-                // Mostra loading
-                showLoading();
-                
-                // Invia il form (Netlify gestisce tutto)
-                submitForm();
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('divelog_data', JSON.stringify(appState.dives));
+                return true;
+            } catch (error) {
+                console.error('Errore salvataggio:', error);
+                return false;
+            }
+        }
+
+        function setupEventListeners() {
+            // Form submit
+            document.getElementById('diveForm').addEventListener('submit', handleFormSubmit);
+            
+            // File drop
+            const fileDrop = document.getElementById('fileDrop');
+            fileDrop.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileDrop.classList.add('dragover');
+            });
+            
+            fileDrop.addEventListener('dragleave', () => {
+                fileDrop.classList.remove('dragover');
+            });
+            
+            fileDrop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileDrop.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+            
+            fileDrop.addEventListener('click', () => {
+                document.getElementById('csvFile').click();
+            });
+            
+            document.getElementById('csvFile').addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
             });
         }
 
-        function validateForm() {
-            const atmIngresso = parseInt(document.getElementById('atmingresso').value);
-            const atmUscita = parseInt(document.getElementById('atmuscita').value);
+        async function handleFormSubmit(e) {
+            e.preventDefault();
             
-            if (atmUscita >= atmIngresso) {
-                showError('⚠️ La pressione finale deve essere minore di quella iniziale!');
-                return false;
-            }
-
-            const profondita = parseFloat(document.getElementById('profmax').value);
-            const durata = parseInt(document.getElementById('durataimmersione').value);
+            if (!validateForm()) return;
             
-            if (profondita > 50 && durata > 60) {
-                if (!confirm('⚠️ Immersione profonda e lunga. Confermi i dati?')) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        function saveLocallyBeforeSubmit() {
-            const formData = new FormData(document.getElementById('diveForm'));
-            
+            const formData = new FormData(e.target);
             const diveData = {
-                id: Date.now(),
+                id: appState.isEditing ? appState.editingId : Date.now(),
                 timestamp: new Date().toISOString(),
                 tipo: formData.get('tipoimmersione'),
                 atmIngresso: parseInt(formData.get('atmingresso')),
@@ -680,91 +755,572 @@
             };
 
             // Salva localmente
-            appState.dives.push(diveData);
-            localStorage.setItem('divelog_data', JSON.stringify(appState.dives));
-            
-            updateStats();
-        }
-
-        async function submitForm() {
-            try {
-                const form = document.getElementById('diveForm');
-                const formData = new FormData(form);
-                
-                const response = await fetch('/', {
-                    method: 'POST',
-                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                    body: new URLSearchParams(formData).toString()
-                });
-
-                if (response.ok) {
-                    showSuccess('✅ Immersione salvata con successo! Controlla la tua email per la conferma.');
-                    resetForm();
-                } else {
-                    throw new Error('Errore nell\'invio del form');
+            if (appState.isEditing) {
+                const index = appState.dives.findIndex(d => d.id === appState.editingId);
+                if (index !== -1) {
+                    appState.dives[index] = diveData;
                 }
+            } else {
+                appState.dives.push(diveData);
+            }
 
+            saveData();
+            
+            // UI feedback
+            setSubmitLoading(true);
+            
+            try {
+                // Invia a Netlify (solo per nuove immersioni)
+                if (!appState.isEditing) {
+                    formData.set('timestamp', diveData.timestamp);
+                    
+                    const response = await fetch('/', {
+                        method: 'POST',
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams(formData).toString()
+                    });
+                    
+                    if (!response.ok) throw new Error('Errore Netlify');
+                }
+                
+                showSuccess(appState.isEditing ? '✏️ Immersione modificata!' : '✅ Immersione salvata!');
+                resetForm();
+                updateStats();
+                updateDivesList();
+                
             } catch (error) {
-                console.error('Errore:', error);
-                showError('❌ Errore nell\'invio. Riprova tra qualche istante.');
+                console.error('Errore invio:', error);
+                showError('⚠️ Dati salvati localmente, ma errore sincronizzazione cloud');
             } finally {
-                hideLoading();
+                setSubmitLoading(false);
             }
         }
 
-        function showLoading() {
-            const btn = document.querySelector('.submit-btn');
-            const btnText = document.getElementById('btnText');
-            btn.disabled = true;
-            btnText.innerHTML = '<div class="loading"></div> Invio in corso...';
+        function validateForm() {
+            const atmIngresso = parseInt(document.getElementById('atmingresso').value);
+            const atmUscita = parseInt(document.getElementById('atmuscita').value);
+            
+            if (atmUscita >= atmIngresso) {
+                showError('⚠️ La pressione finale deve essere minore di quella iniziale!');
+                return false;
+            }
+            
+            return true;
         }
 
-        function hideLoading() {
-            const btn = document.querySelector('.submit-btn');
-            const btnText = document.getElementById('btnText');
-            btn.disabled = false;
-            btnText.innerHTML = '💾 Salva Immersione';
+        function setSubmitLoading(loading) {
+            const btn = document.querySelector('#diveForm button[type="submit"]');
+            const text = document.getElementById('submitText');
+            
+            btn.disabled = loading;
+            text.textContent = loading ? '⏳ Salvataggio...' : '💾 Salva Immersione';
         }
 
         function resetForm() {
             document.getElementById('diveForm').reset();
-            document.getElementById('tipoimmersione').focus();
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            appState.isEditing = false;
+            appState.editingId = null;
+            document.getElementById('submitText').textContent = '💾 Salva Immersione';
         }
 
         function updateStats() {
             const dives = appState.dives;
-            const now = new Date();
-            const thisMonth = dives.filter(dive => {
-                const diveDate = new Date(dive.timestamp);
-                return diveDate.getMonth() === now.getMonth() && 
-                       diveDate.getFullYear() === now.getFullYear();
-            }).length;
-
-            appState.stats = {
-                totalDives: dives.length,
+            const currentYear = new Date().getFullYear();
+            
+            const stats = {
+                total: dives.length,
                 maxDepth: dives.length > 0 ? Math.max(...dives.map(d => d.profondita)) : 0,
                 totalTime: dives.reduce((sum, d) => sum + d.durata, 0),
                 avgTemp: dives.length > 0 ? 
                     (dives.reduce((sum, d) => sum + d.temperatura, 0) / dives.length).toFixed(1) : 0,
-                thisMonth: thisMonth
+                thisYear: dives.filter(d => new Date(d.timestamp).getFullYear() === currentYear).length
             };
 
-            // Aggiorna UI
-            document.getElementById('totalDives').textContent = appState.stats.totalDives;
-            document.getElementById('statMaxDepth').textContent = appState.stats.maxDepth + 'm';
-            document.getElementById('statTotalTime').textContent = appState.stats.totalTime + 'min';
-            document.getElementById('statAvgTemp').textContent = appState.stats.avgTemp + '°C';
-            document.getElementById('statThisMonth').textContent = appState.stats.thisMonth;
+            document.getElementById('statTotal').textContent = stats.total;
+            document.getElementById('statMaxDepth').textContent = stats.maxDepth + 'm';
+            document.getElementById('statTotalTime').textContent = stats.totalTime + 'min';
+            document.getElementById('statAvgTemp').textContent = stats.avgTemp + '°C';
+            document.getElementById('statThisYear').textContent = stats.thisYear;
         }
 
+        function updateDivesList() {
+            filterDives();
+            updateYearFilter();
+            renderDives();
+        }
+
+        function updateYearFilter() {
+            const yearSelect = document.getElementById('filterYear');
+            const years = [...new Set(appState.dives.map(d => new Date(d.timestamp).getFullYear()))].sort((a, b) => b - a);
+            
+            const currentValue = yearSelect.value;
+            yearSelect.innerHTML = '<option value="">Tutti gli anni</option>';
+            
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year.toString() === currentValue) option.selected = true;
+                yearSelect.appendChild(option);
+            });
+        }
+
+        function filterDives() {
+            const yearFilter = document.getElementById('filterYear').value;
+            const typeFilter = document.getElementById('filterType').value;
+            
+            appState.filteredDives = appState.dives.filter(dive => {
+                if (yearFilter && new Date(dive.timestamp).getFullYear().toString() !== yearFilter) {
+                    return false;
+                }
+                if (typeFilter && dive.tipo !== typeFilter) {
+                    return false;
+                }
+                return true;
+            }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            appState.currentPage = 1;
+        }
+
+        function renderDives() {
+            const container = document.getElementById('divesContainer');
+            const dives = appState.filteredDives;
+            
+            if (dives.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🌊</div>
+                        <h3>Nessuna immersione trovata</h3>
+                        <p>Aggiungi la tua prima immersione o modifica i filtri</p>
+                    </div>
+                `;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            // Paginazione
+            const totalPages = Math.ceil(dives.length / appState.itemsPerPage);
+            const startIndex = (appState.currentPage - 1) * appState.itemsPerPage;
+            const endIndex = startIndex + appState.itemsPerPage;
+            const currentDives = dives.slice(startIndex, endIndex);
+
+            // Tabella
+            let html = `
+                <table class="dive-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Luogo</th>
+                            <th>Tipo</th>
+                            <th>Profondità</th>
+                            <th>Durata</th>
+                            <th>Temp</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            currentDives.forEach(dive => {
+                const date = new Date(dive.timestamp).toLocaleDateString('it-IT');
+                html += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${dive.luogo || 'Mare'}</td>
+                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 11px;">${dive.tipo}</span></td>
+                        <td><strong>${dive.profondita}m</strong></td>
+                        <td>${dive.durata}min</td>
+                        <td>${dive.temperatura}°C</td>
+                        <td class="actions">
+                            <button class="btn btn-secondary" onclick="editDive(${dive.id})" title="Modifica">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteDive(${dive.id})" title="Elimina">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+            // Paginazione
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            
+            // Precedente
+            html += `<button class="btn btn-secondary" ${appState.currentPage === 1 ? 'disabled' : ''} onclick="changePage(${appState.currentPage - 1})">‹ Prec</button>`;
+            
+            // Pagine
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === appState.currentPage) {
+                    html += `<button class="btn btn-primary">${i}</button>`;
+                } else {
+                    html += `<button class="btn btn-secondary" onclick="changePage(${i})">${i}</button>`;
+                }
+            }
+            
+            // Successiva
+            html += `<button class="btn btn-secondary" ${appState.currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${appState.currentPage + 1})">Succ ›</button>`;
+            
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            appState.currentPage = page;
+            renderDives();
+        }
+
+        function editDive(diveId) {
+            const dive = appState.dives.find(d => d.id === diveId);
+            if (!dive) return;
+
+            // Popola form
+            document.getElementById('tipoimmersione').value = dive.tipo || '';
+            document.getElementById('atmingresso').value = dive.atmIngresso || '';
+            document.getElementById('atmuscita').value = dive.atmUscita || '';
+            document.getElementById('durataimmersione').value = dive.durata || '';
+            document.getElementById('profmax').value = dive.profondita || '';
+            document.getElementById('tempacqua').value = dive.temperatura || '';
+            document.getElementById('location').value = dive.luogo || '';
+            document.getElementById('note').value = dive.note || '';
+
+            // Modalità modifica
+            appState.isEditing = true;
+            appState.editingId = diveId;
+            document.getElementById('submitText').textContent = '✏️ Modifica Immersione';
+
+            // Vai al tab aggiungi
+            switchTab('add');
+            
+            showSuccess('✏️ Immersione caricata per la modifica');
+        }
+
+        function deleteDive(diveId) {
+            if (!confirm('Sei sicuro di voler eliminare questa immersione?')) return;
+
+            appState.dives = appState.dives.filter(d => d.id !== diveId);
+            saveData();
+            updateStats();
+            updateDivesList();
+            
+            showSuccess('🗑️ Immersione eliminata');
+        }
+
+        // Import/Export Functions
+        function handleFileUpload(file) {
+            if (!file.name.endsWith('.csv')) {
+                showError('⚠️ Seleziona un file CSV');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('csvData').value = e.target.result;
+                showSuccess('📄 File caricato! Clicca "Importa Dati" per procedere');
+            };
+            reader.readAsText(file);
+        }
+
+        function importCSV() {
+            const csvData = document.getElementById('csvData').value.trim();
+            if (!csvData) {
+                showError('⚠️ Inserisci i dati CSV');
+                return;
+            }
+
+            try {
+                const lines = csvData.split('\n');
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                
+                const imported = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    
+                    const values = parseCSVLine(lines[i]);
+                    if (values.length !== headers.length) continue;
+
+                    const dive = {
+                        id: Date.now() + i,
+                        timestamp: parseDate(values[0]) || new Date().toISOString(),
+                        tipo: mapTipo(values[1]) || 'barca',
+                        atmIngresso: parseInt(values[2]) || 200,
+                        atmUscita: parseInt(values[3]) || 50,
+                        durata: parseInt(values[4]) || 30,
+                        profondita: parseFloat(values[5]) || 10,
+                        temperatura: parseFloat(values[6]) || 20,
+                        luogo: values[7] || 'Mare',
+                        note: values[8] || ''
+                    };
+
+                    imported.push(dive);
+                }
+
+                if (imported.length === 0) {
+                    showError('⚠️ Nessuna riga valida trovata');
+                    return;
+                }
+
+                // Aggiungi alle immersioni esistenti
+                appState.dives.push(...imported);
+                saveData();
+                updateStats();
+                updateDivesList();
+
+                showSuccess(`✅ Importate ${imported.length} immersioni!`);
+                document.getElementById('csvData').value = '';
+
+            } catch (error) {
+                console.error('Errore import:', error);
+                showError('❌ Errore nell\'importazione: ' + error.message);
+            }
+        }
+
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            
+            return values;
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            
+            try {
+                // Formati supportati
+                const formats = [
+                    /(\d{4})-(\d{1,2})-(\d{1,2})/, // 2024-08-01
+                    /(\d{1,2})\/(\d{1,2})\/(\d{4})/, // 01/08/2024
+                    /(\d{1,2})-(\d{1,2})-(\d{4})/, // 01-08-2024
+                ];
+
+                for (const format of formats) {
+                    const match = dateStr.match(format);
+                    if (match) {
+                        let year, month, day;
+                        
+                        if (format.source.startsWith('(\\d{4})')) {
+                            [, year, month, day] = match;
+                        } else {
+                            [, day, month, year] = match;
+                        }
+                        
+                        return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`).toISOString();
+                    }
+                }
+                
+                return new Date(dateStr).toISOString();
+            } catch {
+                return new Date().toISOString();
+            }
+        }
+
+        function mapTipo(tipo) {
+            if (!tipo) return 'barca';
+            
+            const tipoLower = tipo.toLowerCase().trim();
+            
+            // Mappatura automatica
+            if (tipoLower.includes('barca') || tipoLower.includes('boat')) return 'barca';
+            if (tipoLower.includes('riva') || tipoLower.includes('shore')) return 'riva';
+            if (tipoLower.includes('gommone') || tipoLower.includes('inflatable')) return 'gommone';
+            if (tipoLower.includes('corso') || tipoLower.includes('course') || tipoLower.includes('skill')) return 'corso';
+            if (tipoLower.includes('apnea') || tipoLower.includes('free')) return 'apnea';
+            
+            // Se è un numero (vecchio formato), converti in barca
+            if (!isNaN(tipo)) return 'barca';
+            
+            return tipo;
+        }
+
+        function exportCSV() {
+            if (appState.dives.length === 0) {
+                showError('⚠️ Nessuna immersione da esportare');
+                return;
+            }
+
+            const headers = ['Data', 'Tipo', 'Pressione Iniziale', 'Pressione Finale', 'Durata', 'Profondità', 'Temperatura', 'Luogo', 'Note'];
+            const csvContent = [
+                headers.join(','),
+                ...appState.dives.map(dive => [
+                    new Date(dive.timestamp).toLocaleDateString('it-IT'),
+                    dive.tipo || '',
+                    dive.atmIngresso || '',
+                    dive.atmUscita || '',
+                    dive.durata || '',
+                    dive.profondita || '',
+                    dive.temperatura || '',
+                    `"${(dive.luogo || '').replace(/"/g, '""')}"`,
+                    `"${(dive.note || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+
+            downloadFile(`immersioni_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
+            showSuccess('📊 Export CSV completato!');
+        }
+
+        function exportJSON() {
+            if (appState.dives.length === 0) {
+                showError('⚠️ Nessuna immersione da esportare');
+                return;
+            }
+
+            const jsonContent = JSON.stringify(appState.dives, null, 2);
+            downloadFile(`immersioni_backup_${new Date().toISOString().split('T')[0]}.json`, jsonContent, 'application/json');
+            showSuccess('🔧 Export JSON completato!');
+        }
+
+        function backupData() {
+            const backupData = {
+                version: '1.0',
+                timestamp: new Date().toISOString(),
+                dives: appState.dives,
+                stats: {
+                    total: appState.dives.length,
+                    exported: new Date().toISOString()
+                }
+            };
+
+            const content = JSON.stringify(backupData, null, 2);
+            downloadFile(`divelog_backup_${new Date().toISOString().split('T')[0]}.json`, content, 'application/json');
+            showSuccess('💾 Backup completo scaricato!');
+        }
+
+        function restoreBackup() {
+            const fileInput = document.getElementById('backupFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('⚠️ Seleziona un file di backup');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    if (backupData.dives && Array.isArray(backupData.dives)) {
+                        if (confirm(`Ripristinare ${backupData.dives.length} immersioni? I dati attuali saranno sostituiti.`)) {
+                            appState.dives = backupData.dives;
+                            saveData();
+                            updateStats();
+                            updateDivesList();
+                            showSuccess('📂 Backup ripristinato con successo!');
+                        }
+                    } else {
+                        showError('⚠️ File di backup non valido');
+                    }
+                } catch (error) {
+                    showError('❌ Errore nel ripristino: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (!confirm('⚠️ ATTENZIONE: Questo cancellerà TUTTE le immersioni. Sei sicuro?')) return;
+            if (!confirm('Ultima conferma: cancellerò tutto lo storico. Procedo?')) return;
+
+            appState.dives = [];
+            localStorage.removeItem('divelog_data');
+            updateStats();
+            updateDivesList();
+            updateStorageInfo();
+            
+            showSuccess('🗑️ Tutti i dati sono stati cancellati');
+        }
+
+        function updateStorageInfo() {
+            const data = localStorage.getItem('divelog_data');
+            const size = data ? new Blob([data]).size : 0;
+            const sizeKB = (size / 1024).toFixed(2);
+            
+            document.getElementById('storageInfo').innerHTML = `
+                <strong>Spazio utilizzato:</strong> ${sizeKB} KB<br>
+                <strong>Immersioni salvate:</strong> ${appState.dives.length}<br>
+                <strong>Ultimo salvataggio:</strong> ${data ? new Date().toLocaleString('it-IT') : 'Mai'}
+            `;
+
+            // Export stats
+            const exportStats = document.getElementById('exportStats');
+            if (exportStats) {
+                exportStats.innerHTML = `
+                    <strong>Totale immersioni:</strong> ${appState.dives.length}<br>
+                    <strong>Dimensione dati:</strong> ${sizeKB} KB<br>
+                    <strong>Primo record:</strong> ${appState.dives.length > 0 ? new Date(Math.min(...appState.dives.map(d => new Date(d.timestamp)))).toLocaleDateString('it-IT') : 'N/A'}<br>
+                    <strong>Ultimo record:</strong> ${appState.dives.length > 0 ? new Date(Math.max(...appState.dives.map(d => new Date(d.timestamp)))).toLocaleDateString('it-IT') : 'N/A'}
+                `;
+            }
+        }
+
+        function downloadFile(filename, content, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Tab Management
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+
+            // Update data if needed
+            if (tabName === 'list') {
+                updateDivesList();
+            } else if (tabName === 'export' || tabName === 'settings') {
+                updateStorageInfo();
+            }
+        }
+
+        // Utility Functions
         function showSuccess(message) {
             const el = document.getElementById('successMessage');
             el.textContent = message;
             el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 8000);
+            setTimeout(() => el.style.display = 'none', 5000);
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function showError(message) {
@@ -772,11 +1328,20 @@
             el.textContent = message;
             el.style.display = 'block';
             setTimeout(() => el.style.display = 'none', 6000);
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Easter egg per sviluppatori 😉
-        console.log('🌊 DiveLog Pro - Sviluppato con ❤️');
-        console.log('📊 Dati locali:', appState);
+        // Auto-save ogni 30 secondi (backup di sicurezza)
+        setInterval(() => {
+            if (appState.dives.length > 0) {
+                saveData();
+            }
+        }, 30000);
+
+        console.log('🌊 DiveLog Pro - Applicazione caricata');
+        console.log('📊 Dati disponibili:', appState.dives.length, 'immersioni');
     </script>
 </body>
 </html>
