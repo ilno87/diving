@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+<div class="input-group">
+                            <label for="note">Note</label>
+                            <textarea id="note" name="note" rows="3"
+                                      placeholder="Descrivi la tua immersione: visibilità, correnti, fauna vista..."></textarea>
+                        </div><!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -500,12 +504,6 @@
                             </div>
                         </div>
 
-                        <div class="input-group">
-                            <label for="note">Note</label>
-                            <textarea id="note" name="note" rows="3"
-                                      placeholder="Descrivi la tua immersione: visibilità, correnti, fauna vista..."></textarea>
-                        </div>
-
                         <button type="submit" class="btn btn-primary" style="width: 100%;">
                             <span id="submitText">💾 Salva Immersione</span>
                         </button>
@@ -561,8 +559,11 @@
                     <div style="margin-bottom: 20px;">
                         <h4>Formato CSV richiesto:</h4>
                         <code style="background: #f8f9fa; padding: 10px; border-radius: 6px; display: block; margin: 10px 0; font-size: 12px;">
-                            Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
+                            Numero,Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
                         </code>
+                        <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                            💡 <strong>Nota:</strong> Il numero immersione può essere incluso nel CSV o generato automaticamente
+                        </p>
                     </div>
 
                     <!-- Upload File CSV -->
@@ -582,8 +583,8 @@
                     <div style="margin: 30px 0;">
                         <h4>📝 Oppure incolla i dati CSV:</h4>
                         <textarea id="csvData" rows="10" 
-                                  placeholder="Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
-2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità"></textarea>
+                                  placeholder="Numero,Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
+1,2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità"></textarea>
                     </div>
 
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -706,7 +707,8 @@
             dives: [],
             currentPage: 1,
             itemsPerPage: 10,
-            filteredDives: []
+            filteredDives: [],
+            editingDive: null
         };
 
         // Inizializzazione
@@ -767,8 +769,22 @@
                 if (!validateForm()) return;
                 
                 const formData = new FormData(form);
+                
+                // Gestisci numerazione automatica
+                let numeroImmersione;
+                if (appState.editingDive) {
+                    // Se stiamo modificando, mantieni il numero originale
+                    numeroImmersione = appState.editingDive.numeroImmersione;
+                } else {
+                    // Nuova immersione: calcola numero progressivo
+                    const maxNumero = appState.dives.length > 0 ? 
+                        Math.max(...appState.dives.map(d => d.numeroImmersione || 0)) : 0;
+                    numeroImmersione = maxNumero + 1;
+                }
+                
                 const dive = {
-                    id: Date.now(),
+                    id: appState.editingDive ? appState.editingDive.id : Date.now(),
+                    numeroImmersione: numeroImmersione,
                     data: formData.get('data'),
                     tipo: formData.get('tipo'),
                     atmIN: parseInt(formData.get('atmIN')),
@@ -797,10 +813,15 @@
                         body: new URLSearchParams(formData).toString()
                     });
                     
-                    showSuccess('✅ Immersione salvata!');
+                    const action = appState.editingDive ? 'modificata' : 'salvata';
+                    showSuccess(`✅ Immersione #${numeroImmersione} ${action}!`);
                 } catch (error) {
-                    showSuccess('💾 Immersione salvata localmente!');
+                    const action = appState.editingDive ? 'modificata' : 'salvata';
+                    showSuccess(`💾 Immersione #${numeroImmersione} ${action} localmente!`);
                 }
+                
+                // Reset stato editing
+                appState.editingDive = null;
                 
                 resetForm();
                 updateStats();
@@ -884,6 +905,7 @@
             document.getElementById('diveForm').reset();
             document.getElementById('data').value = new Date().toISOString().split('T')[0];
             document.getElementById('ariaUsata').value = '';
+            appState.editingDive = null; // Reset editing state
         }
 
         function setLoading(loading) {
@@ -980,6 +1002,7 @@
                 <table class="dive-table">
                     <thead>
                         <tr>
+                            <th>Num.</th>
                             <th>Data</th>
                             <th>Sito</th>
                             <th>Tipo</th>
@@ -998,6 +1021,7 @@
                 const date = new Date(dive.data).toLocaleDateString('it-IT');
                 html += `
                     <tr>
+                        <td><strong>#${dive.numeroImmersione}</strong></td>
                         <td>${date}</td>
                         <td>${dive.sito || 'Mare'}</td>
                         <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 11px;">${dive.tipo}</span></td>
@@ -1058,7 +1082,7 @@
             const dive = appState.dives.find(d => d.id === diveId);
             if (!dive) return;
 
-            // Popola form
+            // Popola form (senza numero immersione - rimane lo stesso)
             document.getElementById('data').value = dive.data;
             document.getElementById('tipo').value = dive.tipo;
             document.getElementById('atmIN').value = dive.atmIN;
@@ -1071,6 +1095,9 @@
             document.getElementById('sito').value = dive.sito;
             document.getElementById('note').value = dive.note;
 
+            // Salva il numero originale per la modifica
+            appState.editingDive = dive;
+
             // Rimuovi dall'array (sarà ri-aggiunta quando salvi)
             appState.dives = appState.dives.filter(d => d.id !== diveId);
             saveData();
@@ -1080,7 +1107,7 @@
             // Vai al tab aggiungi
             switchTab('add');
             
-            showSuccess('✏️ Immersione caricata per la modifica');
+            showSuccess(`✏️ Immersione #${dive.numeroImmersione} caricata per la modifica`);
         }
 
         function deleteDive(diveId) {
@@ -1096,11 +1123,11 @@
 
         // Import/Export Functions
         function generateTemplate() {
-            const headers = ['Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (minuti)', 'Prof MAX (metri)', 'Temp. H2O min', 'Temp. H2O max', 'Sito', 'Note'];
+            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (minuti)', 'Prof MAX (metri)', 'Temp. H2O min', 'Temp. H2O max', 'Sito', 'Note'];
             const template = [
                 headers.join(','),
-                '2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità',
-                '2024-08-11,Riva,180,60,120,35,12,20,22,Cinque Terre,Corrente leggera'
+                '1,2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità',
+                '2,2024-08-11,Riva,180,60,120,35,12,20,22,Cinque Terre,Corrente leggera'
             ].join('\n');
             
             document.getElementById('csvData').value = template;
@@ -1127,17 +1154,18 @@
 
                     const dive = {
                         id: Date.now() + i,
-                        data: values[0] || new Date().toISOString().split('T')[0],
-                        tipo: values[1] || 'Barca',
-                        atmIN: parseInt(values[2]) || 200,
-                        atmOUT: parseInt(values[3]) || 50,
-                        ariaUsata: parseInt(values[4]) || (parseInt(values[2]) - parseInt(values[3])),
-                        tempoMinuti: parseInt(values[5]) || 30,
-                        profMAX: parseFloat(values[6]) || 10,
-                        tempH2Omin: parseFloat(values[7]) || 20,
-                        tempH2Omax: parseFloat(values[8]) || parseFloat(values[7]) || 20,
-                        sito: values[9] || 'Mare',
-                        note: values[10] || ''
+                        numeroImmersione: parseInt(values[0]) || (appState.dives.length + i + 1),
+                        data: values[1] || new Date().toISOString().split('T')[0],
+                        tipo: values[2] || 'Barca',
+                        atmIN: parseInt(values[3]) || 200,
+                        atmOUT: parseInt(values[4]) || 50,
+                        ariaUsata: parseInt(values[5]) || (parseInt(values[3]) - parseInt(values[4])),
+                        tempoMinuti: parseInt(values[6]) || 30,
+                        profMAX: parseFloat(values[7]) || 10,
+                        tempH2Omin: parseFloat(values[8]) || 20,
+                        tempH2Omax: parseFloat(values[9]) || parseFloat(values[8]) || 20,
+                        sito: values[10] || 'Mare',
+                        note: values[11] || ''
                     };
 
                     imported.push(dive);
@@ -1191,10 +1219,11 @@
                 return;
             }
 
-            const headers = ['Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (minuti)', 'Prof MAX (metri)', 'Temp. H2O min', 'Temp. H2O max', 'Sito', 'Note'];
+            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (minuti)', 'Prof MAX (metri)', 'Temp. H2O min', 'Temp. H2O max', 'Sito', 'Note'];
             const csvContent = [
                 headers.join(','),
                 ...appState.dives.map(dive => [
+                    dive.numeroImmersione,
                     dive.data,
                     dive.tipo,
                     dive.atmIN,
