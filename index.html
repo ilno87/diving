@@ -368,20 +368,6 @@
                 padding: 8px 6px;
             }
         }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 10px;
-            }
-            
-            .form-container {
-                padding: 20px;
-            }
-            
-            .card-header {
-                padding: 20px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -441,39 +427,32 @@
                         
                         <div class="input-row">
                             <div class="input-group">
-                                <label for="numeroImmersione">Immersione numero</label>
-                                <input type="number" id="numeroImmersione" name="numeroImmersione" 
-                                       placeholder="1" min="1" />
-                                <small style="color: #666; font-size: 12px;">Numerazione automatica</small>
+                                <label for="data">Data</label>
+                                <input type="date" id="data" name="data" required />
                             </div>
                             <div class="input-group">
-                                <label for="dataImmersione">Data Immersione</label>
-                                <input type="date" id="dataImmersione" name="dataImmersione" required />
+                                <label for="tipo">Tipo</label>
+                                <select id="tipo" name="tipo" required>
+                                    <option value="">Seleziona tipo</option>
+                                    <option value="Barca">🚤 Barca</option>
+                                    <option value="Riva">🏖️ Riva</option>
+                                    <option value="Gommone">⛵ Gommone</option>
+                                    <option value="Corso">📚 Corso</option>
+                                    <option value="Apnea">🤿 Apnea</option>
+                                    <option value="Altro">🔧 Altro</option>
+                                </select>
                             </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="tipoImmersione">Tipo Immersione</label>
-                            <select id="tipoImmersione" name="tipoImmersione" required>
-                                <option value="">Seleziona tipo</option>
-                                <option value="Barca">🚤 Barca</option>
-                                <option value="Riva">🏖️ Riva</option>
-                                <option value="Gommone">⛵ Gommone</option>
-                                <option value="Corso">📚 Corso</option>
-                                <option value="Apnea">🤿 Apnea</option>
-                                <option value="Altro">🔧 Altro</option>
-                            </select>
                         </div>
 
                         <div class="input-row">
                             <div class="input-group">
-                                <label for="atmIngresso">Atm Ingresso (bar)</label>
-                                <input type="number" id="atmIngresso" name="atmIngresso" 
+                                <label for="atmIN">Atm IN (bar)</label>
+                                <input type="number" id="atmIN" name="atmIN" 
                                        placeholder="200" min="50" max="300" required />
                             </div>
                             <div class="input-group">
-                                <label for="atmUscita">Atm Uscita (bar)</label>
-                                <input type="number" id="atmUscita" name="atmUscita" 
+                                <label for="atmOUT">Atm OUT (bar)</label>
+                                <input type="number" id="atmOUT" name="atmOUT" 
                                        placeholder="50" min="10" max="250" required />
                             </div>
                         </div>
@@ -487,29 +466,37 @@
                                 <small style="color: #666; font-size: 12px;">Calcolato automaticamente</small>
                             </div>
                             <div class="input-group">
-                                <label for="tempoImmersione">Tempo immersione (minuti)</label>
-                                <input type="number" id="tempoImmersione" name="tempoImmersione" 
+                                <label for="tempoMinuti">Tempo (minuti)</label>
+                                <input type="number" id="tempoMinuti" name="tempoMinuti" 
                                        placeholder="45" min="1" max="300" required />
                             </div>
                         </div>
 
                         <div class="input-row">
                             <div class="input-group">
-                                <label for="profonditaMassima">Profondità massima (metri)</label>
-                                <input type="number" id="profonditaMassima" name="profonditaMassima" 
+                                <label for="profMAX">Prof MAX (metri)</label>
+                                <input type="number" id="profMAX" name="profMAX" 
                                        placeholder="25.5" min="0" max="200" step="0.1" required />
                             </div>
                             <div class="input-group">
-                                <label for="temperaturaAcqua">Temperatura acqua (°C)</label>
-                                <input type="number" id="temperaturaAcqua" name="temperaturaAcqua" 
-                                       placeholder="18.5" min="-5" max="40" step="0.1" required />
+                                <label for="tempH2Omin">Temp. H2O min (°C)</label>
+                                <input type="number" id="tempH2Omin" name="tempH2Omin" 
+                                       placeholder="18" min="-5" max="40" step="0.1" required />
                             </div>
                         </div>
 
-                        <div class="input-group">
-                            <label for="localita">Località</label>
-                            <input type="text" id="localita" name="localita" 
-                                   placeholder="es. Portofino, Liguria" required />
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="tempH2Omax">Temp. H2O max (°C)</label>
+                                <input type="number" id="tempH2Omax" name="tempH2Omax" 
+                                       placeholder="20" min="-5" max="40" step="0.1" />
+                                <small style="color: #666; font-size: 12px;">Opzionale</small>
+                            </div>
+                            <div class="input-group">
+                                <label for="sito">Sito</label>
+                                <input type="text" id="sito" name="sito" 
+                                       placeholder="es. Portofino, Liguria" required />
+                            </div>
                         </div>
 
                         <div class="input-group">
@@ -573,14 +560,15 @@
                     <div style="margin-bottom: 20px;">
                         <h4>Formato CSV richiesto:</h4>
                         <code style="background: #f8f9fa; padding: 10px; border-radius: 6px; display: block; margin: 10px 0; font-size: 12px;">
-                            Immersione numero,Data Immersione,Tipo Immersione,Atm Ingresso,Atm Uscita,Aria usata,Tempo immersione (minuti),Profondità massima (metri),Temperatura acqua,Località,Note
+                            Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
                         </code>
                     </div>
                     
                     <div style="margin: 30px 0;">
                         <label for="csvData">Incolla i dati CSV qui:</label>
                         <textarea id="csvData" rows="10" 
-                                  placeholder="1,2024-08-10,Barca,200,50,150,45,25.5,18,Portofino,Ottima visibilità"></textarea>
+                                  placeholder="Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
+2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità"></textarea>
                     </div>
 
                     <div style="display: flex; gap: 10px;">
@@ -640,8 +628,7 @@
             setupForm();
             
             // Set data default
-            document.getElementById('dataImmersione').value = new Date().toISOString().split('T')[0];
-            updateNumeroImmersione();
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
         });
 
         function loadData() {
@@ -668,19 +655,19 @@
 
         function setupForm() {
             const form = document.getElementById('diveForm');
-            const atmIngresso = document.getElementById('atmIngresso');
-            const atmUscita = document.getElementById('atmUscita');
+            const atmIN = document.getElementById('atmIN');
+            const atmOUT = document.getElementById('atmOUT');
             const ariaUsata = document.getElementById('ariaUsata');
 
             // Calcolo automatico aria usata
             function calcolaAria() {
-                const ingresso = parseInt(atmIngresso.value) || 0;
-                const uscita = parseInt(atmUscita.value) || 0;
+                const ingresso = parseInt(atmIN.value) || 0;
+                const uscita = parseInt(atmOUT.value) || 0;
                 ariaUsata.value = Math.max(0, ingresso - uscita);
             }
 
-            atmIngresso.addEventListener('input', calcolaAria);
-            atmUscita.addEventListener('input', calcolaAria);
+            atmIN.addEventListener('input', calcolaAria);
+            atmOUT.addEventListener('input', calcolaAria);
 
             // Submit form
             form.addEventListener('submit', async function(e) {
@@ -691,16 +678,16 @@
                 const formData = new FormData(form);
                 const dive = {
                     id: Date.now(),
-                    numeroImmersione: parseInt(formData.get('numeroImmersione')) || (appState.dives.length + 1),
-                    dataImmersione: formData.get('dataImmersione'),
-                    tipoImmersione: formData.get('tipoImmersione'),
-                    atmIngresso: parseInt(formData.get('atmIngresso')),
-                    atmUscita: parseInt(formData.get('atmUscita')),
+                    data: formData.get('data'),
+                    tipo: formData.get('tipo'),
+                    atmIN: parseInt(formData.get('atmIN')),
+                    atmOUT: parseInt(formData.get('atmOUT')),
                     ariaUsata: parseInt(formData.get('ariaUsata')),
-                    tempoImmersione: parseInt(formData.get('tempoImmersione')),
-                    profonditaMassima: parseFloat(formData.get('profonditaMassima')),
-                    temperaturaAcqua: parseFloat(formData.get('temperaturaAcqua')),
-                    localita: formData.get('localita'),
+                    tempoMinuti: parseInt(formData.get('tempoMinuti')),
+                    profMAX: parseFloat(formData.get('profMAX')),
+                    tempH2Omin: parseFloat(formData.get('tempH2Omin')),
+                    tempH2Omax: parseFloat(formData.get('tempH2Omax')) || parseFloat(formData.get('tempH2Omin')),
+                    sito: formData.get('sito'),
                     note: formData.get('note') || ''
                 };
 
@@ -732,11 +719,11 @@
         }
 
         function validateForm() {
-            const atmIngresso = parseInt(document.getElementById('atmIngresso').value);
-            const atmUscita = parseInt(document.getElementById('atmUscita').value);
+            const atmIN = parseInt(document.getElementById('atmIN').value);
+            const atmOUT = parseInt(document.getElementById('atmOUT').value);
             
-            if (atmUscita >= atmIngresso) {
-                showError('⚠️ Atm Uscita deve essere minore di Atm Ingresso!');
+            if (atmOUT >= atmIN) {
+                showError('⚠️ Atm OUT deve essere minore di Atm IN!');
                 return false;
             }
             
@@ -745,13 +732,8 @@
 
         function resetForm() {
             document.getElementById('diveForm').reset();
-            document.getElementById('dataImmersione').value = new Date().toISOString().split('T')[0];
-            updateNumeroImmersione();
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
             document.getElementById('ariaUsata').value = '';
-        }
-
-        function updateNumeroImmersione() {
-            document.getElementById('numeroImmersione').value = appState.dives.length + 1;
         }
 
         function setLoading(loading) {
@@ -768,11 +750,11 @@
             
             const stats = {
                 total: dives.length,
-                maxDepth: dives.length > 0 ? Math.max(...dives.map(d => d.profonditaMassima || 0)) : 0,
-                totalTime: dives.reduce((sum, d) => sum + (d.tempoImmersione || 0), 0),
+                maxDepth: dives.length > 0 ? Math.max(...dives.map(d => d.profMAX || 0)) : 0,
+                totalTime: dives.reduce((sum, d) => sum + (d.tempoMinuti || 0), 0),
                 avgTemp: dives.length > 0 ? 
-                    (dives.reduce((sum, d) => sum + (d.temperaturaAcqua || 0), 0) / dives.length).toFixed(1) : 0,
-                thisYear: dives.filter(d => new Date(d.dataImmersione).getFullYear() === currentYear).length
+                    (dives.reduce((sum, d) => sum + (d.tempH2Omin || 0), 0) / dives.length).toFixed(1) : 0,
+                thisYear: dives.filter(d => new Date(d.data).getFullYear() === currentYear).length
             };
 
             document.getElementById('statTotal').textContent = stats.total;
@@ -790,7 +772,7 @@
 
         function updateYearFilter() {
             const yearSelect = document.getElementById('filterYear');
-            const years = [...new Set(appState.dives.map(d => new Date(d.dataImmersione).getFullYear()))].sort((a, b) => b - a);
+            const years = [...new Set(appState.dives.map(d => new Date(d.data).getFullYear()))].sort((a, b) => b - a);
             
             const currentValue = yearSelect.value;
             yearSelect.innerHTML = '<option value="">Tutti gli anni</option>';
@@ -809,14 +791,14 @@
             const typeFilter = document.getElementById('filterType').value;
             
             appState.filteredDives = appState.dives.filter(dive => {
-                if (yearFilter && new Date(dive.dataImmersione).getFullYear().toString() !== yearFilter) {
+                if (yearFilter && new Date(dive.data).getFullYear().toString() !== yearFilter) {
                     return false;
                 }
-                if (typeFilter && dive.tipoImmersione !== typeFilter) {
+                if (typeFilter && dive.tipo !== typeFilter) {
                     return false;
                 }
                 return true;
-            }).sort((a, b) => new Date(b.dataImmersione) - new Date(a.dataImmersione));
+            }).sort((a, b) => new Date(b.data) - new Date(a.data));
             
             appState.currentPage = 1;
         }
@@ -848,14 +830,14 @@
                 <table class="dive-table">
                     <thead>
                         <tr>
-                            <th>Num.</th>
                             <th>Data</th>
-                            <th>Località</th>
+                            <th>Sito</th>
                             <th>Tipo</th>
-                            <th>Profondità</th>
+                            <th>Prof MAX</th>
                             <th>Tempo</th>
                             <th>Aria usata</th>
-                            <th>Temp</th>
+                            <th>Temp min</th>
+                            <th>Temp max</th>
                             <th>Azioni</th>
                         </tr>
                     </thead>
@@ -863,17 +845,17 @@
             `;
 
             currentDives.forEach(dive => {
-                const date = new Date(dive.dataImmersione).toLocaleDateString('it-IT');
+                const date = new Date(dive.data).toLocaleDateString('it-IT');
                 html += `
                     <tr>
-                        <td><strong>#${dive.numeroImmersione}</strong></td>
                         <td>${date}</td>
-                        <td>${dive.localita}</td>
-                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 11px;">${dive.tipoImmersione}</span></td>
-                        <td><strong>${dive.profonditaMassima}m</strong></td>
-                        <td>${dive.tempoImmersione}min</td>
+                        <td>${dive.sito || 'Mare'}</td>
+                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 11px;">${dive.tipo}</span></td>
+                        <td><strong>${dive.profMAX}m</strong></td>
+                        <td>${dive.tempoMinuti}min</td>
                         <td>${dive.ariaUsata}bar</td>
-                        <td>${dive.temperaturaAcqua}°C</td>
+                        <td>${dive.tempH2Omin}°C</td>
+                        <td>${dive.tempH2Omax}°C</td>
                         <td class="actions">
                             <button class="btn btn-secondary" onclick="editDive(${dive.id})" title="Modifica">✏️</button>
                             <button class="btn btn-danger" onclick="deleteDive(${dive.id})" title="Elimina">🗑️</button>
@@ -927,16 +909,16 @@
             if (!dive) return;
 
             // Popola form
-            document.getElementById('numeroImmersione').value = dive.numeroImmersione;
-            document.getElementById('dataImmersione').value = dive.dataImmersione;
-            document.getElementById('tipoImmersione').value = dive.tipoImmersione;
-            document.getElementById('atmIngresso').value = dive.atmIngresso;
-            document.getElementById('atmUscita').value = dive.atmUscita;
+            document.getElementById('data').value = dive.data;
+            document.getElementById('tipo').value = dive.tipo;
+            document.getElementById('atmIN').value = dive.atmIN;
+            document.getElementById('atmOUT').value = dive.atmOUT;
             document.getElementById('ariaUsata').value = dive.ariaUsata;
-            document.getElementById('tempoImmersione').value = dive.tempoImmersione;
-            document.getElementById('profonditaMassima').value = dive.profonditaMassima;
-            document.getElementById('temperaturaAcqua').value = dive.temperaturaAcqua;
-            document.getElementById('localita').value = dive.localita;
+            document.getElementById('tempoMinuti').value = dive.tempoMinuti;
+            document.getElementById('profMAX').value = dive.profMAX;
+            document.getElementById('tempH2Omin').value = dive.tempH2Omin;
+            document.getElementById('tempH2Omax').value = dive.tempH2Omax;
+            document.getElementById('sito').value = dive.sito;
             document.getElementById('note').value = dive.note;
 
             // Rimuovi dall'array (sarà ri-aggiunta quando salvi)
@@ -964,10 +946,11 @@
 
         // Import/Export Functions
         function generateTemplate() {
+            const headers = ['Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (minuti)', 'Prof MAX (metri)', 'Temp. H2O min', 'Temp. H2O max', 'Sito', 'Note'];
             const template = [
-                'Immersione numero,Data Immersione,Tipo Immersione,Atm Ingresso,Atm Uscita,Aria usata,Tempo immersione (minuti),Profondità massima (metri),Temperatura acqua,Località,Note',
-                '1,2024-08-10,Barca,200,50,150,45,25.5,18,Portofino,Ottima visibilità',
-                '2,2024-08-11,Riva,180,60,120,35,12,22,Cinque Terre,Corrente leggera'
+                headers.join(','),
+                '2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità',
+                '2024-08-11,Riva,180,60,120,35,12,20,22,Cinque Terre,Corrente leggera'
             ].join('\n');
             
             document.getElementById('csvData').value = template;
@@ -994,16 +977,16 @@
 
                     const dive = {
                         id: Date.now() + i,
-                        numeroImmersione: parseInt(values[0]) || (appState.dives.length + i),
-                        dataImmersione: values[1] || new Date().toISOString().split('T')[0],
-                        tipoImmersione: values[2] || 'Barca',
-                        atmIngresso: parseInt(values[3]) || 200,
-                        atmUscita: parseInt(values[4]) || 50,
-                        ariaUsata: parseInt(values[5]) || (parseInt(values[3]) - parseInt(values[4])),
-                        tempoImmersione: parseInt(values[6]) || 30,
-                        profonditaMassima: parseFloat(values[7]) || 10,
-                        temperaturaAcqua: parseFloat(values[8]) || 20,
-                        localita: values[9] || 'Mare',
+                        data: values[0] || new Date().toISOString().split('T')[0],
+                        tipo: values[1] || 'Barca',
+                        atmIN: parseInt(values[2]) || 200,
+                        atmOUT: parseInt(values[3]) || 50,
+                        ariaUsata: parseInt(values[4]) || (parseInt(values[2]) - parseInt(values[3])),
+                        tempoMinuti: parseInt(values[5]) || 30,
+                        profMAX: parseFloat(values[6]) || 10,
+                        tempH2Omin: parseFloat(values[7]) || 20,
+                        tempH2Omax: parseFloat(values[8]) || parseFloat(values[7]) || 20,
+                        sito: values[9] || 'Mare',
                         note: values[10] || ''
                     };
 
@@ -1058,21 +1041,21 @@
                 return;
             }
 
-            const headers = ['Immersione numero', 'Data Immersione', 'Tipo Immersione', 'Atm Ingresso', 'Atm Uscita', 'Aria usata', 'Tempo immersione (minuti)', 'Profondità massima (metri)', 'Temperatura acqua', 'Località', 'Note'];
+            const headers = ['Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (minuti)', 'Prof MAX (metri)', 'Temp. H2O min', 'Temp. H2O max', 'Sito', 'Note'];
             const csvContent = [
                 headers.join(','),
                 ...appState.dives.map(dive => [
-                    dive.numeroImmersione,
-                    dive.dataImmersione,
-                    dive.tipoImmersione,
-                    dive.atmIngresso,
-                    dive.atmUscita,
+                    dive.data,
+                    dive.tipo,
+                    dive.atmIN,
+                    dive.atmOUT,
                     dive.ariaUsata,
-                    dive.tempoImmersione,
-                    dive.profonditaMassima,
-                    dive.temperaturaAcqua,
-                    `"${dive.localita.replace(/"/g, '""')}"`,
-                    `"${dive.note.replace(/"/g, '""')}"`
+                    dive.tempoMinuti,
+                    dive.profMAX,
+                    dive.tempH2Omin,
+                    dive.tempH2Omax,
+                    `"${(dive.sito || '').replace(/"/g, '""')}"`,
+                    `"${(dive.note || '').replace(/"/g, '""')}"`
                 ].join(','))
             ].join('\n');
 
@@ -1129,12 +1112,17 @@
         function updateExportStats() {
             const stats = document.getElementById('exportStats');
             if (stats && appState.dives.length > 0) {
-                const sortedDives = appState.dives.sort((a, b) => new Date(a.dataImmersione) - new Date(b.dataImmersione));
+                const sortedDives = appState.dives.sort((a, b) => new Date(a.data) - new Date(b.data));
                 stats.innerHTML = `
                     <strong>Totale immersioni:</strong> ${appState.dives.length}<br>
-                    <strong>Prima immersione:</strong> ${new Date(sortedDives[0].dataImmersione).toLocaleDateString('it-IT')}<br>
-                    <strong>Ultima immersione:</strong> ${new Date(sortedDives[sortedDives.length - 1].dataImmersione).toLocaleDateString('it-IT')}<br>
-                    <strong>Profondità massima:</strong> ${Math.max(...appState.dives.map(d => d.profonditaMassima))}m
+                    <strong>Prima immersione:</strong> ${new Date(sortedDives[0].data).toLocaleDateString('it-IT')}<br>
+                    <strong>Ultima immersione:</strong> ${new Date(sortedDives[sortedDives.length - 1].data).toLocaleDateString('it-IT')}<br>
+                    <strong>Profondità massima:</strong> ${Math.max(...appState.dives.map(d => d.profMAX))}m
+                `;
+            } else if (stats) {
+                stats.innerHTML = `
+                    <strong>Nessuna immersione registrata</strong><br>
+                    Aggiungi la tua prima immersione per vedere le statistiche.
                 `;
             }
         }
@@ -1160,7 +1148,8 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        console.log('🌊 DiveLog Pro - Versione corretta caricata');
+        console.log('🌊 DiveLog Pro - Versione pulita e funzionante caricata');
+        console.log('📊 Campi CSV supportati: Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note');
     </script>
 </body>
 </html>
