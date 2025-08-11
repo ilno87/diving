@@ -755,7 +755,8 @@
                 return;
             }
 
-            let html = `
+            // Tabella normale per desktop
+            let tableHtml = `
                 <table class="dive-table">
                     <thead>
                         <tr>
@@ -778,24 +779,80 @@
                 const date = dive.data && dive.data !== 'N/D' ? 
                     new Date(dive.data).toLocaleDateString('it-IT') : 'N/D';
                 
-                html += `
+                tableHtml += `
                     <tr>
-                        <td data-label="Num."><span class="content"><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></span></td>
-                        <td data-label="Data"><span class="content">${date}</span></td>
-                        <td data-label="Sito"><span class="content">${dive.sito || '<span class="na-value">N/D</span>'}</span></td>
-                        <td data-label="Tipo"><span class="content"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></span></td>
-                        <td data-label="Prof MAX"><span class="content"><strong>${formatValue(dive.profMAX, 'm')}</strong></span></td>
-                        <td data-label="Tempo"><span class="content">${formatValue(dive.tempoMinuti, 'min')}</span></td>
-                        <td data-label="Aria"><span class="content">${formatValue(dive.ariaUsata, 'bar')}</span></td>
-                        <td data-label="Temp min"><span class="content">${formatValue(dive.tempH2Omin, '°C')}</span></td>
-                        <td data-label="Temp max"><span class="content">${formatValue(dive.tempH2Omax, '°C')}</span></td>
-                        <td data-label="Note"><span class="content">${dive.note || '<span class="na-value">N/D</span>'}</span></td>
+                        <td><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></td>
+                        <td>${date}</td>
+                        <td>${dive.sito || '<span class="na-value">N/D</span>'}</td>
+                        <td><span class="tipo-badge">${dive.tipo || 'N/D'}</span></td>
+                        <td><strong>${formatValue(dive.profMAX, 'm')}</strong></td>
+                        <td>${formatValue(dive.tempoMinuti, 'min')}</td>
+                        <td>${formatValue(dive.ariaUsata, 'bar')}</td>
+                        <td>${formatValue(dive.tempH2Omin, '°C')}</td>
+                        <td>${formatValue(dive.tempH2Omax, '°C')}</td>
+                        <td>${dive.note || '<span class="na-value">N/D</span>'}</td>
                     </tr>
                 `;
             });
 
-            html += '</tbody></table>';
-            container.innerHTML = html;
+            tableHtml += '</tbody></table>';
+
+            // Card per mobile
+            let cardsHtml = '<div class="mobile-cards">';
+            
+            dives.forEach(dive => {
+                const date = dive.data && dive.data !== 'N/D' ? 
+                    new Date(dive.data).toLocaleDateString('it-IT') : 'N/D';
+                
+                cardsHtml += `
+                    <div class="mobile-card">
+                        <div class="mobile-field">
+                            <div class="mobile-label">Num.:</div>
+                            <div class="mobile-value"><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Data:</div>
+                            <div class="mobile-value">${date}</div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Sito:</div>
+                            <div class="mobile-value">${dive.sito || '<span class="na-value">N/D</span>'}</div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Tipo:</div>
+                            <div class="mobile-value"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Prof MAX:</div>
+                            <div class="mobile-value"><strong>${formatValue(dive.profMAX, 'm')}</strong></div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Tempo:</div>
+                            <div class="mobile-value">${formatValue(dive.tempoMinuti, 'min')}</div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Aria:</div>
+                            <div class="mobile-value">${formatValue(dive.ariaUsata, 'bar')}</div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Temp min:</div>
+                            <div class="mobile-value">${formatValue(dive.tempH2Omin, '°C')}</div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Temp max:</div>
+                            <div class="mobile-value">${formatValue(dive.tempH2Omax, '°C')}</div>
+                        </div>
+                        <div class="mobile-field">
+                            <div class="mobile-label">Note:</div>
+                            <div class="mobile-value">${dive.note || '<span class="na-value">N/D</span>'}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            cardsHtml += '</div>';
+
+            container.innerHTML = tableHtml + cardsHtml;
         }
 
         // UTILITY FUNCTIONS
