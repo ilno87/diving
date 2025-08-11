@@ -353,6 +353,23 @@
                 color: var(--primary);
                 display: inline-block;
                 min-width: 80px;
+                vertical-align: top;
+            }
+            
+            /* Stile speciale per le note con rientro */
+            .dive-table td[data-label="Note"] {
+                display: flex;
+                align-items: flex-start;
+            }
+            
+            .dive-table td[data-label="Note"]:before {
+                flex-shrink: 0;
+                margin-right: 5px;
+            }
+            
+            .dive-table td[data-label="Note"] .note-content {
+                flex: 1;
+                line-height: 1.4;
             }
         }
     </style>
@@ -754,7 +771,7 @@
                         <td data-label="Aria">${formatValue(dive.ariaUsata, 'bar')}</td>
                         <td data-label="Temp min">${formatValue(dive.tempH2Omin, '°C')}</td>
                         <td data-label="Temp max">${formatValue(dive.tempH2Omax, '°C')}</td>
-                        <td data-label="Note" title="${dive.note || ''}">${dive.note || '<span class="na-value">N/D</span>'}</td>
+                        <td data-label="Note" title="${dive.note || ''}"><span class="note-content">${dive.note || '<span class="na-value">N/D</span>'}</span></td>
                     </tr>
                 `;
             });
@@ -821,10 +838,10 @@
 
         // AUTO-REFRESH
         function startAutoRefresh() {
-            // Refresh automatico ogni 30 secondi
+            // Refresh automatico ogni 30 minuti invece di 30 secondi per risparmiare bandwidth
             appState.autoRefreshInterval = setInterval(() => {
                 loadFromSheets();
-            }, 30000);
+            }, 1800000); // 30 minuti = 1800000ms
         }
 
         // Cleanup quando si chiude la pagina
