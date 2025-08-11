@@ -356,20 +356,23 @@
                 vertical-align: top;
             }
             
-            /* Stile speciale per le note con rientro */
+            /* Stile speciale per le note con rientro perfetto */
             .dive-table td[data-label="Note"] {
-                display: flex;
-                align-items: flex-start;
+                position: relative;
+                padding-left: 85px; /* Stesso spazio degli altri campi */
             }
             
             .dive-table td[data-label="Note"]:before {
-                flex-shrink: 0;
-                margin-right: 5px;
+                position: absolute;
+                left: 0;
+                top: 5px;
+                min-width: 80px;
             }
             
             .dive-table td[data-label="Note"] .note-content {
-                flex: 1;
                 line-height: 1.4;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
             }
         }
     </style>
@@ -841,7 +844,7 @@
             // Refresh automatico ogni 30 minuti invece di 30 secondi per risparmiare bandwidth
             appState.autoRefreshInterval = setInterval(() => {
                 loadFromSheets();
-            }, 1800000); // 30 minuti = 1800000ms
+            }, 31800000); // 30 minuti = 1800000ms
         }
 
         // Cleanup quando si chiude la pagina
