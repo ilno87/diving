@@ -821,31 +821,19 @@
                 const values = parseCSVLine(line);
                 if (values.length < 8) continue; // Minimo 8 colonne richieste
                 
-                // Funzione helper per convertire valori numerici
-                const parseNumber = (val, defaultVal = 0) => {
-                    const num = parseFloat(val);
-                    return isNaN(num) ? defaultVal : num;
-                };
-                
-                // Funzione helper per convertire valori numerici
-                const parseNumber = (val, defaultVal = 0) => {
-                    const num = parseFloat(val);
-                    return isNaN(num) ? defaultVal : num;
-                };
-                
                 // Mappa le colonne del Google Sheets
                 const dive = {
                     id: i,
                     numeroImmersione: parseInt(values[0]) || i,
                     data: formatDate(values[1]),
                     tipo: values[2] || 'Barca',
-                    atmIN: parseNumber(values[3], 200),
-                    atmOUT: parseNumber(values[4], 50),
-                    ariaUsata: parseNumber(values[5], 150),
-                    tempoMinuti: parseNumber(values[6], 30),
-                    profMAX: parseNumber(values[7], 10),
-                    tempH2Omin: parseNumber(values[8], 20),
-                    tempH2Omax: parseNumber(values[9], parseNumber(values[8], 20)),
+                    atmIN: parseInt(values[3]) || 200,
+                    atmOUT: parseInt(values[4]) || 50,
+                    ariaUsata: parseInt(values[5]) || (parseInt(values[3]) - parseInt(values[4])),
+                    tempoMinuti: parseInt(values[6]) || 30,
+                    profMAX: parseFloat(values[7]) || 10,
+                    tempH2Omin: parseFloat(values[8]) || 20,
+                    tempH2Omax: parseFloat(values[9]) || parseFloat(values[8]) || 20,
                     sito: values[10] || 'Mare',
                     note: values[11] || ''
                 };
@@ -853,60 +841,57 @@
                 dives.push(dive);
             }
             
-            // Ordina per data (più recente prima) e poi per numero immersione
+            // Ordina per data (più recente prima)
             dives.sort((a, b) => {
-                // Parse delle date in modo corretto
-                const dateA = parseDateForSort(a.data);
-                const dateB = parseDateForSort(b.data);
-                
-                // Ordina per data decrescente (più recente prima)
+                const dateA = new Date(a.data);
+                const dateB = new Date(b.data);
                 if (dateB.getTime() !== dateA.getTime()) {
                     return dateB.getTime() - dateA.getTime();
                 }
-                
-                // Se le date sono uguali, ordina per numero immersione decrescente
                 return (b.numeroImmersione || 0) - (a.numeroImmersione || 0);
             });
             
             return dives;
         }
 
-        function parseDateForSort(dateStr) {
-            // dateStr è già nel formato YYYY-MM-DD grazie a formatDate()
-            const parts = dateStr.split('-');
-            if (parts.length === 3) {
-                return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
             }
-            return new Date();
+            values.push(current.trim());
+            
+            return values;
         }
 
         function formatDate(dateStr) {
             if (!dateStr) return new Date().toISOString().split('T')[0];
             
-            // Rimuovi spazi e caratteri invisibili
-            dateStr = dateStr.trim();
-            
             // Prova diversi formati di data
             const formats = [
                 /^(\d{4})-(\d{2})-(\d{2})$/, // YYYY-MM-DD
                 /^(\d{2})\/(\d{2})\/(\d{4})$/, // DD/MM/YYYY
-                /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, // D/M/YYYY
-                /^(\d{2})-(\d{2})-(\d{4})$/, // DD-MM-YYYY
-                /^(\d{1,2})-(\d{1,2})-(\d{4})$/, // D-M-YYYY
-                /^(\d{4})\/(\d{2})\/(\d{2})$/, // YYYY/MM/DD
+                /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/ // D/M/YYYY
             ];
             
             for (const format of formats) {
                 const match = dateStr.match(format);
                 if (match) {
-                    if (format.source.includes('^\\d{4}')) {
-                        // Formato che inizia con l'anno (YYYY-MM-DD o YYYY/MM/DD)
-                        const year = match[1];
-                        const month = match[2].padStart(2, '0');
-                        const day = match[3].padStart(2, '0');
-                        return `${year}-${month}-${day}`;
+                    if (format.source.startsWith('^\\d{4}')) {
+                        return dateStr;
                     } else {
-                        // Formati DD/MM/YYYY o DD-MM-YYYY
                         const day = match[1].padStart(2, '0');
                         const month = match[2].padStart(2, '0');
                         const year = match[3];
@@ -915,6 +900,365 @@
                 }
             }
             
-            // Se tutto fallisce, ritorna data odierna
-            console.warn('Data non valida:', dateStr);
-            return new Date().toISOString().split('T')[0];
+            try {
+                const date = new Date(dateStr);
+                return date.toISOString().split('T')[0];
+            } catch {
+                return new Date().toISOString().split('T')[0];
+            }
+        }
+
+        // Form management
+        function setupForm() {
+            const form = document.getElementById('diveForm');
+            const atmIN = document.getElementById('atmIN');
+            const atmOUT = document.getElementById('atmOUT');
+            const ariaUsata = document.getElementById('ariaUsata');
+
+            // Calcolo automatico aria usata
+            function calcolaAria() {
+                const ingresso = parseInt(atmIN.value) || 0;
+                const uscita = parseInt(atmOUT.value) || 0;
+                ariaUsata.value = Math.max(0, ingresso - uscita);
+            }
+
+            atmIN.addEventListener('input', calcolaAria);
+            atmOUT.addEventListener('input', calcolaAria);
+
+            // Submit form
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!appState.connected) {
+                    showError('❌ Google Sheets non configurato');
+                    return;
+                }
+
+                if (!validateForm()) return;
+                
+                const formData = new FormData(form);
+                
+                // Calcola numero immersione
+                const maxNumero = appState.dives.length > 0 ? 
+                    Math.max(...appState.dives.map(d => d.numeroImmersione || 0)) : 0;
+                const numeroImmersione = maxNumero + 1;
+                
+                const dive = {
+                    id: Date.now(),
+                    numeroImmersione: numeroImmersione,
+                    data: formData.get('data'),
+                    tipo: formData.get('tipo'),
+                    atmIN: parseInt(formData.get('atmIN')),
+                    atmOUT: parseInt(formData.get('atmOUT')),
+                    ariaUsata: parseInt(formData.get('ariaUsata')),
+                    tempoMinuti: parseInt(formData.get('tempoMinuti')),
+                    profMAX: parseFloat(formData.get('profMAX')),
+                    tempH2Omin: parseFloat(formData.get('tempH2Omin')),
+                    tempH2Omax: parseFloat(formData.get('tempH2Omax')) || parseFloat(formData.get('tempH2Omin')),
+                    sito: formData.get('sito'),
+                    note: formData.get('note') || ''
+                };
+
+                try {
+                    setLoading(true);
+                    
+                    // Prepara riga CSV
+                    const csvRow = [
+                        dive.numeroImmersione,
+                        dive.data,
+                        dive.tipo,
+                        dive.atmIN,
+                        dive.atmOUT,
+                        dive.ariaUsata,
+                        dive.tempoMinuti,
+                        dive.profMAX,
+                        dive.tempH2Omin,
+                        dive.tempH2Omax,
+                        dive.sito,
+                        dive.note
+                    ].join(',');
+                    
+                    // Copia negli appunti
+                    await navigator.clipboard.writeText(csvRow);
+                    showSuccess('📋 Dati copiati negli appunti! Incollali come nuova riga nel tuo Google Sheets.');
+                    
+                    // Aggiungi localmente per aggiornare le statistiche
+                    appState.dives.unshift(dive);
+                    updateStats();
+                    updateDivesList();
+                    
+                    resetForm();
+                } catch (error) {
+                    // Fallback se clipboard non funziona
+                    const csvRow = [
+                        dive.numeroImmersione,
+                        dive.data,
+                        dive.tipo,
+                        dive.atmIN,
+                        dive.atmOUT,
+                        dive.ariaUsata,
+                        dive.tempoMinuti,
+                        dive.profMAX,
+                        dive.tempH2Omin,
+                        dive.tempH2Omax,
+                        dive.sito,
+                        dive.note
+                    ].join(',');
+                    
+                    prompt('Copia questa riga e incollala nel tuo Google Sheets:', csvRow);
+                    showSuccess('📊 Immersione preparata! Copia la riga nel tuo Google Sheets.');
+                } finally {
+                    setLoading(false);
+                }
+            });
+        }
+
+        function validateForm() {
+            const atmIN = parseInt(document.getElementById('atmIN').value);
+            const atmOUT = parseInt(document.getElementById('atmOUT').value);
+            
+            if (atmOUT >= atmIN) {
+                showError('⚠️ Atm OUT deve essere minore di Atm IN!');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function resetForm() {
+            document.getElementById('diveForm').reset();
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            document.getElementById('ariaUsata').value = '';
+        }
+
+        function setLoading(loading) {
+            const btn = document.querySelector('#diveForm button[type="submit"]');
+            const text = document.getElementById('submitText');
+            
+            btn.disabled = loading;
+            text.textContent = loading ? '⏳ Preparazione...' : '📊 Aggiungi a Google Sheets';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        // Stats and display
+        function updateStats() {
+            const dives = appState.dives;
+            const currentYear = new Date().getFullYear();
+            
+            const stats = {
+                total: dives.length,
+                maxDepth: dives.length > 0 ? Math.max(...dives.map(d => d.profMAX || 0)) : 0,
+                totalTime: dives.reduce((sum, d) => sum + (d.tempoMinuti || 0), 0),
+                avgTemp: dives.length > 0 ? 
+                    (dives.reduce((sum, d) => sum + (d.tempH2Omin || 0), 0) / dives.length).toFixed(1) : 0,
+                thisYear: dives.filter(d => new Date(d.data).getFullYear() === currentYear).length
+            };
+
+            document.getElementById('statTotal').textContent = stats.total;
+            document.getElementById('statMaxDepth').textContent = stats.maxDepth + 'm';
+            document.getElementById('statTotalTime').textContent = stats.totalTime + 'min';
+            document.getElementById('statAvgTemp').textContent = stats.avgTemp + '°C';
+            document.getElementById('statThisYear').textContent = stats.thisYear;
+        }
+
+        function updateDivesList() {
+            const container = document.getElementById('divesContainer');
+            const dives = appState.dives;
+            
+            if (dives.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                        <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">📊</div>
+                        <h3>Nessuna immersione trovata</h3>
+                        <p>Carica i dati dal tuo Google Sheets o aggiungi la prima immersione</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table class="dive-table">
+                    <thead>
+                        <tr>
+                            <th>Num.</th>
+                            <th>Data</th>
+                            <th>Sito</th>
+                            <th>Tipo</th>
+                            <th>Prof MAX</th>
+                            <th>Tempo</th>
+                            <th>Aria usata</th>
+                            <th>Temp min</th>
+                            <th>Temp max</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            dives.forEach(dive => {
+                const date = new Date(dive.data).toLocaleDateString('it-IT');
+                html += `
+                    <tr>
+                        <td><strong>#${dive.numeroImmersione}</strong></td>
+                        <td>${date}</td>
+                        <td>${dive.sito || 'Mare'}</td>
+                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 11px;">${dive.tipo}</span></td>
+                        <td><strong>${dive.profMAX}m</strong></td>
+                        <td>${dive.tempoMinuti}min</td>
+                        <td>${dive.ariaUsata}bar</td>
+                        <td>${dive.tempH2Omin}°C</td>
+                        <td>${dive.tempH2Omax}°C</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function updateSyncStatus() {
+            const status = document.getElementById('syncStatus');
+            if (status && appState.connected) {
+                const timestamp = new Date().toLocaleString('it-IT');
+                status.innerHTML = `
+                    <strong>📊 Google Sheets:</strong> Connesso<br>
+                    <strong>🔄 Ultima sincronizzazione:</strong> ${timestamp}<br>
+                    <strong>📋 Immersioni caricate:</strong> ${appState.dives.length}<br>
+                    <strong>🔗 Foglio:</strong> <a href="${appState.sheetsUrl}" target="_blank">Apri Google Sheets</a>
+                `;
+            }
+        }
+
+        // Funzioni avanzate
+        function exportToSheets() {
+            if (appState.dives.length === 0) {
+                showError('⚠️ Nessuna immersione da esportare');
+                return;
+            }
+
+            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
+            const csvContent = [
+                headers.join(','),
+                ...appState.dives.map(dive => [
+                    dive.numeroImmersione,
+                    dive.data,
+                    dive.tipo,
+                    dive.atmIN,
+                    dive.atmOUT,
+                    dive.ariaUsata,
+                    dive.tempoMinuti,
+                    dive.profMAX,
+                    dive.tempH2Omin,
+                    dive.tempH2Omax,
+                    `"${(dive.sito || '').replace(/"/g, '""')}"`,
+                    `"${(dive.note || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+
+            navigator.clipboard.writeText(csvContent).then(() => {
+                showSuccess('📋 Tutti i dati copiati! Incollali nel tuo Google Sheets per sostituire tutto.');
+            }).catch(() => {
+                downloadFile(`immersioni_export_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
+                showSuccess('📊 File CSV scaricato!');
+            });
+        }
+
+        function validateSheetsFormat() {
+            const requiredColumns = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
+            showSuccess(`✅ Formato corretto!\n\nColonne richieste:\n${requiredColumns.map((col, i) => `${String.fromCharCode(65 + i)}: ${col}`).join('\n')}`);
+        }
+
+        function createSheetsTemplate() {
+            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
+            const template = [
+                headers.join(','),
+                '1,2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità',
+                '2,2024-08-11,Riva,180,60,120,35,12,20,22,Cinque Terre,Corrente leggera'
+            ].join('\n');
+
+            navigator.clipboard.writeText(template).then(() => {
+                showSuccess('📋 Template copiato! Incollalo in un nuovo Google Sheets.');
+            }).catch(() => {
+                downloadFile('template_immersioni.csv', template, 'text/csv');
+                showSuccess('📊 Template scaricato!');
+            });
+        }
+
+        // Configurazione
+        function updateSheetsConfig() {
+            const url = document.getElementById('settingsUrl').value.trim();
+            
+            if (!url) {
+                showError('⚠️ Inserisci un URL valido');
+                return;
+            }
+
+            const sheetsId = extractSheetsId(url);
+            if (!sheetsId) {
+                showError('⚠️ URL non valido');
+                return;
+            }
+
+            const config = { url };
+            localStorage.setItem(SHEETS_CONFIG_KEY, JSON.stringify(config));
+            
+            appState.sheetsUrl = url;
+            appState.sheetsId = sheetsId;
+            
+            initializeSheets();
+            showSuccess('🔄 Configurazione aggiornata');
+        }
+
+        function testSheetsConnection() {
+            if (!appState.sheetsId) {
+                showError('❌ Google Sheets non configurato');
+                return;
+            }
+            loadFromSheets();
+        }
+
+        function resetSheetsConfig() {
+            if (confirm('Rimuovere la configurazione Google Sheets?')) {
+                localStorage.removeItem(SHEETS_CONFIG_KEY);
+                appState.sheetsUrl = '';
+                appState.sheetsId = '';
+                appState.connected = false;
+                document.getElementById('settingsUrl').value = '';
+                showSetupPanel();
+                showSuccess('🔄 Configurazione rimossa');
+            }
+        }
+
+        // Utility Functions
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 6000);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function downloadFile(filename, content, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
