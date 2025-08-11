@@ -339,6 +339,8 @@
                 text-align: left;
                 white-space: normal;
                 border-bottom: 1px solid #eee;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
             }
             
             .dive-table td:last-child {
@@ -752,7 +754,7 @@
                         <td data-label="Aria">${formatValue(dive.ariaUsata, 'bar')}</td>
                         <td data-label="Temp min">${formatValue(dive.tempH2Omin, '°C')}</td>
                         <td data-label="Temp max">${formatValue(dive.tempH2Omax, '°C')}</td>
-                        <td data-label="Note" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${dive.note || ''}">${dive.note || '<span class="na-value">N/D</span>'}</td>
+                        <td data-label="Note" title="${dive.note || ''}">${dive.note || '<span class="na-value">N/D</span>'}</td>
                     </tr>
                 `;
             });
@@ -834,4 +836,3 @@
     </script>
 </body>
 </html>
-
