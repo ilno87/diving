@@ -755,8 +755,7 @@
                 return;
             }
 
-            // Tabella normale per desktop
-            let tableHtml = `
+            let html = `
                 <table class="dive-table">
                     <thead>
                         <tr>
@@ -779,80 +778,24 @@
                 const date = dive.data && dive.data !== 'N/D' ? 
                     new Date(dive.data).toLocaleDateString('it-IT') : 'N/D';
                 
-                tableHtml += `
+                html += `
                     <tr>
-                        <td><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></td>
-                        <td>${date}</td>
-                        <td>${dive.sito || '<span class="na-value">N/D</span>'}</td>
-                        <td><span class="tipo-badge">${dive.tipo || 'N/D'}</span></td>
-                        <td><strong>${formatValue(dive.profMAX, 'm')}</strong></td>
-                        <td>${formatValue(dive.tempoMinuti, 'min')}</td>
-                        <td>${formatValue(dive.ariaUsata, 'bar')}</td>
-                        <td>${formatValue(dive.tempH2Omin, '°C')}</td>
-                        <td>${formatValue(dive.tempH2Omax, '°C')}</td>
-                        <td>${dive.note || '<span class="na-value">N/D</span>'}</td>
+                        <td data-label="Num."><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></td>
+                        <td data-label="Data">${date}</td>
+                        <td data-label="Sito">${dive.sito || '<span class="na-value">N/D</span>'}</td>
+                        <td data-label="Tipo"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></td>
+                        <td data-label="Prof MAX"><strong>${formatValue(dive.profMAX, 'm')}</strong></td>
+                        <td data-label="Tempo">${formatValue(dive.tempoMinuti, 'min')}</td>
+                        <td data-label="Aria usata">${formatValue(dive.ariaUsata, 'bar')}</td>
+                        <td data-label="Temp min">${formatValue(dive.tempH2Omin, '°C')}</td>
+                        <td data-label="Temp max">${formatValue(dive.tempH2Omax, '°C')}</td>
+                        <td data-label="Note">${dive.note || '<span class="na-value">N/D</span>'}</td>
                     </tr>
                 `;
             });
 
-            tableHtml += '</tbody></table>';
-
-            // Card per mobile
-            let cardsHtml = '<div class="mobile-cards">';
-            
-            dives.forEach(dive => {
-                const date = dive.data && dive.data !== 'N/D' ? 
-                    new Date(dive.data).toLocaleDateString('it-IT') : 'N/D';
-                
-                cardsHtml += `
-                    <div class="mobile-card">
-                        <div class="mobile-field">
-                            <div class="mobile-label">Num.:</div>
-                            <div class="mobile-value"><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Data:</div>
-                            <div class="mobile-value">${date}</div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Sito:</div>
-                            <div class="mobile-value">${dive.sito || '<span class="na-value">N/D</span>'}</div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Tipo:</div>
-                            <div class="mobile-value"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Prof MAX:</div>
-                            <div class="mobile-value"><strong>${formatValue(dive.profMAX, 'm')}</strong></div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Tempo:</div>
-                            <div class="mobile-value">${formatValue(dive.tempoMinuti, 'min')}</div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Aria:</div>
-                            <div class="mobile-value">${formatValue(dive.ariaUsata, 'bar')}</div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Temp min:</div>
-                            <div class="mobile-value">${formatValue(dive.tempH2Omin, '°C')}</div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Temp max:</div>
-                            <div class="mobile-value">${formatValue(dive.tempH2Omax, '°C')}</div>
-                        </div>
-                        <div class="mobile-field">
-                            <div class="mobile-label">Note:</div>
-                            <div class="mobile-value">${dive.note || '<span class="na-value">N/D</span>'}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            cardsHtml += '</div>';
-
-            container.innerHTML = tableHtml + cardsHtml;
+            html += '</tbody></table>';
+            container.innerHTML = html;
         }
 
         // UTILITY FUNCTIONS
