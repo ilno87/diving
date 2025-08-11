@@ -463,7 +463,7 @@
         const GOOGLE_SHEETS_ID = '16oQKi4aMWHaSQe4tdMcDJaAlgT_DTXs6gRphMnKyCdM';
         
         // ⬇️ TEMPO AUTO-REFRESH (in millisecondi)
-        const AUTO_REFRESH_INTERVAL = 1800000; // 5 minuti = 1800000ms
+        const AUTO_REFRESH_INTERVAL = 1800000; // 30 minuti = 1800000ms
         // Altri esempi:
         // 60000   = 1 minuto
         // 180000  = 3 minuti  
@@ -780,16 +780,16 @@
                 
                 html += `
                     <tr>
-                        <td data-label="Num."><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></td>
-                        <td data-label="Data">${date}</td>
-                        <td data-label="Sito">${dive.sito || '<span class="na-value">N/D</span>'}</td>
-                        <td data-label="Tipo"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></td>
-                        <td data-label="Prof MAX"><strong>${formatValue(dive.profMAX, 'm')}</strong></td>
-                        <td data-label="Tempo">${formatValue(dive.tempoMinuti, 'min')}</td>
-                        <td data-label="Aria usata">${formatValue(dive.ariaUsata, 'bar')}</td>
-                        <td data-label="Temp min">${formatValue(dive.tempH2Omin, '°C')}</td>
-                        <td data-label="Temp max">${formatValue(dive.tempH2Omax, '°C')}</td>
-                        <td data-label="Note">${dive.note || '<span class="na-value">N/D</span>'}</td>
+                        <td data-label="Num."><span class="content-wrapper"><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></span></td>
+                        <td data-label="Data"><span class="content-wrapper">${date}</span></td>
+                        <td data-label="Sito"><span class="content-wrapper">${dive.sito || '<span class="na-value">N/D</span>'}</span></td>
+                        <td data-label="Tipo"><span class="content-wrapper"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></span></td>
+                        <td data-label="Prof MAX"><span class="content-wrapper"><strong>${formatValue(dive.profMAX, 'm')}</strong></span></td>
+                        <td data-label="Tempo"><span class="content-wrapper">${formatValue(dive.tempoMinuti, 'min')}</span></td>
+                        <td data-label="Aria usata"><span class="content-wrapper">${formatValue(dive.ariaUsata, 'bar')}</span></td>
+                        <td data-label="Temp min"><span class="content-wrapper">${formatValue(dive.tempH2Omin, '°C')}</span></td>
+                        <td data-label="Temp max"><span class="content-wrapper">${formatValue(dive.tempH2Omax, '°C')}</span></td>
+                        <td data-label="Note"><span class="content-wrapper">${dive.note || '<span class="na-value">N/D</span>'}</span></td>
                     </tr>
                 `;
             });
