@@ -291,15 +291,6 @@
                 grid-template-columns: repeat(2, 1fr);
             }
             
-            .dive-table {
-                font-size: 12px;
-            }
-            
-            .dive-table th,
-            .dive-table td {
-                padding: 8px 6px;
-            }
-            
             .refresh-btn {
                 position: static;
                 transform: none;
@@ -308,6 +299,58 @@
             
             .card-header {
                 text-align: center;
+            }
+            
+            /* Tabella responsive per mobile */
+            .dive-table {
+                font-size: 11px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                max-width: 100%;
+            }
+            
+            .dive-table thead,
+            .dive-table tbody,
+            .dive-table tr {
+                display: block;
+            }
+            
+            .dive-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            .dive-table tr {
+                border: 1px solid #ccc;
+                margin-bottom: 10px;
+                padding: 10px;
+                border-radius: 8px;
+                background: white;
+                display: block;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .dive-table td {
+                border: none;
+                padding: 5px 0;
+                display: block;
+                text-align: left;
+                white-space: normal;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .dive-table td:last-child {
+                border-bottom: none;
+            }
+            
+            .dive-table td:before {
+                content: attr(data-label) ": ";
+                font-weight: bold;
+                color: var(--primary);
+                display: inline-block;
+                min-width: 80px;
             }
         }
     </style>
@@ -391,7 +434,7 @@
 
     <script>
         // ⬇️⬇️⬇️ CAMBIA QUI IL TUO GOOGLE SHEETS ID ⬇️⬇️⬇️
-        const GOOGLE_SHEETS_ID = '16oQKi4aMWHaSQe4tdMcDJaAlgT_DTXs6gRphMnKyCdM';
+        const GOOGLE_SHEETS_ID = 'TUO_GOOGLE_SHEETS_ID_QUI';
         // ⬆️⬆️⬆️ CAMBIA QUI IL TUO GOOGLE SHEETS ID ⬆️⬆️⬆️
         
         // Stato dell'applicazione
@@ -700,16 +743,16 @@
                 
                 html += `
                     <tr>
-                        <td><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></td>
-                        <td>${date}</td>
-                        <td>${dive.sito || '<span class="na-value">N/D</span>'}</td>
-                        <td><span class="tipo-badge">${dive.tipo || 'N/D'}</span></td>
-                        <td><strong>${formatValue(dive.profMAX, 'm')}</strong></td>
-                        <td>${formatValue(dive.tempoMinuti, 'min')}</td>
-                        <td>${formatValue(dive.ariaUsata, 'bar')}</td>
-                        <td>${formatValue(dive.tempH2Omin, '°C')}</td>
-                        <td>${formatValue(dive.tempH2Omax, '°C')}</td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${dive.note || ''}">${dive.note || '<span class="na-value">N/D</span>'}</td>
+                        <td data-label="Num."><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></td>
+                        <td data-label="Data">${date}</td>
+                        <td data-label="Sito">${dive.sito || '<span class="na-value">N/D</span>'}</td>
+                        <td data-label="Tipo"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></td>
+                        <td data-label="Prof MAX"><strong>${formatValue(dive.profMAX, 'm')}</strong></td>
+                        <td data-label="Tempo">${formatValue(dive.tempoMinuti, 'min')}</td>
+                        <td data-label="Aria">${formatValue(dive.ariaUsata, 'bar')}</td>
+                        <td data-label="Temp min">${formatValue(dive.tempH2Omin, '°C')}</td>
+                        <td data-label="Temp max">${formatValue(dive.tempH2Omax, '°C')}</td>
+                        <td data-label="Note" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${dive.note || ''}">${dive.note || '<span class="na-value">N/D</span>'}</td>
                     </tr>
                 `;
             });
@@ -791,4 +834,3 @@
     </script>
 </body>
 </html>
-
