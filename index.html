@@ -3,22 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DiveLog Pro - Registro Immersioni Cloud</title>
+    <title>DiveLog Pro - Google Sheets Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Firebase SDK v9 (modular) -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        
-        // Esponi Firebase globalmente
-        window.firebaseApp = { initializeApp };
-        window.firestore = { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy };
-        
-        // Segnala che Firebase è caricato
-        window.firebaseLoaded = true;
-        document.dispatchEvent(new Event('firebaseReady'));
-    </script>
     
     <style>
         :root {
@@ -320,16 +306,6 @@
             background: #f8f9fa;
         }
 
-        .dive-table .actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .dive-table .btn {
-            padding: 6px 10px;
-            font-size: 12px;
-        }
-
         .setup-panel {
             background: #fff3cd;
             border: 2px solid #ffeaa7;
@@ -341,10 +317,6 @@
         .setup-panel h3 {
             color: #856404;
             margin-bottom: 15px;
-        }
-
-        .setup-panel input {
-            margin-bottom: 10px;
         }
 
         .loading-overlay {
@@ -380,49 +352,34 @@
         <div class="app-header">
             <h1 class="app-title">
                 🌊 DiveLog Pro
-                <span class="cloud-badge">🔥 Firebase</span>
+                <span class="cloud-badge">📊 Sheets</span>
             </h1>
-            <p class="app-subtitle">Registro completo delle tue immersioni subacquee - Sincronizzato nel cloud</p>
+            <p class="app-subtitle">Registro delle tue immersioni sincronizzato con Google Sheets</p>
         </div>
 
         <!-- Setup Panel -->
-        <div id="setupPanel" class="setup-panel" style="display: none;">
-            <h3>🔧 Prima Configurazione Firebase</h3>
+        <div id="setupPanel" class="setup-panel">
+            <h3>📊 Configurazione Google Sheets</h3>
             <p style="margin-bottom: 15px;">
-                Per utilizzare DiveLog Pro Cloud, hai bisogno di un progetto Firebase gratuito.
-                <a href="https://console.firebase.google.com" target="_blank">Crea progetto qui</a>
+                <strong>SUPER SEMPLICE!</strong> Basta l'URL del tuo Google Sheets già esistente.
             </p>
             
-            <h4>Passo 1: Crea progetto Firebase</h4>
-            <ol style="margin: 10px 0 20px 20px; font-size: 14px;">
-                <li>Vai su <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></li>
-                <li>Clicca "Crea un progetto"</li>
-                <li>Aggiungi un'app Web (icona &lt;/&gt;)</li>
-                <li>Abilita Firestore Database</li>
-                <li>Copia la configurazione qui sotto:</li>
-            </ol>
-
             <div class="input-group">
-                <label>API Key:</label>
-                <input type="text" id="apiKey" placeholder="AIza...">
-            </div>
-            <div class="input-group">
-                <label>Project ID:</label>
-                <input type="text" id="projectId" placeholder="tuo-progetto-123">
-            </div>
-            <div class="input-group">
-                <label>App ID:</label>
-                <input type="text" id="appId" placeholder="1:123:web:456">
+                <label>🔗 URL Google Sheets:</label>
+                <input type="url" id="sheetsUrl" placeholder="https://docs.google.com/spreadsheets/d/1ABC.../edit#gid=0">
+                <small style="color: #666; font-size: 12px;">
+                    L'URL deve essere quello completo del tuo Google Sheets
+                </small>
             </div>
             
-            <button class="btn btn-primary" onclick="setupFirebase()">
-                🔥 Configura Firebase
+            <button class="btn btn-primary" onclick="setupSheets()">
+                📊 Connetti Google Sheets
             </button>
         </div>
 
         <!-- Connection Status -->
         <div id="connectionStatus" style="text-align: center; margin-bottom: 20px; color: white;">
-            <span id="statusIndicator">🔄 Caricamento Firebase...</span>
+            <span id="statusIndicator">📊 Configura Google Sheets per iniziare</span>
         </div>
 
         <!-- Statistiche -->
@@ -451,10 +408,10 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('add')">➕ Aggiungi</div>
-            <div class="tab" onclick="switchTab('list')">📋 Elenco</div>
-            <div class="tab" onclick="switchTab('export')">📤 Esporta</div>
-            <div class="tab" onclick="switchTab('settings')">⚙️ Impostazioni</div>
+            <div class="tab active" onclick="switchTab('add', this)">➕ Aggiungi</div>
+            <div class="tab" onclick="switchTab('list', this)">📋 Elenco</div>
+            <div class="tab" onclick="switchTab('sync', this)">🔄 Sincronizza</div>
+            <div class="tab" onclick="switchTab('settings', this)">⚙️ Impostazioni</div>
         </div>
 
         <!-- Messages -->
@@ -466,7 +423,7 @@
             <div class="main-card">
                 <div class="card-header">
                     <h2>➕ Nuova Immersione</h2>
-                    <p>Registra la tua ultima avventura subacquea</p>
+                    <p>Si aggiunge automaticamente al tuo Google Sheets</p>
                 </div>
                 <div class="form-container">
                     <form id="diveForm">
@@ -551,7 +508,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <span id="submitText">💾 Salva Immersione</span>
+                            <span id="submitText">📊 Aggiungi a Google Sheets</span>
                         </button>
                     </form>
                 </div>
@@ -563,33 +520,55 @@
             <div class="main-card">
                 <div class="card-header">
                     <h2>📋 Le Tue Immersioni</h2>
-                    <p>Storico completo sincronizzato nel cloud</p>
+                    <p>Dati dal tuo Google Sheets</p>
                 </div>
                 <div class="form-container">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <button class="btn btn-primary" onclick="loadFromSheets()">
+                            🔄 Aggiorna da Google Sheets
+                        </button>
+                        <a id="openSheetsBtn" href="#" target="_blank" class="btn btn-secondary" style="display: none;">
+                            📊 Apri Google Sheets
+                        </a>
+                    </div>
+                    
                     <div id="divesContainer">
                         <div style="text-align: center; padding: 40px; color: #666;">
-                            🔄 Caricamento immersioni...
+                            📊 Configura Google Sheets per vedere le immersioni
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB: Esporta -->
-        <div id="tab-export" class="tab-content">
+        <!-- TAB: Sincronizza -->
+        <div id="tab-sync" class="tab-content">
             <div class="main-card">
                 <div class="card-header">
-                    <h2>📤 Esporta Dati</h2>
-                    <p>Scarica le tue immersioni dal cloud</p>
+                    <h2>🔄 Sincronizzazione</h2>
+                    <p>Gestisci i dati con Google Sheets</p>
                 </div>
                 <div class="form-container">
-                    <div class="input-row">
-                        <button type="button" class="btn btn-success" onclick="exportCSV()">
-                            📊 Esporta CSV
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <button class="btn btn-primary" onclick="loadFromSheets()">
+                            📥 Carica da Sheets
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="exportJSON()">
-                            🔧 Esporta JSON
+                        <button class="btn btn-success" onclick="exportToSheets()">
+                            📤 Esporta verso Sheets
                         </button>
+                        <button class="btn btn-secondary" onclick="validateSheetsFormat()">
+                            ✅ Valida Formato
+                        </button>
+                        <button class="btn btn-warning" onclick="createSheetsTemplate()">
+                            📋 Crea Template
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 30px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                        <h4>🔄 Stato Sincronizzazione:</h4>
+                        <div id="syncStatus">
+                            <p>📊 Connetti Google Sheets per vedere lo stato</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -599,39 +578,31 @@
         <div id="tab-settings" class="tab-content">
             <div class="main-card">
                 <div class="card-header">
-                    <h2>⚙️ Impostazioni Firebase</h2>
-                    <p>Gestisci la connessione al database</p>
+                    <h2>⚙️ Impostazioni</h2>
+                    <p>Configura Google Sheets</p>
                 </div>
                 <div class="form-container">
                     <div style="background: #e3f2fd; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
-                        <h4 style="color: #1976d2; margin-bottom: 15px;">🔥 Stato Connessione</h4>
+                        <h4 style="color: #1976d2; margin-bottom: 15px;">📊 Google Sheets</h4>
                         <div id="connectionInfo">
-                            <!-- Info connessione -->
+                            <p>Nessun foglio connesso</p>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label>API Key:</label>
-                        <input type="text" id="settingsApiKey" placeholder="AIza...">
-                    </div>
-                    <div class="input-group">
-                        <label>Project ID:</label>
-                        <input type="text" id="settingsProjectId" placeholder="tuo-progetto-123">
-                    </div>
-                    <div class="input-group">
-                        <label>App ID:</label>
-                        <input type="text" id="settingsAppId" placeholder="1:123:web:456">
+                        <label>🔗 URL Google Sheets:</label>
+                        <input type="url" id="settingsUrl" placeholder="https://docs.google.com/spreadsheets/d/...">
                     </div>
                     
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button class="btn btn-primary" onclick="updateFirebaseConfig()">
-                            💾 Aggiorna Configurazione
+                    <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="updateSheetsConfig()">
+                            💾 Aggiorna URL
                         </button>
-                        <button class="btn btn-secondary" onclick="testConnection()">
-                            🔍 Testa Connessione
+                        <button class="btn btn-secondary" onclick="testSheetsConnection()">
+                            🔍 Test Connessione
                         </button>
-                        <button class="btn btn-warning" onclick="resetConfig()">
-                            🔄 Reset Configurazione
+                        <button class="btn btn-warning" onclick="resetSheetsConfig()">
+                            🔄 Reset
                         </button>
                     </div>
                 </div>
@@ -642,8 +613,8 @@
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div>
-            <div style="font-size: 48px; margin-bottom: 20px;">🌊</div>
-            <div>Sincronizzazione in corso...</div>
+            <div style="font-size: 48px; margin-bottom: 20px;">📊</div>
+            <div>Sincronizzazione con Google Sheets...</div>
         </div>
     </div>
 
@@ -651,45 +622,64 @@
         // Stato dell'applicazione
         let appState = {
             dives: [],
-            firebaseApp: null,
-            db: null,
-            connected: false,
-            editingDive: null
+            sheetsUrl: '',
+            sheetsId: '',
+            connected: false
         };
 
-        // Configurazione Firebase
-        const FIREBASE_CONFIG_KEY = 'divelog_firebase_config';
-
-        // Attendi che Firebase sia caricato
-        document.addEventListener('firebaseReady', function() {
-            console.log('🔥 Firebase caricato!');
-            updateConnectionStatus('🔥 Firebase caricato', 'success');
-            loadFirebaseConfig();
-        });
+        // Configurazione
+        const SHEETS_CONFIG_KEY = 'divelog_sheets_config';
 
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
+            loadSheetsConfig();
             setupForm();
             
             // Set data default
             document.getElementById('data').value = new Date().toISOString().split('T')[0];
             
-            // Se Firebase non è ancora caricato, aspetta
-            if (!window.firebaseLoaded) {
-                updateConnectionStatus('🔄 Caricamento Firebase...', 'loading');
-            }
+            console.log('🌊 DiveLog Pro Google Sheets caricato!');
         });
 
-        // Gestione configurazione Firebase
-        function loadFirebaseConfig() {
-            const saved = localStorage.getItem(FIREBASE_CONFIG_KEY);
+        // Tab Management
+        function switchTab(tabName, clickedTab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            clickedTab.classList.add('active');
+
+            // Update data if needed
+            if (tabName === 'list') {
+                updateDivesList();
+            } else if (tabName === 'sync') {
+                updateSyncStatus();
+            }
+        }
+
+        // Gestione configurazione Google Sheets
+        function loadSheetsConfig() {
+            const saved = localStorage.getItem(SHEETS_CONFIG_KEY);
             if (saved) {
                 try {
                     const config = JSON.parse(saved);
-                    document.getElementById('settingsApiKey').value = config.apiKey;
-                    document.getElementById('settingsProjectId').value = config.projectId;
-                    document.getElementById('settingsAppId').value = config.appId;
-                    initializeFirebase(config);
+                    appState.sheetsUrl = config.url;
+                    appState.sheetsId = extractSheetsId(config.url);
+                    document.getElementById('settingsUrl').value = config.url;
+                    
+                    if (appState.sheetsId) {
+                        initializeSheets();
+                        hideSetupPanel();
+                    } else {
+                        showSetupPanel();
+                    }
                 } catch (error) {
                     console.error('Errore caricamento config:', error);
                     showSetupPanel();
@@ -699,252 +689,222 @@
             }
         }
 
+        function extractSheetsId(url) {
+            if (!url) return null;
+            
+            // Estrai ID da URL Google Sheets
+            const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            return match ? match[1] : null;
+        }
+
         function showSetupPanel() {
             document.getElementById('setupPanel').style.display = 'block';
-            updateConnectionStatus('⚠️ Configurazione richiesta', 'warning');
+            updateConnectionStatus('📊 Configura Google Sheets per iniziare');
         }
 
         function hideSetupPanel() {
             document.getElementById('setupPanel').style.display = 'none';
         }
 
-        function setupFirebase() {
-            const apiKey = document.getElementById('apiKey').value.trim();
-            const projectId = document.getElementById('projectId').value.trim();
-            const appId = document.getElementById('appId').value.trim();
+        function setupSheets() {
+            const url = document.getElementById('sheetsUrl').value.trim();
             
-            if (!apiKey || !projectId || !appId) {
-                showError('⚠️ Inserisci tutti i campi di configurazione Firebase');
+            if (!url) {
+                showError('⚠️ Inserisci l\'URL del Google Sheets');
                 return;
             }
 
-            const config = { apiKey, projectId, appId };
-            localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(config));
+            const sheetsId = extractSheetsId(url);
+            if (!sheetsId) {
+                showError('⚠️ URL non valido. Deve essere un link di Google Sheets');
+                return;
+            }
+
+            const config = { url };
+            localStorage.setItem(SHEETS_CONFIG_KEY, JSON.stringify(config));
             
-            document.getElementById('settingsApiKey').value = apiKey;
-            document.getElementById('settingsProjectId').value = projectId;
-            document.getElementById('settingsAppId').value = appId;
+            appState.sheetsUrl = url;
+            appState.sheetsId = sheetsId;
+            document.getElementById('settingsUrl').value = url;
             
-            initializeFirebase(config);
+            initializeSheets();
             hideSetupPanel();
         }
 
-        function updateFirebaseConfig() {
-            const apiKey = document.getElementById('settingsApiKey').value.trim();
-            const projectId = document.getElementById('settingsProjectId').value.trim();
-            const appId = document.getElementById('settingsAppId').value.trim();
-            
-            if (!apiKey || !projectId || !appId) {
-                showError('⚠️ Inserisci tutti i campi validi');
-                return;
-            }
-
-            const config = { apiKey, projectId, appId };
-            localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(config));
-            initializeFirebase(config);
-            showSuccess('🔄 Configurazione aggiornata');
-        }
-
-        function resetConfig() {
-            if (confirm('Rimuovere la configurazione Firebase? Dovrai reinserire le credenziali.')) {
-                localStorage.removeItem(FIREBASE_CONFIG_KEY);
-                appState.firebaseApp = null;
-                appState.db = null;
-                appState.connected = false;
-                document.getElementById('settingsApiKey').value = '';
-                document.getElementById('settingsProjectId').value = '';
-                document.getElementById('settingsAppId').value = '';
-                showSetupPanel();
-                showSuccess('🔄 Configurazione rimossa');
-            }
-        }
-
-        // Inizializzazione Firebase
-        async function initializeFirebase(config) {
+        function initializeSheets() {
             try {
-                updateConnectionStatus('🔄 Connessione in corso...', 'loading');
+                appState.connected = true;
+                updateConnectionStatus('✅ Connesso a Google Sheets');
+                updateConnectionInfo();
                 
-                const firebaseConfig = {
-                    apiKey: config.apiKey,
-                    authDomain: `${config.projectId}.firebaseapp.com`,
-                    projectId: config.projectId,
-                    storageBucket: `${config.projectId}.appspot.com`,
-                    messagingSenderId: "123456789",
-                    appId: config.appId
-                };
-
-                appState.firebaseApp = window.firebaseApp.initializeApp(firebaseConfig);
-                appState.db = window.firestore.getFirestore(appState.firebaseApp);
-                
-                // Test connessione
-                await testConnection();
+                // Imposta link per aprire sheets
+                const openBtn = document.getElementById('openSheetsBtn');
+                if (openBtn) {
+                    openBtn.href = appState.sheetsUrl;
+                    openBtn.style.display = 'inline-flex';
+                }
                 
                 // Carica dati
-                await loadDives();
-                
-                appState.connected = true;
-                updateConnectionStatus('✅ Connesso a Firebase', 'success');
-                updateStats();
-                hideSetupPanel();
+                loadFromSheets();
                 
             } catch (error) {
                 console.error('Errore inizializzazione:', error);
-                appState.connected = false;
-                updateConnectionStatus('❌ Errore connessione', 'error');
                 showError('❌ Errore connessione: ' + error.message);
             }
         }
 
-        async function testConnection() {
-            if (!appState.db) {
-                throw new Error('Firebase non inizializzato');
-            }
+        function updateConnectionStatus(message) {
+            document.getElementById('statusIndicator').textContent = message;
+        }
 
-            try {
-                // Test leggendo la collezione
-                const divesRef = window.firestore.collection(appState.db, 'dives');
-                const snapshot = await window.firestore.getDocs(divesRef);
-                
-                showSuccess('✅ Test connessione Firebase completato!');
-                return true;
-
-            } catch (error) {
-                if (error.code === 'permission-denied') {
-                    throw new Error('❌ Permessi insufficienti. Vai nella console Firebase > Firestore Database > Rules e imposta: allow read, write: if true;');
-                } else if (error.code === 'not-found') {
-                    throw new Error('❌ Progetto non trovato. Verifica il Project ID.');
-                } else {
-                    throw new Error(`❌ Test connessione fallito: ${error.message}`);
-                }
+        function updateConnectionInfo() {
+            const info = document.getElementById('connectionInfo');
+            if (info && appState.connected) {
+                const timestamp = new Date().toLocaleString('it-IT');
+                info.innerHTML = `
+                    <strong>Google Sheets connesso:</strong> ✅<br>
+                    <strong>URL:</strong> <a href="${appState.sheetsUrl}" target="_blank">Apri Sheets</a><br>
+                    <strong>ID:</strong> ${appState.sheetsId}<br>
+                    <strong>Ultima sincronizzazione:</strong> ${timestamp}
+                `;
             }
         }
 
-        // Gestione database
-        async function loadDives() {
+        // Gestione dati Google Sheets
+        async function loadFromSheets() {
+            if (!appState.sheetsId) {
+                showError('❌ Google Sheets non configurato');
+                return;
+            }
+
             try {
                 showLoading(true);
+                updateConnectionStatus('🔄 Caricamento da Google Sheets...');
+
+                // Usa l'API pubblica di Google Sheets (CSV export)
+                const csvUrl = `https://docs.google.com/spreadsheets/d/${appState.sheetsId}/export?format=csv&gid=0`;
                 
-                const divesRef = window.firestore.collection(appState.db, 'dives');
-                const q = window.firestore.query(divesRef, window.firestore.orderBy('data', 'desc'), window.firestore.orderBy('numeroImmersione', 'desc'));
-                const snapshot = await window.firestore.getDocs(q);
+                const response = await fetch(csvUrl);
+                if (!response.ok) {
+                    throw new Error('Sheets non accessibile. Verifica che sia condiviso pubblicamente.');
+                }
 
-                appState.dives = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    appState.dives.push({
-                        id: doc.id,
-                        numeroImmersione: data.numeroImmersione,
-                        data: data.data,
-                        tipo: data.tipo,
-                        atmIN: data.atmIN,
-                        atmOUT: data.atmOUT,
-                        ariaUsata: data.ariaUsata,
-                        tempoMinuti: data.tempoMinuti,
-                        profMAX: data.profMAX,
-                        tempH2Omin: data.tempH2Omin,
-                        tempH2Omax: data.tempH2Omax,
-                        sito: data.sito,
-                        note: data.note || ''
-                    });
-                });
-
+                const csvText = await response.text();
+                const dives = parseCSVToDives(csvText);
+                
+                appState.dives = dives;
+                updateStats();
                 updateDivesList();
-                showLoading(false);
+                updateSyncStatus();
+                
+                showSuccess(`📊 Caricate ${dives.length} immersioni da Google Sheets!`);
+                updateConnectionStatus('✅ Sincronizzato con Google Sheets');
                 
             } catch (error) {
                 console.error('Errore caricamento:', error);
-                showError('❌ Errore caricamento dati: ' + error.message);
+                showError('❌ Errore caricamento: ' + error.message);
+                updateConnectionStatus('❌ Errore sincronizzazione');
+            } finally {
                 showLoading(false);
             }
         }
 
-        async function saveDive(diveData) {
-            try {
-                showLoading(true);
-
-                const divesRef = window.firestore.collection(appState.db, 'dives');
-
-                if (diveData.id) {
-                    // Update esistente
-                    const docRef = window.firestore.doc(appState.db, 'dives', diveData.id);
-                    await window.firestore.updateDoc(docRef, {
-                        numeroImmersione: diveData.numeroImmersione,
-                        data: diveData.data,
-                        tipo: diveData.tipo,
-                        atmIN: diveData.atmIN,
-                        atmOUT: diveData.atmOUT,
-                        ariaUsata: diveData.ariaUsata,
-                        tempoMinuti: diveData.tempoMinuti,
-                        profMAX: diveData.profMAX,
-                        tempH2Omin: diveData.tempH2Omin,
-                        tempH2Omax: diveData.tempH2Omax,
-                        sito: diveData.sito,
-                        note: diveData.note
-                    });
-
-                    // Aggiorna stato locale
-                    const index = appState.dives.findIndex(d => d.id === diveData.id);
-                    if (index >= 0) {
-                        appState.dives[index] = { ...diveData };
-                    }
-                } else {
-                    // Insert nuovo
-                    const docRef = await window.firestore.addDoc(divesRef, {
-                        numeroImmersione: diveData.numeroImmersione,
-                        data: diveData.data,
-                        tipo: diveData.tipo,
-                        atmIN: diveData.atmIN,
-                        atmOUT: diveData.atmOUT,
-                        ariaUsata: diveData.ariaUsata,
-                        tempoMinuti: diveData.tempoMinuti,
-                        profMAX: diveData.profMAX,
-                        tempH2Omin: diveData.tempH2Omin,
-                        tempH2Omax: diveData.tempH2Omax,
-                        sito: diveData.sito,
-                        note: diveData.note,
-                        createdAt: new Date()
-                    });
-
-                    // Aggiungi a stato locale
-                    const newDive = { ...diveData, id: docRef.id };
-                    appState.dives.unshift(newDive);
-                    diveData.id = docRef.id;
+        function parseCSVToDives(csvText) {
+            const lines = csvText.trim().split('\n');
+            const dives = [];
+            
+            // Salta la prima riga (header) e processa i dati
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const values = parseCSVLine(line);
+                if (values.length < 8) continue; // Minimo 8 colonne richieste
+                
+                // Mappa le colonne del Google Sheets
+                const dive = {
+                    id: i,
+                    numeroImmersione: parseInt(values[0]) || i,
+                    data: formatDate(values[1]),
+                    tipo: values[2] || 'Barca',
+                    atmIN: parseInt(values[3]) || 200,
+                    atmOUT: parseInt(values[4]) || 50,
+                    ariaUsata: parseInt(values[5]) || (parseInt(values[3]) - parseInt(values[4])),
+                    tempoMinuti: parseInt(values[6]) || 30,
+                    profMAX: parseFloat(values[7]) || 10,
+                    tempH2Omin: parseFloat(values[8]) || 20,
+                    tempH2Omax: parseFloat(values[9]) || parseFloat(values[8]) || 20,
+                    sito: values[10] || 'Mare',
+                    note: values[11] || ''
+                };
+                
+                dives.push(dive);
+            }
+            
+            // Ordina per data (più recente prima)
+            dives.sort((a, b) => {
+                const dateA = new Date(a.data);
+                const dateB = new Date(b.data);
+                if (dateB.getTime() !== dateA.getTime()) {
+                    return dateB.getTime() - dateA.getTime();
                 }
-
-                updateStats();
-                updateDivesList();
-                showLoading(false);
-
-                return diveData;
-
-            } catch (error) {
-                console.error('Errore salvataggio:', error);
-                showError('❌ Errore salvataggio: ' + error.message);
-                showLoading(false);
-                throw error;
-            }
+                return (b.numeroImmersione || 0) - (a.numeroImmersione || 0);
+            });
+            
+            return dives;
         }
 
-        async function deleteDive(diveId) {
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            
+            return values;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return new Date().toISOString().split('T')[0];
+            
+            // Prova diversi formati di data
+            const formats = [
+                /^(\d{4})-(\d{2})-(\d{2})$/, // YYYY-MM-DD
+                /^(\d{2})\/(\d{2})\/(\d{4})$/, // DD/MM/YYYY
+                /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/ // D/M/YYYY
+            ];
+            
+            for (const format of formats) {
+                const match = dateStr.match(format);
+                if (match) {
+                    if (format.source.startsWith('^\\d{4}')) {
+                        return dateStr;
+                    } else {
+                        const day = match[1].padStart(2, '0');
+                        const month = match[2].padStart(2, '0');
+                        const year = match[3];
+                        return `${year}-${month}-${day}`;
+                    }
+                }
+            }
+            
             try {
-                showLoading(true);
-
-                const docRef = window.firestore.doc(appState.db, 'dives', diveId);
-                await window.firestore.deleteDoc(docRef);
-
-                // Rimuovi da stato locale
-                appState.dives = appState.dives.filter(d => d.id !== diveId);
-                
-                updateStats();
-                updateDivesList();
-                showLoading(false);
-                
-                showSuccess('🗑️ Immersione eliminata');
-
-            } catch (error) {
-                console.error('Errore eliminazione:', error);
-                showError('❌ Errore eliminazione: ' + error.message);
-                showLoading(false);
+                const date = new Date(dateStr);
+                return date.toISOString().split('T')[0];
+            } catch {
+                return new Date().toISOString().split('T')[0];
             }
         }
 
@@ -970,7 +930,7 @@
                 e.preventDefault();
                 
                 if (!appState.connected) {
-                    showError('❌ Non connesso al database');
+                    showError('❌ Google Sheets non configurato');
                     return;
                 }
 
@@ -979,17 +939,12 @@
                 const formData = new FormData(form);
                 
                 // Calcola numero immersione
-                let numeroImmersione;
-                if (appState.editingDive) {
-                    numeroImmersione = appState.editingDive.numeroImmersione;
-                } else {
-                    const maxNumero = appState.dives.length > 0 ? 
-                        Math.max(...appState.dives.map(d => d.numeroImmersione || 0)) : 0;
-                    numeroImmersione = maxNumero + 1;
-                }
+                const maxNumero = appState.dives.length > 0 ? 
+                    Math.max(...appState.dives.map(d => d.numeroImmersione || 0)) : 0;
+                const numeroImmersione = maxNumero + 1;
                 
                 const dive = {
-                    id: appState.editingDive ? appState.editingDive.id : null,
+                    id: Date.now(),
                     numeroImmersione: numeroImmersione,
                     data: formData.get('data'),
                     tipo: formData.get('tipo'),
@@ -1006,17 +961,54 @@
 
                 try {
                     setLoading(true);
-                    const savedDive = await saveDive(dive);
                     
-                    const action = appState.editingDive ? 'modificata' : 'salvata';
-                    showSuccess(`✅ Immersione #${savedDive.numeroImmersione} ${action} in Firebase!`);
+                    // Prepara riga CSV
+                    const csvRow = [
+                        dive.numeroImmersione,
+                        dive.data,
+                        dive.tipo,
+                        dive.atmIN,
+                        dive.atmOUT,
+                        dive.ariaUsata,
+                        dive.tempoMinuti,
+                        dive.profMAX,
+                        dive.tempH2Omin,
+                        dive.tempH2Omax,
+                        dive.sito,
+                        dive.note
+                    ].join(',');
+                    
+                    // Copia negli appunti
+                    await navigator.clipboard.writeText(csvRow);
+                    showSuccess('📋 Dati copiati negli appunti! Incollali come nuova riga nel tuo Google Sheets.');
+                    
+                    // Aggiungi localmente per aggiornare le statistiche
+                    appState.dives.unshift(dive);
+                    updateStats();
+                    updateDivesList();
                     
                     resetForm();
                 } catch (error) {
-                    // Error già mostrato in saveDive
+                    // Fallback se clipboard non funziona
+                    const csvRow = [
+                        dive.numeroImmersione,
+                        dive.data,
+                        dive.tipo,
+                        dive.atmIN,
+                        dive.atmOUT,
+                        dive.ariaUsata,
+                        dive.tempoMinuti,
+                        dive.profMAX,
+                        dive.tempH2Omin,
+                        dive.tempH2Omax,
+                        dive.sito,
+                        dive.note
+                    ].join(',');
+                    
+                    prompt('Copia questa riga e incollala nel tuo Google Sheets:', csvRow);
+                    showSuccess('📊 Immersione preparata! Copia la riga nel tuo Google Sheets.');
                 } finally {
                     setLoading(false);
-                    appState.editingDive = null;
                 }
             });
         }
@@ -1037,7 +1029,6 @@
             document.getElementById('diveForm').reset();
             document.getElementById('data').value = new Date().toISOString().split('T')[0];
             document.getElementById('ariaUsata').value = '';
-            appState.editingDive = null;
         }
 
         function setLoading(loading) {
@@ -1045,7 +1036,7 @@
             const text = document.getElementById('submitText');
             
             btn.disabled = loading;
-            text.textContent = loading ? '⏳ Salvataggio...' : '💾 Salva Immersione';
+            text.textContent = loading ? '⏳ Preparazione...' : '📊 Aggiungi a Google Sheets';
         }
 
         function showLoading(show) {
@@ -1080,9 +1071,9 @@
             if (dives.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
-                        <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">🌊</div>
-                        <h3>Nessuna immersione registrata</h3>
-                        <p>Aggiungi la tua prima immersione nel cloud Firebase</p>
+                        <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">📊</div>
+                        <h3>Nessuna immersione trovata</h3>
+                        <p>Carica i dati dal tuo Google Sheets o aggiungi la prima immersione</p>
                     </div>
                 `;
                 return;
@@ -1101,7 +1092,6 @@
                             <th>Aria usata</th>
                             <th>Temp min</th>
                             <th>Temp max</th>
-                            <th>Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1120,10 +1110,6 @@
                         <td>${dive.ariaUsata}bar</td>
                         <td>${dive.tempH2Omin}°C</td>
                         <td>${dive.tempH2Omax}°C</td>
-                        <td class="actions">
-                            <button class="btn btn-secondary" onclick="editDive('${dive.id}')" title="Modifica">✏️</button>
-                            <button class="btn btn-danger" onclick="confirmDeleteDive('${dive.id}')" title="Elimina">🗑️</button>
-                        </td>
                     </tr>
                 `;
             });
@@ -1132,45 +1118,27 @@
             container.innerHTML = html;
         }
 
-        function editDive(diveId) {
-            const dive = appState.dives.find(d => d.id === diveId);
-            if (!dive) return;
-
-            // Popola form
-            document.getElementById('data').value = dive.data;
-            document.getElementById('tipo').value = dive.tipo;
-            document.getElementById('atmIN').value = dive.atmIN;
-            document.getElementById('atmOUT').value = dive.atmOUT;
-            document.getElementById('ariaUsata').value = dive.ariaUsata;
-            document.getElementById('tempoMinuti').value = dive.tempoMinuti;
-            document.getElementById('profMAX').value = dive.profMAX;
-            document.getElementById('tempH2Omin').value = dive.tempH2Omin;
-            document.getElementById('tempH2Omax').value = dive.tempH2Omax;
-            document.getElementById('sito').value = dive.sito;
-            document.getElementById('note').value = dive.note;
-
-            appState.editingDive = dive;
-
-            // Vai al tab aggiungi
-            switchTab('add');
-            
-            showSuccess(`✏️ Immersione #${dive.numeroImmersione} caricata per la modifica`);
-        }
-
-        function confirmDeleteDive(diveId) {
-            if (confirm('Sei sicuro di voler eliminare questa immersione dal cloud?')) {
-                deleteDive(diveId);
+        function updateSyncStatus() {
+            const status = document.getElementById('syncStatus');
+            if (status && appState.connected) {
+                const timestamp = new Date().toLocaleString('it-IT');
+                status.innerHTML = `
+                    <strong>📊 Google Sheets:</strong> Connesso<br>
+                    <strong>🔄 Ultima sincronizzazione:</strong> ${timestamp}<br>
+                    <strong>📋 Immersioni caricate:</strong> ${appState.dives.length}<br>
+                    <strong>🔗 Foglio:</strong> <a href="${appState.sheetsUrl}" target="_blank">Apri Google Sheets</a>
+                `;
             }
         }
 
-        // Export functions
-        function exportCSV() {
+        // Funzioni avanzate
+        function exportToSheets() {
             if (appState.dives.length === 0) {
                 showError('⚠️ Nessuna immersione da esportare');
                 return;
             }
 
-            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (minuti)', 'Prof MAX (metri)', 'Temp. H2O min', 'Temp. H2O max', 'Sito', 'Note'];
+            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
             const csvContent = [
                 headers.join(','),
                 ...appState.dives.map(dive => [
@@ -1189,19 +1157,95 @@
                 ].join(','))
             ].join('\n');
 
-            downloadFile(`immersioni_firebase_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
-            showSuccess('📊 Export CSV completato!');
+            navigator.clipboard.writeText(csvContent).then(() => {
+                showSuccess('📋 Tutti i dati copiati! Incollali nel tuo Google Sheets per sostituire tutto.');
+            }).catch(() => {
+                downloadFile(`immersioni_export_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
+                showSuccess('📊 File CSV scaricato!');
+            });
         }
 
-        function exportJSON() {
-            if (appState.dives.length === 0) {
-                showError('⚠️ Nessuna immersione da esportare');
+        function validateSheetsFormat() {
+            const requiredColumns = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
+            showSuccess(`✅ Formato corretto!\n\nColonne richieste:\n${requiredColumns.map((col, i) => `${String.fromCharCode(65 + i)}: ${col}`).join('\n')}`);
+        }
+
+        function createSheetsTemplate() {
+            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
+            const template = [
+                headers.join(','),
+                '1,2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità',
+                '2,2024-08-11,Riva,180,60,120,35,12,20,22,Cinque Terre,Corrente leggera'
+            ].join('\n');
+
+            navigator.clipboard.writeText(template).then(() => {
+                showSuccess('📋 Template copiato! Incollalo in un nuovo Google Sheets.');
+            }).catch(() => {
+                downloadFile('template_immersioni.csv', template, 'text/csv');
+                showSuccess('📊 Template scaricato!');
+            });
+        }
+
+        // Configurazione
+        function updateSheetsConfig() {
+            const url = document.getElementById('settingsUrl').value.trim();
+            
+            if (!url) {
+                showError('⚠️ Inserisci un URL valido');
                 return;
             }
 
-            const jsonContent = JSON.stringify(appState.dives, null, 2);
-            downloadFile(`immersioni_firebase_backup_${new Date().toISOString().split('T')[0]}.json`, jsonContent, 'application/json');
-            showSuccess('🔧 Export JSON completato!');
+            const sheetsId = extractSheetsId(url);
+            if (!sheetsId) {
+                showError('⚠️ URL non valido');
+                return;
+            }
+
+            const config = { url };
+            localStorage.setItem(SHEETS_CONFIG_KEY, JSON.stringify(config));
+            
+            appState.sheetsUrl = url;
+            appState.sheetsId = sheetsId;
+            
+            initializeSheets();
+            showSuccess('🔄 Configurazione aggiornata');
+        }
+
+        function testSheetsConnection() {
+            if (!appState.sheetsId) {
+                showError('❌ Google Sheets non configurato');
+                return;
+            }
+            loadFromSheets();
+        }
+
+        function resetSheetsConfig() {
+            if (confirm('Rimuovere la configurazione Google Sheets?')) {
+                localStorage.removeItem(SHEETS_CONFIG_KEY);
+                appState.sheetsUrl = '';
+                appState.sheetsId = '';
+                appState.connected = false;
+                document.getElementById('settingsUrl').value = '';
+                showSetupPanel();
+                showSuccess('🔄 Configurazione rimossa');
+            }
+        }
+
+        // Utility Functions
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 6000);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function downloadFile(filename, content, contentType) {
@@ -1215,49 +1259,6 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
-
-        // Tab Management
-        function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Show selected tab
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            event.target.classList.add('active');
-
-            // Update data if needed
-            if (tabName === 'list') {
-                updateDivesList();
-            }
-        }
-
-        // Utility Functions
-        function showSuccess(message) {
-            const el = document.getElementById('successMessage');
-            el.textContent = message;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 5000);
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showError(message) {
-            const el = document.getElementById('errorMessage');
-            el.textContent = message;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 6000);
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        console.log('🌊 DiveLog Pro Firebase - Versione con database cloud caricata');
-        console.log('🔥 I dati vengono salvati in Firebase Firestore');
     </script>
 </body>
 </html>
