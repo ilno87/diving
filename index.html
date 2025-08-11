@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DiveLog Pro - Google Sheets Edition</title>
+    <title>DiveLog Pro - Visualizzatore</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -35,7 +35,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -66,165 +66,6 @@
             font-size: 12px;
             margin-left: 10px;
             backdrop-filter: blur(10px);
-        }
-
-        .tabs {
-            display: flex;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border-radius: 15px;
-            padding: 8px;
-            margin-bottom: 25px;
-            box-shadow: var(--card-shadow);
-            overflow-x: auto;
-        }
-
-        .tab {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px 20px;
-            text-align: center;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .tab.active {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 212, 170, 0.3);
-        }
-
-        .tab:not(.active):hover {
-            background: rgba(0, 212, 170, 0.1);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .main-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-
-        .card-header h2 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .form-container {
-            padding: 30px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            font-weight: 500;
-            color: #2d3436;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .input-group input, 
-        .input-group select, 
-        .input-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e8ecf4;
-            border-radius: 12px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.3s ease;
-            background: #fafbfc;
-        }
-
-        .input-group input:focus, 
-        .input-group select:focus,
-        .input-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
-        }
-
-        .input-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: #333;
-        }
-
-        .btn-danger {
-            background: var(--error);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
         }
 
         .stats-grid {
@@ -258,6 +99,99 @@
             font-weight: 500;
         }
 
+        .main-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .refresh-btn {
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: translateY(-50%);
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .dive-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .dive-table th {
+            background: var(--primary);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .dive-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        .dive-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .dive-table tr:nth-child(even) {
+            background: #fafbfc;
+        }
+
+        .dive-table tr:nth-child(even):hover {
+            background: #f0f2f5;
+        }
+
         .message {
             padding: 15px 20px;
             border-radius: 12px;
@@ -278,47 +212,6 @@
             border: 1px solid #f5c6cb;
         }
 
-        .dive-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .dive-table th {
-            background: var(--primary);
-            color: white;
-            padding: 15px 10px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .dive-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-        }
-
-        .dive-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .setup-panel {
-            background: #fff3cd;
-            border: 2px solid #ffeaa7;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-
-        .setup-panel h3 {
-            color: #856404;
-            margin-bottom: 15px;
-        }
-
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -334,27 +227,87 @@
             font-size: 18px;
         }
 
-        .config-panel {
-            background: #e3f2fd;
-            border: 2px solid #2196f3;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
         }
 
-        .config-panel h4 {
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .tipo-badge {
+            background: #e3f2fd;
             color: #1976d2;
-            margin-bottom: 15px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .numero-badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .na-value {
+            color: #999;
+            font-style: italic;
+            font-size: 12px;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .input-row {
-                grid-template-columns: 1fr;
-            }
-            
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .dive-table {
+                font-size: 12px;
+            }
+            
+            .dive-table th,
+            .dive-table td {
+                padding: 8px 6px;
+            }
+            
+            .refresh-btn {
+                position: static;
+                transform: none;
+                margin-top: 10px;
+            }
+            
+            .card-header {
+                text-align: center;
             }
         }
     </style>
@@ -365,37 +318,9 @@
         <div class="app-header">
             <h1 class="app-title">
                 🌊 DiveLog Pro
-                <span class="cloud-badge">📊 Sheets</span>
+                <span class="cloud-badge">📊 Viewer</span>
             </h1>
-            <p class="app-subtitle">Registro delle tue immersioni sincronizzato con Google Sheets</p>
-        </div>
-
-        <!-- Configurazione URL Google Sheets -->
-        <div class="config-panel">
-            <h4>📊 Configurazione Google Sheets</h4>
-            <div class="input-group">
-                <label>🔗 URL Google Sheets:</label>
-                <input type="url" id="googleSheetsUrl" placeholder="https://docs.google.com/spreadsheets/d/1ABC.../edit#gid=0">
-                <small style="color: #666; font-size: 12px;">
-                    Inserisci l'URL completo del tuo Google Sheets (deve essere condiviso pubblicamente per la lettura)
-                </small>
-            </div>
-            
-            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="setGoogleSheetsUrl()">
-                    💾 Salva URL
-                </button>
-                <button class="btn btn-secondary" onclick="testConnection()">
-                    🔍 Test Connessione
-                </button>
-                <button class="btn btn-warning" onclick="createTemplate()">
-                    📋 Crea Template
-                </button>
-            </div>
-            
-            <div id="connectionStatus" style="margin-top: 15px; padding: 10px; border-radius: 8px; background: #f8f9fa;">
-                <strong>Stato:</strong> <span id="statusText">Non configurato</span>
-            </div>
+            <p class="app-subtitle">Visualizzatore delle tue immersioni da Google Sheets</p>
         </div>
 
         <!-- Statistiche -->
@@ -420,172 +345,36 @@
                 <div class="stat-value" id="statThisYear">0</div>
                 <div class="stat-label">Quest'Anno</div>
             </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('add', this)">➕ Aggiungi</div>
-            <div class="tab" onclick="switchTab('list', this)">📋 Elenco</div>
-            <div class="tab" onclick="switchTab('export', this)">📤 Esporta</div>
+            <div class="stat-card">
+                <div class="stat-value" id="statLastUpdate">--:--</div>
+                <div class="stat-label">Ultimo Aggiornamento</div>
+            </div>
         </div>
 
         <!-- Messages -->
         <div id="successMessage" class="message success"></div>
         <div id="errorMessage" class="message error"></div>
 
-        <!-- TAB: Aggiungi Immersione -->
-        <div id="tab-add" class="tab-content active">
-            <div class="main-card">
-                <div class="card-header">
-                    <h2>➕ Nuova Immersione</h2>
-                    <p>Prepara i dati per Google Sheets</p>
-                </div>
-                <div class="form-container">
-                    <form id="diveForm">
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="data">Data</label>
-                                <input type="date" id="data" name="data" required />
-                            </div>
-                            <div class="input-group">
-                                <label for="tipo">Tipo</label>
-                                <select id="tipo" name="tipo" required>
-                                    <option value="">Seleziona tipo</option>
-                                    <option value="Barca">🚤 Barca</option>
-                                    <option value="Riva">🏖️ Riva</option>
-                                    <option value="Gommone">⛵ Gommone</option>
-                                    <option value="Corso">📚 Corso</option>
-                                    <option value="Apnea">🤿 Apnea</option>
-                                    <option value="Altro">🔧 Altro</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="atmIN">Atm IN (bar)</label>
-                                <input type="number" id="atmIN" name="atmIN" 
-                                       placeholder="200" min="50" max="300" required />
-                            </div>
-                            <div class="input-group">
-                                <label for="atmOUT">Atm OUT (bar)</label>
-                                <input type="number" id="atmOUT" name="atmOUT" 
-                                       placeholder="50" min="10" max="250" required />
-                            </div>
-                        </div>
-
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="ariaUsata">Aria usata (bar)</label>
-                                <input type="number" id="ariaUsata" name="ariaUsata" 
-                                       placeholder="150" readonly 
-                                       style="background: #f0f0f0;" />
-                                <small style="color: #666; font-size: 12px;">Calcolato automaticamente</small>
-                            </div>
-                            <div class="input-group">
-                                <label for="tempoMinuti">Tempo (minuti)</label>
-                                <input type="number" id="tempoMinuti" name="tempoMinuti" 
-                                       placeholder="45" min="1" max="300" required />
-                            </div>
-                        </div>
-
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="profMAX">Prof MAX (metri)</label>
-                                <input type="number" id="profMAX" name="profMAX" 
-                                       placeholder="25.5" min="0" max="200" step="0.1" required />
-                            </div>
-                            <div class="input-group">
-                                <label for="tempH2Omin">Temp. H2O min (°C)</label>
-                                <input type="number" id="tempH2Omin" name="tempH2Omin" 
-                                       placeholder="18" min="-5" max="40" step="0.1" required />
-                            </div>
-                        </div>
-
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="tempH2Omax">Temp. H2O max (°C)</label>
-                                <input type="number" id="tempH2Omax" name="tempH2Omax" 
-                                       placeholder="20" min="-5" max="40" step="0.1" />
-                                <small style="color: #666; font-size: 12px;">Opzionale</small>
-                            </div>
-                            <div class="input-group">
-                                <label for="sito">Sito</label>
-                                <input type="text" id="sito" name="sito" 
-                                       placeholder="es. Portofino, Liguria" required />
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="note">Note</label>
-                            <textarea id="note" name="note" rows="3"
-                                      placeholder="Descrivi la tua immersione: visibilità, correnti, fauna vista..."></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <span id="submitText">📋 Prepara per Google Sheets</span>
-                        </button>
-                    </form>
-                </div>
+        <!-- Lista Immersioni -->
+        <div class="main-card">
+            <div class="card-header">
+                <h2>📋 Le Tue Immersioni</h2>
+                <p>Dati caricati automaticamente da Google Sheets</p>
+                <button class="refresh-btn" onclick="loadFromSheets()" id="refreshBtn">
+                    🔄 Aggiorna
+                </button>
             </div>
-        </div>
-
-        <!-- TAB: Lista Immersioni -->
-        <div id="tab-list" class="tab-content">
-            <div class="main-card">
-                <div class="card-header">
-                    <h2>📋 Le Tue Immersioni</h2>
-                    <p>Dati caricati da Google Sheets</p>
+            <div class="form-container">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="statusText">Caricamento automatico...</span>
                 </div>
-                <div class="form-container">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <button class="btn btn-primary" onclick="loadFromSheets()">
-                            🔄 Carica da Google Sheets
-                        </button>
-                        <button class="btn btn-secondary" onclick="openGoogleSheets()" id="openSheetsBtn" style="display: none;">
-                            📊 Apri Google Sheets
-                        </button>
-                    </div>
-                    
-                    <div id="divesContainer">
-                        <div style="text-align: center; padding: 40px; color: #666;">
-                            📊 Configura Google Sheets per vedere le immersioni
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Esporta -->
-        <div id="tab-export" class="tab-content">
-            <div class="main-card">
-                <div class="card-header">
-                    <h2>📤 Esporta Dati</h2>
-                    <p>Gestisci e condividi i tuoi dati</p>
-                </div>
-                <div class="form-container">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <button class="btn btn-success" onclick="exportAllToCSV()">
-                            📊 Esporta tutto CSV
-                        </button>
-                        <button class="btn btn-warning" onclick="copyTemplateToClipboard()">
-                            📋 Copia Template
-                        </button>
-                        <button class="btn btn-secondary" onclick="showInstructions()">
-                            📖 Istruzioni Setup
-                        </button>
-                    </div>
-
-                    <div id="instructionsPanel" style="display: none; margin-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
-                        <h4>📖 Come configurare Google Sheets:</h4>
-                        <ol style="margin-left: 20px; line-height: 1.6;">
-                            <li>Crea un nuovo Google Sheets</li>
-                            <li>Aggiungi gli headers nella prima riga: Numero, Data, Tipo, Atm IN, Atm OUT, Aria usata, Tempo (min), Prof MAX, Temp min, Temp max, Sito, Note</li>
-                            <li>Vai su File → Condividi → Condividi con altri</li>
-                            <li>Imposta la condivisione su "Chiunque abbia il link può visualizzare"</li>
-                            <li>Copia l'URL e incollalo nella configurazione sopra</li>
-                            <li>Testa la connessione con il pulsante "Test Connessione"</li>
-                        </ol>
+                
+                <div id="divesContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3>Caricamento immersioni...</h3>
+                        <p>Connessione al Google Sheets in corso</p>
                     </div>
                 </div>
             </div>
@@ -596,338 +385,121 @@
     <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div>
             <div style="font-size: 48px; margin-bottom: 20px;">📊</div>
-            <div>Caricamento da Google Sheets...</div>
+            <div id="loadingText">Caricamento da Google Sheets...</div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAZIONE - URL Google Sheets parametrizzato
-        const CONFIG = {
-            GOOGLE_SHEETS_URL: '', // Sarà configurato dall'utente
-            STORAGE_KEY: 'divelog_config'
-        };
-
+        // CONFIGURAZIONE FISSA - Modifica qui il tuo Google Sheets ID
+        const GOOGLE_SHEETS_ID = '16oQKi4aMWHaSQe4tdMcDJaAlgT_DTXs6gRphMnKyCdM'; // ⬅️ INSERISCI QUI IL TUO SHEETS ID
+        
         // Stato dell'applicazione
         let appState = {
             dives: [],
-            sheetsUrl: '',
-            sheetsId: '',
-            connected: false
+            lastUpdate: null,
+            autoRefreshInterval: null
         };
 
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
-            loadConfiguration();
-            setupForm();
+            console.log('🌊 DiveLog Pro Viewer caricato!');
+            console.log('📊 Google Sheets ID:', GOOGLE_SHEETS_ID);
             
-            // Set data default
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('data').value = today;
-            
-            console.log('🌊 DiveLog Pro caricato!');
-        });
-
-        // CONFIGURAZIONE GOOGLE SHEETS
-        function loadConfiguration() {
-            const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
-            if (saved) {
-                try {
-                    const config = JSON.parse(saved);
-                    if (config.googleSheetsUrl) {
-                        appState.sheetsUrl = config.googleSheetsUrl;
-                        appState.sheetsId = extractSheetsId(config.googleSheetsUrl);
-                        document.getElementById('googleSheetsUrl').value = config.googleSheetsUrl;
-                        updateConnectionStatus('Configurato', 'success');
-                        
-                        // Mostra pulsante per aprire sheets
-                        const openBtn = document.getElementById('openSheetsBtn');
-                        if (openBtn) {
-                            openBtn.style.display = 'inline-flex';
-                        }
-                    }
-                } catch (error) {
-                    console.error('Errore caricamento configurazione:', error);
-                }
-            }
-        }
-
-        function setGoogleSheetsUrl() {
-            const url = document.getElementById('googleSheetsUrl').value.trim();
-            
-            if (!url) {
-                showError('⚠️ Inserisci l\'URL del Google Sheets');
-                return;
-            }
-
-            const sheetsId = extractSheetsId(url);
-            if (!sheetsId) {
-                showError('⚠️ URL non valido. Deve essere un link di Google Sheets');
-                return;
-            }
-
-            // Salva configurazione
-            const config = { googleSheetsUrl: url };
-            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(config));
-            
-            appState.sheetsUrl = url;
-            appState.sheetsId = sheetsId;
-            
-            updateConnectionStatus('Configurato correttamente', 'success');
-            showSuccess('✅ URL Google Sheets salvato correttamente!');
-            
-            // Mostra pulsante per aprire sheets
-            const openBtn = document.getElementById('openSheetsBtn');
-            if (openBtn) {
-                openBtn.style.display = 'inline-flex';
-            }
-        }
-
-        function extractSheetsId(url) {
-            if (!url) return null;
-            
-            // Estrai ID da URL Google Sheets
-            const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-            return match ? match[1] : null;
-        }
-
-        function updateConnectionStatus(message, type = 'info') {
-            const statusText = document.getElementById('statusText');
-            const connectionStatus = document.getElementById('connectionStatus');
-            
-            statusText.textContent = message;
-            
-            // Aggiorna colore in base al tipo
-            connectionStatus.style.background = 
-                type === 'success' ? '#d4edda' : 
-                type === 'error' ? '#f8d7da' : '#f8f9fa';
-            connectionStatus.style.color = 
-                type === 'success' ? '#155724' : 
-                type === 'error' ? '#721c24' : '#333';
-        }
-
-        function testConnection() {
-            if (!appState.sheetsId) {
-                showError('❌ Configura prima l\'URL di Google Sheets');
+            // Verifica se l'ID è configurato
+            if (GOOGLE_SHEETS_ID === 'TUO_GOOGLE_SHEETS_ID_QUI') {
+                showError('❌ Devi configurare il GOOGLE_SHEETS_ID nel codice!');
+                updateStatus('Configura Google Sheets ID nel codice', 'error');
                 return;
             }
             
+            // Carica immediatamente i dati
             loadFromSheets();
-        }
-
-        function openGoogleSheets() {
-            if (appState.sheetsUrl) {
-                window.open(appState.sheetsUrl, '_blank');
-            }
-        }
-
-        // TAB MANAGEMENT
-        function switchTab(tabName, clickedTab) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
             
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Show selected tab
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            clickedTab.classList.add('active');
-
-            // Update data if needed
-            if (tabName === 'list') {
-                updateDivesList();
-            }
-        }
-
-        // FORM MANAGEMENT
-        function setupForm() {
-            const form = document.getElementById('diveForm');
-            const atmIN = document.getElementById('atmIN');
-            const atmOUT = document.getElementById('atmOUT');
-            const ariaUsata = document.getElementById('ariaUsata');
-
-            // Calcolo automatico aria usata
-            function calcolaAria() {
-                const ingresso = parseInt(atmIN.value) || 0;
-                const uscita = parseInt(atmOUT.value) || 0;
-                const usata = Math.max(0, ingresso - uscita);
-                ariaUsata.value = usata;
-            }
-
-            atmIN.addEventListener('input', calcolaAria);
-            atmOUT.addEventListener('input', calcolaAria);
-
-            // Submit form
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                if (!validateForm()) return;
-                
-                const formData = new FormData(form);
-                
-                // Calcola numero immersione
-                const maxNumero = appState.dives.length > 0 ? 
-                    Math.max(...appState.dives.map(d => d.numeroImmersione || 0)) : 0;
-                const numeroImmersione = maxNumero + 1;
-                
-                const dive = {
-                    numeroImmersione: numeroImmersione,
-                    data: formData.get('data'),
-                    tipo: formData.get('tipo'),
-                    atmIN: parseInt(formData.get('atmIN')),
-                    atmOUT: parseInt(formData.get('atmOUT')),
-                    ariaUsata: parseInt(formData.get('ariaUsata')),
-                    tempoMinuti: parseInt(formData.get('tempoMinuti')),
-                    profMAX: parseFloat(formData.get('profMAX')),
-                    tempH2Omin: parseFloat(formData.get('tempH2Omin')),
-                    tempH2Omax: parseFloat(formData.get('tempH2Omax')) || parseFloat(formData.get('tempH2Omin')),
-                    sito: formData.get('sito'),
-                    note: formData.get('note') || ''
-                };
-
-                try {
-                    setSubmitLoading(true);
-                    
-                    // Prepara riga CSV
-                    const csvRow = formatDiveToCSV(dive);
-                    
-                    // Copia negli appunti
-                    await copyToClipboard(csvRow);
-                    
-                    // Aggiungi localmente per aggiornare le statistiche
-                    appState.dives.unshift(dive);
-                    updateStats();
-                    updateDivesList();
-                    
-                    showSuccess('📋 Dati copiati negli appunti! Incollali come nuova riga nel tuo Google Sheets.');
-                    resetForm();
-                    
-                } catch (error) {
-                    console.error('Errore:', error);
-                    // Fallback se clipboard non funziona
-                    const csvRow = formatDiveToCSV(dive);
-                    showDataInModal(csvRow, dive);
-                } finally {
-                    setSubmitLoading(false);
-                }
-            });
-        }
-
-        function validateForm() {
-            const atmIN = parseInt(document.getElementById('atmIN').value);
-            const atmOUT = parseInt(document.getElementById('atmOUT').value);
-            
-            if (atmOUT >= atmIN) {
-                showError('⚠️ Atm OUT deve essere minore di Atm IN!');
-                return false;
-            }
-            
-            return true;
-        }
-
-        function resetForm() {
-            document.getElementById('diveForm').reset();
-            document.getElementById('data').value = new Date().toISOString().split('T')[0];
-            document.getElementById('ariaUsata').value = '';
-        }
-
-        function setSubmitLoading(loading) {
-            const btn = document.querySelector('#diveForm button[type="submit"]');
-            const text = document.getElementById('submitText');
-            
-            btn.disabled = loading;
-            text.textContent = loading ? '⏳ Preparazione...' : '📋 Prepara per Google Sheets';
-        }
-
-        function formatDiveToCSV(dive) {
-            const values = [
-                dive.numeroImmersione,
-                dive.data,
-                dive.tipo,
-                dive.atmIN,
-                dive.atmOUT,
-                dive.ariaUsata,
-                dive.tempoMinuti,
-                dive.profMAX,
-                dive.tempH2Omin,
-                dive.tempH2Omax,
-                `"${(dive.sito || '').replace(/"/g, '""')}"`,
-                `"${(dive.note || '').replace(/"/g, '""')}"`
-            ];
-            return values.join(',');
-        }
-
-        async function copyToClipboard(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                await navigator.clipboard.writeText(text);
-            } else {
-                // Fallback per browser più vecchi
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.left = '-999999px';
-                textArea.style.top = '-999999px';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            }
-        }
-
-        function showDataInModal(csvRow, dive) {
-            const modalHtml = `
-                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: center; justify-content: center;">
-                    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 80%; max-height: 80%; overflow: auto;">
-                        <h3>📋 Dati dell'immersione</h3>
-                        <p>Copia questi dati e incollali come nuova riga nel tuo Google Sheets:</p>
-                        <textarea readonly style="width: 100%; height: 100px; margin: 15px 0; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">${csvRow}</textarea>
-                        <div style="text-align: center;">
-                            <button onclick="this.closest('div').parentElement.remove()" style="background: #00d4aa; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Chiudi</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-        }
+            // Auto-refresh ogni 30 secondi
+            startAutoRefresh();
+        });
 
         // CARICAMENTO DATI DA GOOGLE SHEETS
         async function loadFromSheets() {
-            if (!appState.sheetsId) {
-                showError('❌ Configura prima l\'URL di Google Sheets');
-                return;
-            }
-
             try {
-                showLoading(true);
-                updateConnectionStatus('Caricamento in corso...', 'info');
+                setRefreshLoading(true);
+                updateStatus('Caricamento da Google Sheets...', 'loading');
+
+                // Verifica configurazione
+                if (GOOGLE_SHEETS_ID === 'TUO_GOOGLE_SHEETS_ID_QUI') {
+                    throw new Error('Google Sheets ID non configurato nel codice');
+                }
 
                 // Usa l'API pubblica di Google Sheets (CSV export)
-                const csvUrl = `https://docs.google.com/spreadsheets/d/${appState.sheetsId}/export?format=csv&gid=0`;
+                const csvUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/export?format=csv&gid=0`;
                 
-                const response = await fetch(csvUrl);
+                console.log('📡 Tentativo connessione a:', csvUrl);
+                
+                const response = await fetch(csvUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    credentials: 'omit'
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
                 if (!response.ok) {
-                    throw new Error('Sheets non accessibile. Verifica che sia condiviso pubblicamente in lettura.');
+                    if (response.status === 403) {
+                        throw new Error('Google Sheets non è pubblico. Vai su Condividi → "Chiunque con il link può visualizzare"');
+                    } else if (response.status === 404) {
+                        throw new Error('Google Sheets non trovato. Verifica l\'ID nel codice');
+                    } else {
+                        throw new Error(`Errore HTTP ${response.status}: ${response.statusText}`);
+                    }
                 }
 
                 const csvText = await response.text();
+                console.log('📊 CSV ricevuto, lunghezza:', csvText.length);
+                
+                if (!csvText || csvText.trim().length === 0) {
+                    throw new Error('Il Google Sheets sembra essere vuoto');
+                }
+                
                 const dives = parseCSVToDives(csvText);
+                console.log('🔍 Immersioni parsate:', dives.length);
                 
                 appState.dives = dives;
+                appState.lastUpdate = new Date();
+                
                 updateStats();
                 updateDivesList();
                 
-                showSuccess(`📊 Caricate ${dives.length} immersioni da Google Sheets!`);
-                updateConnectionStatus(`${dives.length} immersioni caricate`, 'success');
+                if (dives.length > 0) {
+                    showSuccess(`📊 Caricate ${dives.length} immersioni da Google Sheets!`);
+                    updateStatus(`${dives.length} immersioni caricate`, 'success');
+                } else {
+                    updateStatus('Google Sheets vuoto o nessun dato dalle riga 4 in poi', 'warning');
+                }
                 
             } catch (error) {
-                console.error('Errore caricamento:', error);
-                showError('❌ Errore caricamento: ' + error.message);
-                updateConnectionStatus('Errore di connessione', 'error');
+                console.error('❌ Errore dettagliato:', error);
+                
+                let errorMessage = 'Errore sconosciuto';
+                
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Impossibile connettersi a Google Sheets. Verifica:\n' +
+                                 '1. Il Google Sheets ID è corretto\n' +
+                                 '2. Il foglio è condiviso pubblicamente\n' +
+                                 '3. La connessione internet funziona';
+                } else if (error.message.includes('CORS')) {
+                    errorMessage = 'Errore CORS. Assicurati che il Google Sheets sia pubblico';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showError('❌ ' + errorMessage);
+                updateStatus('Errore di connessione', 'error');
+                
+                // Mostra istruzioni di debug
+                showDebugInfo();
+                
             } finally {
-                showLoading(false);
+                setRefreshLoading(false);
             }
         }
 
@@ -935,43 +507,38 @@
             const lines = csvText.trim().split('\n');
             const dives = [];
             
-            // Salta la prima riga (header) e processa i dati
-            for (let i = 1; i < lines.length; i++) {
+            // Salta le prime 3 righe (header + 2 righe da ignorare)
+            const startRow = 3;
+            
+            for (let i = startRow; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
                 
                 const values = parseCSVLine(line);
                 if (values.length < 8) continue; // Minimo 8 colonne richieste
                 
-                // Mappa le colonne del Google Sheets
+                // Mappa le colonne del Google Sheets con gestione N/D per valori vuoti
                 const dive = {
                     id: i,
-                    numeroImmersione: parseInt(values[0]) || i,
-                    data: formatDate(values[1]),
-                    tipo: values[2] || 'Barca',
-                    atmIN: parseInt(values[3]) || 200,
-                    atmOUT: parseInt(values[4]) || 50,
-                    ariaUsata: parseInt(values[5]) || (parseInt(values[3]) - parseInt(values[4])),
-                    tempoMinuti: parseInt(values[6]) || 30,
-                    profMAX: parseFloat(values[7]) || 10,
-                    tempH2Omin: parseFloat(values[8]) || 20,
-                    tempH2Omax: parseFloat(values[9]) || parseFloat(values[8]) || 20,
-                    sito: values[10] || 'Mare',
-                    note: values[11] || ''
+                    numeroImmersione: safeParseInt(values[0]) || (i - startRow + 1),
+                    data: formatDate(values[1]) || 'N/D',
+                    tipo: safeString(values[2]) || 'N/D',
+                    atmIN: safeParseInt(values[3]),
+                    atmOUT: safeParseInt(values[4]),
+                    ariaUsata: safeParseInt(values[5]) || (safeParseInt(values[3]) - safeParseInt(values[4])) || 0,
+                    tempoMinuti: safeParseInt(values[6]),
+                    profMAX: safeParseFloat(values[7]),
+                    tempH2Omin: safeParseFloat(values[8]),
+                    tempH2Omax: safeParseFloat(values[9]) || safeParseFloat(values[8]),
+                    sito: safeString(values[10]) || 'N/D',
+                    note: safeString(values[11]) || ''
                 };
                 
                 dives.push(dive);
             }
             
-            // Ordina per data (più recente prima)
-            dives.sort((a, b) => {
-                const dateA = new Date(a.data);
-                const dateB = new Date(b.data);
-                if (dateB.getTime() !== dateA.getTime()) {
-                    return dateB.getTime() - dateA.getTime();
-                }
-                return (b.numeroImmersione || 0) - (a.numeroImmersione || 0);
-            });
+            // Ordina per numero immersione (più recente prima)
+            dives.sort((a, b) => (b.numeroImmersione || 0) - (a.numeroImmersione || 0));
             
             return dives;
         }
@@ -998,8 +565,27 @@
             return values;
         }
 
+        // Funzioni helper per gestire valori vuoti
+        function safeString(value) {
+            return value && value.trim() !== '' ? value.trim() : null;
+        }
+
+        function safeParseInt(value) {
+            const num = parseInt(value);
+            return isNaN(num) ? null : num;
+        }
+
+        function safeParseFloat(value) {
+            const num = parseFloat(value);
+            return isNaN(num) ? null : num;
+        }
+
+        function formatValue(value, suffix = '') {
+            return value !== null && value !== undefined ? value + suffix : 'N/D';
+        }
+
         function formatDate(dateStr) {
-            if (!dateStr) return new Date().toISOString().split('T')[0];
+            if (!dateStr || dateStr.trim() === '') return null;
             
             // Prova diversi formati di data
             const formats = [
@@ -1024,10 +610,12 @@
             
             try {
                 const date = new Date(dateStr);
-                return date.toISOString().split('T')[0];
-            } catch {
-                return new Date().toISOString().split('T')[0];
-            }
+                if (!isNaN(date.getTime())) {
+                    return date.toISOString().split('T')[0];
+                }
+            } catch {}
+            
+            return null;
         }
 
         // STATISTICHE E VISUALIZZAZIONE
@@ -1035,13 +623,15 @@
             const dives = appState.dives;
             const currentYear = new Date().getFullYear();
             
+            const validDives = dives.filter(d => d.numeroImmersione); // Solo immersioni valide
+            
             const stats = {
-                total: dives.length,
-                maxDepth: dives.length > 0 ? Math.max(...dives.map(d => d.profMAX || 0)) : 0,
-                totalTime: dives.reduce((sum, d) => sum + (d.tempoMinuti || 0), 0),
-                avgTemp: dives.length > 0 ? 
-                    (dives.reduce((sum, d) => sum + (d.tempH2Omin || 0), 0) / dives.length).toFixed(1) : 0,
-                thisYear: dives.filter(d => new Date(d.data).getFullYear() === currentYear).length
+                total: validDives.length,
+                maxDepth: validDives.length > 0 ? Math.max(...validDives.map(d => d.profMAX || 0)) : 0,
+                totalTime: validDives.reduce((sum, d) => sum + (d.tempoMinuti || 0), 0),
+                avgTemp: validDives.length > 0 ? 
+                    (validDives.reduce((sum, d) => sum + (d.tempH2Omin || 0), 0) / validDives.length).toFixed(1) : 0,
+                thisYear: validDives.filter(d => d.data && new Date(d.data).getFullYear() === currentYear).length
             };
 
             document.getElementById('statTotal').textContent = stats.total;
@@ -1049,6 +639,15 @@
             document.getElementById('statTotalTime').textContent = stats.totalTime + 'min';
             document.getElementById('statAvgTemp').textContent = stats.avgTemp + '°C';
             document.getElementById('statThisYear').textContent = stats.thisYear;
+            
+            // Aggiorna timestamp ultimo aggiornamento
+            if (appState.lastUpdate) {
+                const time = appState.lastUpdate.toLocaleTimeString('it-IT', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                document.getElementById('statLastUpdate').textContent = time;
+            }
         }
 
         function updateDivesList() {
@@ -1057,10 +656,10 @@
             
             if (dives.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
-                        <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">📊</div>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
                         <h3>Nessuna immersione trovata</h3>
-                        <p>Carica i dati dal tuo Google Sheets o aggiungi la prima immersione</p>
+                        <p>Il Google Sheets è vuoto o non accessibile</p>
                     </div>
                 `;
                 return;
@@ -1079,24 +678,28 @@
                             <th>Aria usata</th>
                             <th>Temp min</th>
                             <th>Temp max</th>
+                            <th>Note</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
             dives.forEach(dive => {
-                const date = new Date(dive.data).toLocaleDateString('it-IT');
+                const date = dive.data && dive.data !== 'N/D' ? 
+                    new Date(dive.data).toLocaleDateString('it-IT') : 'N/D';
+                
                 html += `
                     <tr>
-                        <td><strong>#${dive.numeroImmersione}</strong></td>
+                        <td><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></td>
                         <td>${date}</td>
-                        <td>${dive.sito || 'Mare'}</td>
-                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 11px;">${dive.tipo}</span></td>
-                        <td><strong>${dive.profMAX}m</strong></td>
-                        <td>${dive.tempoMinuti}min</td>
-                        <td>${dive.ariaUsata}bar</td>
-                        <td>${dive.tempH2Omin}°C</td>
-                        <td>${dive.tempH2Omax}°C</td>
+                        <td>${dive.sito || '<span class="na-value">N/D</span>'}</td>
+                        <td><span class="tipo-badge">${dive.tipo || 'N/D'}</span></td>
+                        <td><strong>${formatValue(dive.profMAX, 'm')}</strong></td>
+                        <td>${formatValue(dive.tempoMinuti, 'min')}</td>
+                        <td>${formatValue(dive.ariaUsata, 'bar')}</td>
+                        <td>${formatValue(dive.tempH2Omin, '°C')}</td>
+                        <td>${formatValue(dive.tempH2Omax, '°C')}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${dive.note || ''}">${dive.note || '<span class="na-value">N/D</span>'}</td>
                     </tr>
                 `;
             });
@@ -1105,80 +708,76 @@
             container.innerHTML = html;
         }
 
-        // FUNZIONI DI ESPORTAZIONE
-        function exportAllToCSV() {
-            if (appState.dives.length === 0) {
-                showError('⚠️ Nessuna immersione da esportare');
-                return;
-            }
-
-            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
-            const csvContent = [
-                headers.join(','),
-                ...appState.dives.map(dive => formatDiveToCSV(dive))
-            ].join('\n');
-
-            downloadFile(`immersioni_export_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
-            showSuccess('📊 File CSV scaricato!');
-        }
-
-        function copyTemplateToClipboard() {
-            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
-            const template = [
-                headers.join(','),
-                '1,2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità',
-                '2,2024-08-11,Riva,180,60,120,35,12,20,22,Cinque Terre,Corrente leggera'
-            ].join('\n');
-
-            copyToClipboard(template).then(() => {
-                showSuccess('📋 Template copiato negli appunti! Incollalo in un nuovo Google Sheets.');
-            }).catch(() => {
-                downloadFile('template_immersioni.csv', template, 'text/csv');
-                showSuccess('📊 Template scaricato!');
-            });
-        }
-
-        function createTemplate() {
-            copyTemplateToClipboard();
-        }
-
-        function showInstructions() {
-            const panel = document.getElementById('instructionsPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
-
         // UTILITY FUNCTIONS
+        function updateStatus(message, type = 'info') {
+            const statusText = document.getElementById('statusText');
+            statusText.textContent = message;
+            
+            const statusDot = document.querySelector('.status-dot');
+            statusDot.style.background = 
+                type === 'success' ? '#28a745' : 
+                type === 'error' ? '#dc3545' : 
+                type === 'warning' ? '#ffc107' : '#007bff';
+        }
+
+        function setRefreshLoading(loading) {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = loading;
+            btn.textContent = loading ? '⏳ Caricando...' : '🔄 Aggiorna';
+        }
+
         function showSuccess(message) {
             const el = document.getElementById('successMessage');
             el.textContent = message;
             el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 5000);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => el.style.display = 'none', 4000);
         }
 
         function showError(message) {
             const el = document.getElementById('errorMessage');
-            el.textContent = message;
+            el.innerHTML = message.replace(/\n/g, '<br>'); // Permette line breaks
             el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 6000);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => el.style.display = 'none', 10000); // Più tempo per leggere errori
         }
 
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        function showDebugInfo() {
+            console.log('🔧 DEBUG INFO:');
+            console.log('📊 Google Sheets ID:', GOOGLE_SHEETS_ID);
+            console.log('🔗 URL completo:', `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/export?format=csv&gid=0`);
+            console.log('📋 Per testare manualmente, apri questo URL nel browser:');
+            console.log(`https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/edit`);
+            
+            // Mostra info nella pagina
+            const debugHtml = `
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-top: 20px;">
+                    <h4 style="color: #495057; margin-bottom: 10px;">🔧 Debug Info:</h4>
+                    <p><strong>Google Sheets ID:</strong> <code>${GOOGLE_SHEETS_ID}</code></p>
+                    <p><strong>URL di test:</strong> <a href="https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/edit" target="_blank">Apri Google Sheets</a></p>
+                    <p><strong>URL CSV:</strong> <a href="https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/export?format=csv&gid=0" target="_blank">Test download CSV</a></p>
+                    <p style="font-size: 12px; color: #6c757d; margin-top: 10px;">
+                        Se l'URL CSV non funziona, il foglio non è pubblico o l'ID è sbagliato.
+                    </p>
+                </div>
+            `;
+            
+            const container = document.getElementById('divesContainer');
+            container.innerHTML = debugHtml;
         }
 
-        function downloadFile(filename, content, contentType) {
-            const blob = new Blob([content], { type: contentType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        // AUTO-REFRESH
+        function startAutoRefresh() {
+            // Refresh automatico ogni 30 secondi
+            appState.autoRefreshInterval = setInterval(() => {
+                loadFromSheets();
+            }, 30000);
         }
+
+        // Cleanup quando si chiude la pagina
+        window.addEventListener('beforeunload', () => {
+            if (appState.autoRefreshInterval) {
+                clearInterval(appState.autoRefreshInterval);
+            }
+        });
     </script>
 </body>
 </html>
