@@ -455,9 +455,24 @@
     </div>
 
     <script>
-        // ⬇️⬇️⬇️ CAMBIA QUI IL TUO GOOGLE SHEETS ID ⬇️⬇️⬇️
+        // ═══════════════════════════════════════════════════════════════
+        // 🔧 CONFIGURAZIONE - MODIFICA QUI I TUOI PARAMETRI
+        // ═══════════════════════════════════════════════════════════════
+        
+        // ⬇️ GOOGLE SHEETS ID - Prendi dalla URL del tuo foglio
         const GOOGLE_SHEETS_ID = '16oQKi4aMWHaSQe4tdMcDJaAlgT_DTXs6gRphMnKyCdM';
-        // ⬆️⬆️⬆️ CAMBIA QUI IL TUO GOOGLE SHEETS ID ⬆️⬆️⬆️
+        
+        // ⬇️ TEMPO AUTO-REFRESH (in millisecondi)
+        const AUTO_REFRESH_INTERVAL = 1800000; // 5 minuti = 1800000ms
+        // Altri esempi:
+        // 60000   = 1 minuto
+        // 180000  = 3 minuti  
+        // 600000  = 10 minuti
+        // 1800000 = 30 minuti
+        
+        // ═══════════════════════════════════════════════════════════════
+        // 📊 CODICE APPLICAZIONE - NON MODIFICARE SOTTO QUESTA RIGA
+        // ═══════════════════════════════════════════════════════════════
         
         // Stato dell'applicazione
         let appState = {
@@ -774,7 +789,7 @@
                         <td data-label="Aria">${formatValue(dive.ariaUsata, 'bar')}</td>
                         <td data-label="Temp min">${formatValue(dive.tempH2Omin, '°C')}</td>
                         <td data-label="Temp max">${formatValue(dive.tempH2Omax, '°C')}</td>
-                        <td data-label="Note" title="${dive.note || ''}"><span class="note-content">${dive.note || '<span class="na-value">N/D</span>'}</span></td>
+                        <td data-label="Note" title="${dive.note || ''}">${dive.note || '<span class="na-value">N/D</span>'}</td>
                     </tr>
                 `;
             });
@@ -841,10 +856,10 @@
 
         // AUTO-REFRESH
         function startAutoRefresh() {
-            // Refresh automatico ogni 30 minuti invece di 30 secondi per risparmiare bandwidth
+            // Usa il tempo configurato in cima al file
             appState.autoRefreshInterval = setInterval(() => {
                 loadFromSheets();
-            }, 31800000); // 30 minuti = 1800000ms
+            }, AUTO_REFRESH_INTERVAL);
         }
 
         // Cleanup quando si chiude la pagina
