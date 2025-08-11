@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiveLog Pro - Registro Immersioni Cloud</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.0/umd/supabase.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.0/umd/supabase.min.js"></script>
     <style>
         :root {
             --primary: #00d4aa;
@@ -765,15 +765,64 @@
                 throw new Error('Supabase non inizializzato');
             }
 
-            const { data, error } = await appState.supabase
-                .from('dives')
-                .select('count', { count: 'exact', head: true });
+            try {
+                // Test 1: Connessione base
+                const { data: healthCheck, error: healthError } = await appState.supabase
+                    .from('dives')
+                    .select('count', { count: 'exact', head: true });
 
-            if (error && error.code !== 'PGRST116') { // PGRST116 = tabella non esiste
+                if (healthError) {
+                    if (healthError.code === 'PGRST116') {
+                        throw new Error('❌ Tabella "dives" non trovata. Vai nel dashboard Supabase > SQL Editor e crea la tabella con il comando SQL fornito.');
+                    } else if (healthError.message.includes('JWT')) {
+                        throw new Error('❌ Anon Key non valida. Verifica di aver copiato la chiave "anon" corretta dal dashboard Supabase.');
+                    } else if (healthError.message.includes('network')) {
+                        throw new Error('❌ Errore di rete. Verifica la connessione internet e che l\'URL sia corretto.');
+                    } else {
+                        throw new Error(`❌ Errore connessione: ${healthError.message} (Codice: ${healthError.code})`);
+                    }
+                }
+
+                // Test 2: Permessi
+                const { error: insertError } = await appState.supabase
+                    .from('dives')
+                    .insert({
+                        numero_immersione: 0,
+                        data: '2024-01-01',
+                        tipo: 'Test',
+                        atm_in: 200,
+                        atm_out: 50,
+                        aria_usata: 150,
+                        tempo_minuti: 1,
+                        prof_max: 1,
+                        temp_h2o_min: 20,
+                        temp_h2o_max: 20,
+                        sito: 'Test',
+                        note: 'Test connessione'
+                    })
+                    .select()
+                    .single();
+
+                if (insertError) {
+                    if (insertError.message.includes('RLS')) {
+                        throw new Error('❌ Permessi insufficienti. Vai nel dashboard Supabase > Authentication > RLS e disabilita RLS per la tabella "dives", oppure crea una policy.');
+                    } else {
+                        throw new Error(`❌ Test inserimento fallito: ${insertError.message}`);
+                    }
+                } else {
+                    // Rimuovi il record di test
+                    await appState.supabase
+                        .from('dives')
+                        .delete()
+                        .eq('note', 'Test connessione');
+                }
+
+                showSuccess('✅ Test connessione completato con successo!');
+                return true;
+
+            } catch (error) {
                 throw error;
             }
-
-            return true;
         }
 
         // Gestione database
