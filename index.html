@@ -5,7 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiveLog Pro - Registro Immersioni Cloud</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.0/umd/supabase.min.js"></script>
+    
+    <!-- Firebase SDK v9 (modular) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Esponi Firebase globalmente
+        window.firebaseApp = { initializeApp };
+        window.firestore = { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy };
+        
+        // Segnala che Firebase è caricato
+        window.firebaseLoaded = true;
+        document.dispatchEvent(new Event('firebaseReady'));
+    </script>
+    
     <style>
         :root {
             --primary: #00d4aa;
@@ -366,34 +380,49 @@
         <div class="app-header">
             <h1 class="app-title">
                 🌊 DiveLog Pro
-                <span class="cloud-badge">☁️ Cloud</span>
+                <span class="cloud-badge">🔥 Firebase</span>
             </h1>
             <p class="app-subtitle">Registro completo delle tue immersioni subacquee - Sincronizzato nel cloud</p>
         </div>
 
-        <!-- Setup Panel (mostrato se non configurato) -->
+        <!-- Setup Panel -->
         <div id="setupPanel" class="setup-panel" style="display: none;">
-            <h3>🔧 Prima Configurazione</h3>
+            <h3>🔧 Prima Configurazione Firebase</h3>
             <p style="margin-bottom: 15px;">
-                Per utilizzare DiveLog Pro Cloud, hai bisogno di un account Supabase gratuito.
-                <a href="https://supabase.com" target="_blank">Crea account qui</a> e copia le credenziali:
+                Per utilizzare DiveLog Pro Cloud, hai bisogno di un progetto Firebase gratuito.
+                <a href="https://console.firebase.google.com" target="_blank">Crea progetto qui</a>
             </p>
+            
+            <h4>Passo 1: Crea progetto Firebase</h4>
+            <ol style="margin: 10px 0 20px 20px; font-size: 14px;">
+                <li>Vai su <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></li>
+                <li>Clicca "Crea un progetto"</li>
+                <li>Aggiungi un'app Web (icona &lt;/&gt;)</li>
+                <li>Abilita Firestore Database</li>
+                <li>Copia la configurazione qui sotto:</li>
+            </ol>
+
             <div class="input-group">
-                <label>Supabase URL:</label>
-                <input type="url" id="supabaseUrl" placeholder="https://xxx.supabase.co">
+                <label>API Key:</label>
+                <input type="text" id="apiKey" placeholder="AIza...">
             </div>
             <div class="input-group">
-                <label>Supabase Anon Key:</label>
-                <input type="password" id="supabaseKey" placeholder="eyJ...">
+                <label>Project ID:</label>
+                <input type="text" id="projectId" placeholder="tuo-progetto-123">
             </div>
-            <button class="btn btn-primary" onclick="setupSupabase()">
-                💾 Configura e Connetti
+            <div class="input-group">
+                <label>App ID:</label>
+                <input type="text" id="appId" placeholder="1:123:web:456">
+            </div>
+            
+            <button class="btn btn-primary" onclick="setupFirebase()">
+                🔥 Configura Firebase
             </button>
         </div>
 
         <!-- Connection Status -->
         <div id="connectionStatus" style="text-align: center; margin-bottom: 20px; color: white;">
-            <span id="statusIndicator">🔄 Connessione in corso...</span>
+            <span id="statusIndicator">🔄 Caricamento Firebase...</span>
         </div>
 
         <!-- Statistiche -->
@@ -562,13 +591,6 @@
                             🔧 Esporta JSON
                         </button>
                     </div>
-                    
-                    <div style="margin-top: 30px;">
-                        <h4>Statistiche:</h4>
-                        <div id="exportStats" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px;">
-                            <!-- Statistiche export -->
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -577,28 +599,32 @@
         <div id="tab-settings" class="tab-content">
             <div class="main-card">
                 <div class="card-header">
-                    <h2>⚙️ Impostazioni Cloud</h2>
+                    <h2>⚙️ Impostazioni Firebase</h2>
                     <p>Gestisci la connessione al database</p>
                 </div>
                 <div class="form-container">
                     <div style="background: #e3f2fd; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
-                        <h4 style="color: #1976d2; margin-bottom: 15px;">☁️ Stato Connessione</h4>
+                        <h4 style="color: #1976d2; margin-bottom: 15px;">🔥 Stato Connessione</h4>
                         <div id="connectionInfo">
                             <!-- Info connessione -->
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label>Supabase URL:</label>
-                        <input type="url" id="settingsUrl" placeholder="https://xxx.supabase.co">
+                        <label>API Key:</label>
+                        <input type="text" id="settingsApiKey" placeholder="AIza...">
                     </div>
                     <div class="input-group">
-                        <label>Supabase Anon Key:</label>
-                        <input type="password" id="settingsKey" placeholder="eyJ...">
+                        <label>Project ID:</label>
+                        <input type="text" id="settingsProjectId" placeholder="tuo-progetto-123">
+                    </div>
+                    <div class="input-group">
+                        <label>App ID:</label>
+                        <input type="text" id="settingsAppId" placeholder="1:123:web:456">
                     </div>
                     
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button class="btn btn-primary" onclick="updateSupabaseConfig()">
+                        <button class="btn btn-primary" onclick="updateFirebaseConfig()">
                             💾 Aggiorna Configurazione
                         </button>
                         <button class="btn btn-secondary" onclick="testConnection()">
@@ -625,32 +651,45 @@
         // Stato dell'applicazione
         let appState = {
             dives: [],
-            supabase: null,
+            firebaseApp: null,
+            db: null,
             connected: false,
             editingDive: null
         };
 
-        // Configurazione Supabase
-        const SUPABASE_CONFIG_KEY = 'divelog_supabase_config';
+        // Configurazione Firebase
+        const FIREBASE_CONFIG_KEY = 'divelog_firebase_config';
+
+        // Attendi che Firebase sia caricato
+        document.addEventListener('firebaseReady', function() {
+            console.log('🔥 Firebase caricato!');
+            updateConnectionStatus('🔥 Firebase caricato', 'success');
+            loadFirebaseConfig();
+        });
 
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
-            loadSupabaseConfig();
             setupForm();
             
             // Set data default
             document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            
+            // Se Firebase non è ancora caricato, aspetta
+            if (!window.firebaseLoaded) {
+                updateConnectionStatus('🔄 Caricamento Firebase...', 'loading');
+            }
         });
 
-        // Gestione configurazione Supabase
-        function loadSupabaseConfig() {
-            const saved = localStorage.getItem(SUPABASE_CONFIG_KEY);
+        // Gestione configurazione Firebase
+        function loadFirebaseConfig() {
+            const saved = localStorage.getItem(FIREBASE_CONFIG_KEY);
             if (saved) {
                 try {
                     const config = JSON.parse(saved);
-                    document.getElementById('settingsUrl').value = config.url;
-                    document.getElementById('settingsKey').value = config.key;
-                    initializeSupabase(config.url, config.key);
+                    document.getElementById('settingsApiKey').value = config.apiKey;
+                    document.getElementById('settingsProjectId').value = config.projectId;
+                    document.getElementById('settingsAppId').value = config.appId;
+                    initializeFirebase(config);
                 } catch (error) {
                     console.error('Errore caricamento config:', error);
                     showSetupPanel();
@@ -669,70 +708,82 @@
             document.getElementById('setupPanel').style.display = 'none';
         }
 
-        function setupSupabase() {
-            const url = document.getElementById('supabaseUrl').value.trim();
-            const key = document.getElementById('supabaseKey').value.trim();
+        function setupFirebase() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const projectId = document.getElementById('projectId').value.trim();
+            const appId = document.getElementById('appId').value.trim();
             
-            if (!url || !key) {
-                showError('⚠️ Inserisci URL e Key di Supabase');
+            if (!apiKey || !projectId || !appId) {
+                showError('⚠️ Inserisci tutti i campi di configurazione Firebase');
                 return;
             }
 
-            const config = { url, key };
-            localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
+            const config = { apiKey, projectId, appId };
+            localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(config));
             
-            document.getElementById('settingsUrl').value = url;
-            document.getElementById('settingsKey').value = key;
+            document.getElementById('settingsApiKey').value = apiKey;
+            document.getElementById('settingsProjectId').value = projectId;
+            document.getElementById('settingsAppId').value = appId;
             
-            initializeSupabase(url, key);
+            initializeFirebase(config);
             hideSetupPanel();
         }
 
-        function updateSupabaseConfig() {
-            const url = document.getElementById('settingsUrl').value.trim();
-            const key = document.getElementById('settingsKey').value.trim();
+        function updateFirebaseConfig() {
+            const apiKey = document.getElementById('settingsApiKey').value.trim();
+            const projectId = document.getElementById('settingsProjectId').value.trim();
+            const appId = document.getElementById('settingsAppId').value.trim();
             
-            if (!url || !key) {
-                showError('⚠️ Inserisci URL e Key validi');
+            if (!apiKey || !projectId || !appId) {
+                showError('⚠️ Inserisci tutti i campi validi');
                 return;
             }
 
-            const config = { url, key };
-            localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
-            initializeSupabase(url, key);
+            const config = { apiKey, projectId, appId };
+            localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(config));
+            initializeFirebase(config);
             showSuccess('🔄 Configurazione aggiornata');
         }
 
         function resetConfig() {
-            if (confirm('Rimuovere la configurazione Supabase? Dovrai reinserire le credenziali.')) {
-                localStorage.removeItem(SUPABASE_CONFIG_KEY);
-                appState.supabase = null;
+            if (confirm('Rimuovere la configurazione Firebase? Dovrai reinserire le credenziali.')) {
+                localStorage.removeItem(FIREBASE_CONFIG_KEY);
+                appState.firebaseApp = null;
+                appState.db = null;
                 appState.connected = false;
-                document.getElementById('settingsUrl').value = '';
-                document.getElementById('settingsKey').value = '';
+                document.getElementById('settingsApiKey').value = '';
+                document.getElementById('settingsProjectId').value = '';
+                document.getElementById('settingsAppId').value = '';
                 showSetupPanel();
                 showSuccess('🔄 Configurazione rimossa');
             }
         }
 
-        // Inizializzazione Supabase
-        async function initializeSupabase(url, key) {
+        // Inizializzazione Firebase
+        async function initializeFirebase(config) {
             try {
                 updateConnectionStatus('🔄 Connessione in corso...', 'loading');
                 
-                appState.supabase = supabase.createClient(url, key);
+                const firebaseConfig = {
+                    apiKey: config.apiKey,
+                    authDomain: `${config.projectId}.firebaseapp.com`,
+                    projectId: config.projectId,
+                    storageBucket: `${config.projectId}.appspot.com`,
+                    messagingSenderId: "123456789",
+                    appId: config.appId
+                };
+
+                appState.firebaseApp = window.firebaseApp.initializeApp(firebaseConfig);
+                appState.db = window.firestore.getFirestore(appState.firebaseApp);
                 
                 // Test connessione
                 await testConnection();
-                
-                // Crea tabella se non existe
-                await createTableIfNotExists();
                 
                 // Carica dati
                 await loadDives();
                 
                 appState.connected = true;
-                updateConnectionStatus('✅ Connesso al cloud', 'success');
+                updateConnectionStatus('✅ Connesso a Firebase', 'success');
                 updateStats();
                 hideSetupPanel();
                 
@@ -744,149 +795,58 @@
             }
         }
 
-        function updateConnectionStatus(message, type) {
-            const indicator = document.getElementById('statusIndicator');
-            const info = document.getElementById('connectionInfo');
-            
-            indicator.textContent = message;
-            
-            if (info) {
-                const timestamp = new Date().toLocaleString('it-IT');
-                info.innerHTML = `
-                    <strong>Stato:</strong> ${message}<br>
-                    <strong>Ultimo aggiornamento:</strong> ${timestamp}<br>
-                    <strong>Database:</strong> ${appState.connected ? 'Supabase PostgreSQL' : 'Non connesso'}
-                `;
-            }
-        }
-
         async function testConnection() {
-            if (!appState.supabase) {
-                throw new Error('Supabase non inizializzato');
+            if (!appState.db) {
+                throw new Error('Firebase non inizializzato');
             }
 
             try {
-                // Test 1: Connessione base
-                const { data: healthCheck, error: healthError } = await appState.supabase
-                    .from('dives')
-                    .select('count', { count: 'exact', head: true });
-
-                if (healthError) {
-                    if (healthError.code === 'PGRST116') {
-                        throw new Error('❌ Tabella "dives" non trovata. Vai nel dashboard Supabase > SQL Editor e crea la tabella con il comando SQL fornito.');
-                    } else if (healthError.message.includes('JWT')) {
-                        throw new Error('❌ Anon Key non valida. Verifica di aver copiato la chiave "anon" corretta dal dashboard Supabase.');
-                    } else if (healthError.message.includes('network')) {
-                        throw new Error('❌ Errore di rete. Verifica la connessione internet e che l\'URL sia corretto.');
-                    } else {
-                        throw new Error(`❌ Errore connessione: ${healthError.message} (Codice: ${healthError.code})`);
-                    }
-                }
-
-                // Test 2: Permessi
-                const { error: insertError } = await appState.supabase
-                    .from('dives')
-                    .insert({
-                        numero_immersione: 0,
-                        data: '2024-01-01',
-                        tipo: 'Test',
-                        atm_in: 200,
-                        atm_out: 50,
-                        aria_usata: 150,
-                        tempo_minuti: 1,
-                        prof_max: 1,
-                        temp_h2o_min: 20,
-                        temp_h2o_max: 20,
-                        sito: 'Test',
-                        note: 'Test connessione'
-                    })
-                    .select()
-                    .single();
-
-                if (insertError) {
-                    if (insertError.message.includes('RLS')) {
-                        throw new Error('❌ Permessi insufficienti. Vai nel dashboard Supabase > Authentication > RLS e disabilita RLS per la tabella "dives", oppure crea una policy.');
-                    } else {
-                        throw new Error(`❌ Test inserimento fallito: ${insertError.message}`);
-                    }
-                } else {
-                    // Rimuovi il record di test
-                    await appState.supabase
-                        .from('dives')
-                        .delete()
-                        .eq('note', 'Test connessione');
-                }
-
-                showSuccess('✅ Test connessione completato con successo!');
+                // Test leggendo la collezione
+                const divesRef = window.firestore.collection(appState.db, 'dives');
+                const snapshot = await window.firestore.getDocs(divesRef);
+                
+                showSuccess('✅ Test connessione Firebase completato!');
                 return true;
 
             } catch (error) {
-                throw error;
+                if (error.code === 'permission-denied') {
+                    throw new Error('❌ Permessi insufficienti. Vai nella console Firebase > Firestore Database > Rules e imposta: allow read, write: if true;');
+                } else if (error.code === 'not-found') {
+                    throw new Error('❌ Progetto non trovato. Verifica il Project ID.');
+                } else {
+                    throw new Error(`❌ Test connessione fallito: ${error.message}`);
+                }
             }
         }
 
         // Gestione database
-        async function createTableIfNotExists() {
-            // La tabella va creata manualmente in Supabase Dashboard con:
-            /*
-            CREATE TABLE dives (
-                id BIGSERIAL PRIMARY KEY,
-                numero_immersione INTEGER,
-                data DATE NOT NULL,
-                tipo VARCHAR(50) NOT NULL,
-                atm_in INTEGER NOT NULL,
-                atm_out INTEGER NOT NULL,
-                aria_usata INTEGER NOT NULL,
-                tempo_minuti INTEGER NOT NULL,
-                prof_max DECIMAL(5,1) NOT NULL,
-                temp_h2o_min DECIMAL(4,1) NOT NULL,
-                temp_h2o_max DECIMAL(4,1),
-                sito VARCHAR(255) NOT NULL,
-                note TEXT,
-                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-            );
-            */
-            
-            // Qui verifichiamo solo se possiamo accedere alla tabella
-            try {
-                await appState.supabase
-                    .from('dives')
-                    .select('count', { count: 'exact', head: true });
-            } catch (error) {
-                if (error.code === 'PGRST116') {
-                    throw new Error('Tabella "dives" non trovata. Crea la tabella nel dashboard Supabase.');
-                }
-                throw error;
-            }
-        }
-
         async function loadDives() {
             try {
                 showLoading(true);
                 
-                const { data, error } = await appState.supabase
-                    .from('dives')
-                    .select('*')
-                    .order('data', { ascending: false })
-                    .order('numero_immersione', { ascending: false });
+                const divesRef = window.firestore.collection(appState.db, 'dives');
+                const q = window.firestore.query(divesRef, window.firestore.orderBy('data', 'desc'), window.firestore.orderBy('numeroImmersione', 'desc'));
+                const snapshot = await window.firestore.getDocs(q);
 
-                if (error) throw error;
-
-                appState.dives = data.map(dive => ({
-                    id: dive.id,
-                    numeroImmersione: dive.numero_immersione,
-                    data: dive.data,
-                    tipo: dive.tipo,
-                    atmIN: dive.atm_in,
-                    atmOUT: dive.atm_out,
-                    ariaUsata: dive.aria_usata,
-                    tempoMinuti: dive.tempo_minuti,
-                    profMAX: dive.prof_max,
-                    tempH2Omin: dive.temp_h2o_min,
-                    tempH2Omax: dive.temp_h2o_max,
-                    sito: dive.sito,
-                    note: dive.note || ''
-                }));
+                appState.dives = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    appState.dives.push({
+                        id: doc.id,
+                        numeroImmersione: data.numeroImmersione,
+                        data: data.data,
+                        tipo: data.tipo,
+                        atmIN: data.atmIN,
+                        atmOUT: data.atmOUT,
+                        ariaUsata: data.ariaUsata,
+                        tempoMinuti: data.tempoMinuti,
+                        profMAX: data.profMAX,
+                        tempH2Omin: data.tempH2Omin,
+                        tempH2Omax: data.tempH2Omax,
+                        sito: data.sito,
+                        note: data.note || ''
+                    });
+                });
 
                 updateDivesList();
                 showLoading(false);
@@ -902,74 +862,60 @@
             try {
                 showLoading(true);
 
-                const dbData = {
-                    numero_immersione: diveData.numeroImmersione,
-                    data: diveData.data,
-                    tipo: diveData.tipo,
-                    atm_in: diveData.atmIN,
-                    atm_out: diveData.atmOUT,
-                    aria_usata: diveData.ariaUsata,
-                    tempo_minuti: diveData.tempoMinuti,
-                    prof_max: diveData.profMAX,
-                    temp_h2o_min: diveData.tempH2Omin,
-                    temp_h2o_max: diveData.tempH2Omax,
-                    sito: diveData.sito,
-                    note: diveData.note
-                };
+                const divesRef = window.firestore.collection(appState.db, 'dives');
 
-                let result;
-                if (diveData.id && diveData.id > 0) {
+                if (diveData.id) {
                     // Update esistente
-                    result = await appState.supabase
-                        .from('dives')
-                        .update(dbData)
-                        .eq('id', diveData.id)
-                        .select()
-                        .single();
-                } else {
-                    // Insert nuovo
-                    result = await appState.supabase
-                        .from('dives')
-                        .insert(dbData)
-                        .select()
-                        .single();
-                }
+                    const docRef = window.firestore.doc(appState.db, 'dives', diveData.id);
+                    await window.firestore.updateDoc(docRef, {
+                        numeroImmersione: diveData.numeroImmersione,
+                        data: diveData.data,
+                        tipo: diveData.tipo,
+                        atmIN: diveData.atmIN,
+                        atmOUT: diveData.atmOUT,
+                        ariaUsata: diveData.ariaUsata,
+                        tempoMinuti: diveData.tempoMinuti,
+                        profMAX: diveData.profMAX,
+                        tempH2Omin: diveData.tempH2Omin,
+                        tempH2Omax: diveData.tempH2Omax,
+                        sito: diveData.sito,
+                        note: diveData.note
+                    });
 
-                if (result.error) throw result.error;
-
-                // Aggiorna stato locale
-                const savedDive = {
-                    id: result.data.id,
-                    numeroImmersione: result.data.numero_immersione,
-                    data: result.data.data,
-                    tipo: result.data.tipo,
-                    atmIN: result.data.atm_in,
-                    atmOUT: result.data.atm_out,
-                    ariaUsata: result.data.aria_usata,
-                    tempoMinuti: result.data.tempo_minuti,
-                    profMAX: result.data.prof_max,
-                    tempH2Omin: result.data.temp_h2o_min,
-                    tempH2Omax: result.data.temp_h2o_max,
-                    sito: result.data.sito,
-                    note: result.data.note || ''
-                };
-
-                if (diveData.id && diveData.id > 0) {
-                    // Update locale
+                    // Aggiorna stato locale
                     const index = appState.dives.findIndex(d => d.id === diveData.id);
                     if (index >= 0) {
-                        appState.dives[index] = savedDive;
+                        appState.dives[index] = { ...diveData };
                     }
                 } else {
-                    // Add nuovo
-                    appState.dives.unshift(savedDive);
+                    // Insert nuovo
+                    const docRef = await window.firestore.addDoc(divesRef, {
+                        numeroImmersione: diveData.numeroImmersione,
+                        data: diveData.data,
+                        tipo: diveData.tipo,
+                        atmIN: diveData.atmIN,
+                        atmOUT: diveData.atmOUT,
+                        ariaUsata: diveData.ariaUsata,
+                        tempoMinuti: diveData.tempoMinuti,
+                        profMAX: diveData.profMAX,
+                        tempH2Omin: diveData.tempH2Omin,
+                        tempH2Omax: diveData.tempH2Omax,
+                        sito: diveData.sito,
+                        note: diveData.note,
+                        createdAt: new Date()
+                    });
+
+                    // Aggiungi a stato locale
+                    const newDive = { ...diveData, id: docRef.id };
+                    appState.dives.unshift(newDive);
+                    diveData.id = docRef.id;
                 }
 
                 updateStats();
                 updateDivesList();
                 showLoading(false);
 
-                return savedDive;
+                return diveData;
 
             } catch (error) {
                 console.error('Errore salvataggio:', error);
@@ -983,12 +929,8 @@
             try {
                 showLoading(true);
 
-                const { error } = await appState.supabase
-                    .from('dives')
-                    .delete()
-                    .eq('id', diveId);
-
-                if (error) throw error;
+                const docRef = window.firestore.doc(appState.db, 'dives', diveId);
+                await window.firestore.deleteDoc(docRef);
 
                 // Rimuovi da stato locale
                 appState.dives = appState.dives.filter(d => d.id !== diveId);
@@ -1067,7 +1009,7 @@
                     const savedDive = await saveDive(dive);
                     
                     const action = appState.editingDive ? 'modificata' : 'salvata';
-                    showSuccess(`✅ Immersione #${savedDive.numeroImmersione} ${action} nel cloud!`);
+                    showSuccess(`✅ Immersione #${savedDive.numeroImmersione} ${action} in Firebase!`);
                     
                     resetForm();
                 } catch (error) {
@@ -1140,7 +1082,7 @@
                     <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
                         <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">🌊</div>
                         <h3>Nessuna immersione registrata</h3>
-                        <p>Aggiungi la tua prima immersione nel cloud</p>
+                        <p>Aggiungi la tua prima immersione nel cloud Firebase</p>
                     </div>
                 `;
                 return;
@@ -1179,8 +1121,8 @@
                         <td>${dive.tempH2Omin}°C</td>
                         <td>${dive.tempH2Omax}°C</td>
                         <td class="actions">
-                            <button class="btn btn-secondary" onclick="editDive(${dive.id})" title="Modifica">✏️</button>
-                            <button class="btn btn-danger" onclick="confirmDeleteDive(${dive.id})" title="Elimina">🗑️</button>
+                            <button class="btn btn-secondary" onclick="editDive('${dive.id}')" title="Modifica">✏️</button>
+                            <button class="btn btn-danger" onclick="confirmDeleteDive('${dive.id}')" title="Elimina">🗑️</button>
                         </td>
                     </tr>
                 `;
@@ -1247,7 +1189,7 @@
                 ].join(','))
             ].join('\n');
 
-            downloadFile(`immersioni_cloud_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
+            downloadFile(`immersioni_firebase_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
             showSuccess('📊 Export CSV completato!');
         }
 
@@ -1258,7 +1200,7 @@
             }
 
             const jsonContent = JSON.stringify(appState.dives, null, 2);
-            downloadFile(`immersioni_cloud_backup_${new Date().toISOString().split('T')[0]}.json`, jsonContent, 'application/json');
+            downloadFile(`immersioni_firebase_backup_${new Date().toISOString().split('T')[0]}.json`, jsonContent, 'application/json');
             showSuccess('🔧 Export JSON completato!');
         }
 
@@ -1292,27 +1234,6 @@
             // Update data if needed
             if (tabName === 'list') {
                 updateDivesList();
-            } else if (tabName === 'export') {
-                updateExportStats();
-            }
-        }
-
-        function updateExportStats() {
-            const stats = document.getElementById('exportStats');
-            if (stats && appState.dives.length > 0) {
-                const sortedDives = [...appState.dives].sort((a, b) => new Date(a.data) - new Date(b.data));
-                stats.innerHTML = `
-                    <strong>Totale immersioni:</strong> ${appState.dives.length}<br>
-                    <strong>Prima immersione:</strong> ${new Date(sortedDives[0].data).toLocaleDateString('it-IT')}<br>
-                    <strong>Ultima immersione:</strong> ${new Date(sortedDives[sortedDives.length - 1].data).toLocaleDateString('it-IT')}<br>
-                    <strong>Profondità massima:</strong> ${Math.max(...appState.dives.map(d => d.profMAX))}m<br>
-                    <strong>Fonte dati:</strong> Database Cloud Supabase
-                `;
-            } else if (stats) {
-                stats.innerHTML = `
-                    <strong>Nessuna immersione registrata nel cloud</strong><br>
-                    Aggiungi la tua prima immersione per vedere le statistiche.
-                `;
             }
         }
 
@@ -1335,8 +1256,8 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        console.log('🌊 DiveLog Pro Cloud - Versione con database caricata');
-        console.log('☁️ I dati vengono salvati in Supabase PostgreSQL');
+        console.log('🌊 DiveLog Pro Firebase - Versione con database cloud caricata');
+        console.log('🔥 I dati vengono salvati in Firebase Firestore');
     </script>
 </body>
 </html>
