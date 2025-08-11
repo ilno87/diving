@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DiveLog Pro - Registro Immersioni</title>
+    <title>DiveLog Pro - Registro Immersioni Cloud</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.0/umd/supabase.min.js"></script>
     <style>
         :root {
             --primary: #00d4aa;
@@ -55,6 +56,16 @@
             font-size: 16px;
             opacity: 0.9;
             font-weight: 300;
+        }
+
+        .cloud-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+            backdrop-filter: blur(10px);
         }
 
         .tabs {
@@ -305,44 +316,36 @@
             font-size: 12px;
         }
 
-        .toolbar {
+        .setup-panel {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .setup-panel h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .setup-panel input {
+            margin-bottom: 10px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .filters {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-
-        .empty-state .icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .pagination {
-            display: flex;
             justify-content: center;
-            gap: 5px;
-            margin-top: 20px;
-        }
-
-        .pagination .btn {
-            padding: 8px 12px;
-            min-width: auto;
+            z-index: 9999;
+            color: white;
+            font-size: 18px;
         }
 
         /* Responsive */
@@ -354,19 +357,6 @@
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
-            .toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .dive-table {
-                font-size: 12px;
-            }
-            
-            .dive-table th, .dive-table td {
-                padding: 8px 6px;
-            }
         }
     </style>
 </head>
@@ -374,8 +364,36 @@
     <div class="container">
         <!-- Header -->
         <div class="app-header">
-            <h1 class="app-title">🌊 DiveLog Pro</h1>
-            <p class="app-subtitle">Registro completo delle tue immersioni subacquee</p>
+            <h1 class="app-title">
+                🌊 DiveLog Pro
+                <span class="cloud-badge">☁️ Cloud</span>
+            </h1>
+            <p class="app-subtitle">Registro completo delle tue immersioni subacquee - Sincronizzato nel cloud</p>
+        </div>
+
+        <!-- Setup Panel (mostrato se non configurato) -->
+        <div id="setupPanel" class="setup-panel" style="display: none;">
+            <h3>🔧 Prima Configurazione</h3>
+            <p style="margin-bottom: 15px;">
+                Per utilizzare DiveLog Pro Cloud, hai bisogno di un account Supabase gratuito.
+                <a href="https://supabase.com" target="_blank">Crea account qui</a> e copia le credenziali:
+            </p>
+            <div class="input-group">
+                <label>Supabase URL:</label>
+                <input type="url" id="supabaseUrl" placeholder="https://xxx.supabase.co">
+            </div>
+            <div class="input-group">
+                <label>Supabase Anon Key:</label>
+                <input type="password" id="supabaseKey" placeholder="eyJ...">
+            </div>
+            <button class="btn btn-primary" onclick="setupSupabase()">
+                💾 Configura e Connetti
+            </button>
+        </div>
+
+        <!-- Connection Status -->
+        <div id="connectionStatus" style="text-align: center; margin-bottom: 20px; color: white;">
+            <span id="statusIndicator">🔄 Connessione in corso...</span>
         </div>
 
         <!-- Statistiche -->
@@ -406,9 +424,8 @@
         <div class="tabs">
             <div class="tab active" onclick="switchTab('add')">➕ Aggiungi</div>
             <div class="tab" onclick="switchTab('list')">📋 Elenco</div>
-            <div class="tab" onclick="switchTab('import')">📥 Importa</div>
             <div class="tab" onclick="switchTab('export')">📤 Esporta</div>
-            <div class="tab" onclick="switchTab('manage')">⚙️ Gestione</div>
+            <div class="tab" onclick="switchTab('settings')">⚙️ Impostazioni</div>
         </div>
 
         <!-- Messages -->
@@ -423,9 +440,7 @@
                     <p>Registra la tua ultima avventura subacquea</p>
                 </div>
                 <div class="form-container">
-                    <form id="diveForm" name="dive-log" method="POST" data-netlify="true">
-                        <input type="hidden" name="form-name" value="dive-log" />
-                        
+                    <form id="diveForm">
                         <div class="input-row">
                             <div class="input-group">
                                 <label for="data">Data</label>
@@ -519,157 +534,13 @@
             <div class="main-card">
                 <div class="card-header">
                     <h2>📋 Le Tue Immersioni</h2>
-                    <p>Storico completo delle immersioni registrate</p>
+                    <p>Storico completo sincronizzato nel cloud</p>
                 </div>
                 <div class="form-container">
-                    <div class="toolbar">
-                        <div class="filters">
-                            <select id="filterYear" onchange="filterDives()">
-                                <option value="">Tutti gli anni</option>
-                            </select>
-                            <select id="filterType" onchange="filterDives()">
-                                <option value="">Tutti i tipi</option>
-                                <option value="Barca">Barca</option>
-                                <option value="Riva">Riva</option>
-                                <option value="Gommone">Gommone</option>
-                                <option value="Corso">Corso</option>
-                                <option value="Apnea">Apnea</option>
-                                <option value="Altro">Altro</option>
-                            </select>
-                        </div>
-                    </div>
-                    
                     <div id="divesContainer">
-                        <!-- Lista immersioni -->
-                    </div>
-
-                    <div id="pagination" class="pagination">
-                        <!-- Paginazione -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Importa CSV -->
-        <div id="tab-import" class="tab-content">
-            <div class="main-card">
-                <div class="card-header">
-                    <h2>📥 Importa Dati</h2>
-                    <p>Carica immersioni da file CSV</p>
-                </div>
-                <div class="form-container">
-                    <div style="margin-bottom: 20px;">
-                        <h4>Formato CSV richiesto:</h4>
-                        <code style="background: #f8f9fa; padding: 10px; border-radius: 6px; display: block; margin: 10px 0; font-size: 12px;">
-                            Numero,Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
-                        </code>
-                        <p style="font-size: 14px; color: #666; margin-top: 10px;">
-                            💡 <strong>Nota:</strong> Il numero immersione può essere incluso nel CSV o generato automaticamente
-                        </p>
-                    </div>
-
-                    <!-- Upload File CSV -->
-                    <div style="margin-bottom: 30px;">
-                        <h4>📁 Carica file CSV:</h4>
-                        <div class="file-drop" id="fileDrop" style="border: 2px dashed #ddd; border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: #fafbfc; margin: 15px 0;">
-                            <div style="font-size: 48px; margin-bottom: 15px;">📄</div>
-                            <h3>Trascina un file CSV qui</h3>
-                            <p>oppure clicca per selezionare</p>
-                            <input type="file" id="csvFile" accept=".csv" style="display: none;">
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('csvFile').click()" style="margin-top: 15px;">
-                                📁 Seleziona File CSV
-                            </button>
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            🔄 Caricamento immersioni...
                         </div>
-                    </div>
-                    
-                    <div style="margin: 30px 0;">
-                        <h4>📝 Oppure incolla i dati CSV:</h4>
-                        <textarea id="csvData" rows="10" 
-                                  placeholder="Numero,Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note
-1,2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità"></textarea>
-                    </div>
-
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button type="button" class="btn btn-secondary" onclick="generateTemplate()">
-                            📝 Genera Template
-                        </button>
-                        <button type="button" class="btn btn-primary" onclick="importCSV()">
-                            📥 Importa Dati
-                        </button>
-                        <button type="button" class="btn btn-warning" onclick="clearCSVData()">
-                            🧹 Pulisci Area
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Gestione -->
-        <div id="tab-manage" class="tab-content">
-            <div class="main-card">
-                <div class="card-header">
-                    <h2>⚙️ Gestione Dati</h2>
-                    <p>Backup, ripristino e manutenzione delle immersioni</p>
-                </div>
-                <div class="form-container">
-                    <!-- Info Storage -->
-                    <div style="background: #e3f2fd; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
-                        <h4 style="color: #1976d2; margin-bottom: 15px;">💾 Informazioni Storage</h4>
-                        <div id="storageInfo">
-                            <!-- Info storage -->
-                        </div>
-                    </div>
-
-                    <!-- Backup e Ripristino -->
-                    <div style="margin-bottom: 30px;">
-                        <h4>🔄 Backup e Ripristino:</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                            <button type="button" class="btn btn-success" onclick="downloadBackup()">
-                                💾 Scarica Backup Completo
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('backupFile').click()">
-                                📂 Ripristina da Backup
-                            </button>
-                        </div>
-                        <input type="file" id="backupFile" accept=".json" style="display: none;" onchange="restoreBackup()">
-                    </div>
-
-                    <!-- Pulizia Dati -->
-                    <div style="background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
-                        <h4 style="color: #856404; margin-bottom: 15px;">⚠️ Zona Pericolosa</h4>
-                        <p style="color: #856404; margin-bottom: 15px;">
-                            Queste azioni sono irreversibili. Assicurati di aver fatto un backup prima di procedere.
-                        </p>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button type="button" class="btn btn-warning" onclick="clearDuplicates()">
-                                🧹 Rimuovi Duplicati
-                            </button>
-                            <button type="button" class="btn btn-danger" onclick="clearAllData()">
-                                🗑️ Elimina Tutte le Immersioni
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Strumenti Avanzati -->
-                    <div style="margin-bottom: 25px;">
-                        <h4>🔧 Strumenti Avanzati:</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                            <button type="button" class="btn btn-secondary" onclick="validateData()">
-                                ✅ Valida Dati
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="compactData()">
-                                📦 Compatta Storage
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="showDataInfo()">
-                                📊 Info Dettagliate
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Risultati Operazioni -->
-                    <div id="operationResult" style="margin-top: 25px; display: none;">
-                        <h4>📋 Risultato Operazione:</h4>
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; font-family: monospace; white-space: pre-wrap;"></div>
                     </div>
                 </div>
             </div>
@@ -680,7 +551,7 @@
             <div class="main-card">
                 <div class="card-header">
                     <h2>📤 Esporta Dati</h2>
-                    <p>Scarica le tue immersioni</p>
+                    <p>Scarica le tue immersioni dal cloud</p>
                 </div>
                 <div class="form-container">
                     <div class="input-row">
@@ -701,53 +572,392 @@
                 </div>
             </div>
         </div>
+
+        <!-- TAB: Impostazioni -->
+        <div id="tab-settings" class="tab-content">
+            <div class="main-card">
+                <div class="card-header">
+                    <h2>⚙️ Impostazioni Cloud</h2>
+                    <p>Gestisci la connessione al database</p>
+                </div>
+                <div class="form-container">
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                        <h4 style="color: #1976d2; margin-bottom: 15px;">☁️ Stato Connessione</h4>
+                        <div id="connectionInfo">
+                            <!-- Info connessione -->
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Supabase URL:</label>
+                        <input type="url" id="settingsUrl" placeholder="https://xxx.supabase.co">
+                    </div>
+                    <div class="input-group">
+                        <label>Supabase Anon Key:</label>
+                        <input type="password" id="settingsKey" placeholder="eyJ...">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="updateSupabaseConfig()">
+                            💾 Aggiorna Configurazione
+                        </button>
+                        <button class="btn btn-secondary" onclick="testConnection()">
+                            🔍 Testa Connessione
+                        </button>
+                        <button class="btn btn-warning" onclick="resetConfig()">
+                            🔄 Reset Configurazione
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div>
+            <div style="font-size: 48px; margin-bottom: 20px;">🌊</div>
+            <div>Sincronizzazione in corso...</div>
+        </div>
     </div>
 
     <script>
         // Stato dell'applicazione
         let appState = {
             dives: [],
-            currentPage: 1,
-            itemsPerPage: 10,
-            filteredDives: [],
+            supabase: null,
+            connected: false,
             editingDive: null
         };
 
+        // Configurazione Supabase
+        const SUPABASE_CONFIG_KEY = 'divelog_supabase_config';
+
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
-            loadData();
-            updateStats();
-            updateDivesList();
+            loadSupabaseConfig();
             setupForm();
-            setupFileUpload();
-            updateStorageInfo();
             
             // Set data default
             document.getElementById('data').value = new Date().toISOString().split('T')[0];
         });
 
-        function loadData() {
-            const saved = localStorage.getItem('divelog_data');
+        // Gestione configurazione Supabase
+        function loadSupabaseConfig() {
+            const saved = localStorage.getItem(SUPABASE_CONFIG_KEY);
             if (saved) {
                 try {
-                    appState.dives = JSON.parse(saved);
+                    const config = JSON.parse(saved);
+                    document.getElementById('settingsUrl').value = config.url;
+                    document.getElementById('settingsKey').value = config.key;
+                    initializeSupabase(config.url, config.key);
                 } catch (error) {
-                    console.error('Errore caricamento:', error);
-                    appState.dives = [];
+                    console.error('Errore caricamento config:', error);
+                    showSetupPanel();
                 }
+            } else {
+                showSetupPanel();
             }
         }
 
-        function saveData() {
+        function showSetupPanel() {
+            document.getElementById('setupPanel').style.display = 'block';
+            updateConnectionStatus('⚠️ Configurazione richiesta', 'warning');
+        }
+
+        function hideSetupPanel() {
+            document.getElementById('setupPanel').style.display = 'none';
+        }
+
+        function setupSupabase() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+            
+            if (!url || !key) {
+                showError('⚠️ Inserisci URL e Key di Supabase');
+                return;
+            }
+
+            const config = { url, key };
+            localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
+            
+            document.getElementById('settingsUrl').value = url;
+            document.getElementById('settingsKey').value = key;
+            
+            initializeSupabase(url, key);
+            hideSetupPanel();
+        }
+
+        function updateSupabaseConfig() {
+            const url = document.getElementById('settingsUrl').value.trim();
+            const key = document.getElementById('settingsKey').value.trim();
+            
+            if (!url || !key) {
+                showError('⚠️ Inserisci URL e Key validi');
+                return;
+            }
+
+            const config = { url, key };
+            localStorage.setItem(SUPABASE_CONFIG_KEY, JSON.stringify(config));
+            initializeSupabase(url, key);
+            showSuccess('🔄 Configurazione aggiornata');
+        }
+
+        function resetConfig() {
+            if (confirm('Rimuovere la configurazione Supabase? Dovrai reinserire le credenziali.')) {
+                localStorage.removeItem(SUPABASE_CONFIG_KEY);
+                appState.supabase = null;
+                appState.connected = false;
+                document.getElementById('settingsUrl').value = '';
+                document.getElementById('settingsKey').value = '';
+                showSetupPanel();
+                showSuccess('🔄 Configurazione rimossa');
+            }
+        }
+
+        // Inizializzazione Supabase
+        async function initializeSupabase(url, key) {
             try {
-                localStorage.setItem('divelog_data', JSON.stringify(appState.dives));
-                return true;
+                updateConnectionStatus('🔄 Connessione in corso...', 'loading');
+                
+                appState.supabase = supabase.createClient(url, key);
+                
+                // Test connessione
+                await testConnection();
+                
+                // Crea tabella se non existe
+                await createTableIfNotExists();
+                
+                // Carica dati
+                await loadDives();
+                
+                appState.connected = true;
+                updateConnectionStatus('✅ Connesso al cloud', 'success');
+                updateStats();
+                hideSetupPanel();
+                
+            } catch (error) {
+                console.error('Errore inizializzazione:', error);
+                appState.connected = false;
+                updateConnectionStatus('❌ Errore connessione', 'error');
+                showError('❌ Errore connessione: ' + error.message);
+            }
+        }
+
+        function updateConnectionStatus(message, type) {
+            const indicator = document.getElementById('statusIndicator');
+            const info = document.getElementById('connectionInfo');
+            
+            indicator.textContent = message;
+            
+            if (info) {
+                const timestamp = new Date().toLocaleString('it-IT');
+                info.innerHTML = `
+                    <strong>Stato:</strong> ${message}<br>
+                    <strong>Ultimo aggiornamento:</strong> ${timestamp}<br>
+                    <strong>Database:</strong> ${appState.connected ? 'Supabase PostgreSQL' : 'Non connesso'}
+                `;
+            }
+        }
+
+        async function testConnection() {
+            if (!appState.supabase) {
+                throw new Error('Supabase non inizializzato');
+            }
+
+            const { data, error } = await appState.supabase
+                .from('dives')
+                .select('count', { count: 'exact', head: true });
+
+            if (error && error.code !== 'PGRST116') { // PGRST116 = tabella non esiste
+                throw error;
+            }
+
+            return true;
+        }
+
+        // Gestione database
+        async function createTableIfNotExists() {
+            // La tabella va creata manualmente in Supabase Dashboard con:
+            /*
+            CREATE TABLE dives (
+                id BIGSERIAL PRIMARY KEY,
+                numero_immersione INTEGER,
+                data DATE NOT NULL,
+                tipo VARCHAR(50) NOT NULL,
+                atm_in INTEGER NOT NULL,
+                atm_out INTEGER NOT NULL,
+                aria_usata INTEGER NOT NULL,
+                tempo_minuti INTEGER NOT NULL,
+                prof_max DECIMAL(5,1) NOT NULL,
+                temp_h2o_min DECIMAL(4,1) NOT NULL,
+                temp_h2o_max DECIMAL(4,1),
+                sito VARCHAR(255) NOT NULL,
+                note TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            );
+            */
+            
+            // Qui verifichiamo solo se possiamo accedere alla tabella
+            try {
+                await appState.supabase
+                    .from('dives')
+                    .select('count', { count: 'exact', head: true });
+            } catch (error) {
+                if (error.code === 'PGRST116') {
+                    throw new Error('Tabella "dives" non trovata. Crea la tabella nel dashboard Supabase.');
+                }
+                throw error;
+            }
+        }
+
+        async function loadDives() {
+            try {
+                showLoading(true);
+                
+                const { data, error } = await appState.supabase
+                    .from('dives')
+                    .select('*')
+                    .order('data', { ascending: false })
+                    .order('numero_immersione', { ascending: false });
+
+                if (error) throw error;
+
+                appState.dives = data.map(dive => ({
+                    id: dive.id,
+                    numeroImmersione: dive.numero_immersione,
+                    data: dive.data,
+                    tipo: dive.tipo,
+                    atmIN: dive.atm_in,
+                    atmOUT: dive.atm_out,
+                    ariaUsata: dive.aria_usata,
+                    tempoMinuti: dive.tempo_minuti,
+                    profMAX: dive.prof_max,
+                    tempH2Omin: dive.temp_h2o_min,
+                    tempH2Omax: dive.temp_h2o_max,
+                    sito: dive.sito,
+                    note: dive.note || ''
+                }));
+
+                updateDivesList();
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Errore caricamento:', error);
+                showError('❌ Errore caricamento dati: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        async function saveDive(diveData) {
+            try {
+                showLoading(true);
+
+                const dbData = {
+                    numero_immersione: diveData.numeroImmersione,
+                    data: diveData.data,
+                    tipo: diveData.tipo,
+                    atm_in: diveData.atmIN,
+                    atm_out: diveData.atmOUT,
+                    aria_usata: diveData.ariaUsata,
+                    tempo_minuti: diveData.tempoMinuti,
+                    prof_max: diveData.profMAX,
+                    temp_h2o_min: diveData.tempH2Omin,
+                    temp_h2o_max: diveData.tempH2Omax,
+                    sito: diveData.sito,
+                    note: diveData.note
+                };
+
+                let result;
+                if (diveData.id && diveData.id > 0) {
+                    // Update esistente
+                    result = await appState.supabase
+                        .from('dives')
+                        .update(dbData)
+                        .eq('id', diveData.id)
+                        .select()
+                        .single();
+                } else {
+                    // Insert nuovo
+                    result = await appState.supabase
+                        .from('dives')
+                        .insert(dbData)
+                        .select()
+                        .single();
+                }
+
+                if (result.error) throw result.error;
+
+                // Aggiorna stato locale
+                const savedDive = {
+                    id: result.data.id,
+                    numeroImmersione: result.data.numero_immersione,
+                    data: result.data.data,
+                    tipo: result.data.tipo,
+                    atmIN: result.data.atm_in,
+                    atmOUT: result.data.atm_out,
+                    ariaUsata: result.data.aria_usata,
+                    tempoMinuti: result.data.tempo_minuti,
+                    profMAX: result.data.prof_max,
+                    tempH2Omin: result.data.temp_h2o_min,
+                    tempH2Omax: result.data.temp_h2o_max,
+                    sito: result.data.sito,
+                    note: result.data.note || ''
+                };
+
+                if (diveData.id && diveData.id > 0) {
+                    // Update locale
+                    const index = appState.dives.findIndex(d => d.id === diveData.id);
+                    if (index >= 0) {
+                        appState.dives[index] = savedDive;
+                    }
+                } else {
+                    // Add nuovo
+                    appState.dives.unshift(savedDive);
+                }
+
+                updateStats();
+                updateDivesList();
+                showLoading(false);
+
+                return savedDive;
+
             } catch (error) {
                 console.error('Errore salvataggio:', error);
-                return false;
+                showError('❌ Errore salvataggio: ' + error.message);
+                showLoading(false);
+                throw error;
             }
         }
 
+        async function deleteDive(diveId) {
+            try {
+                showLoading(true);
+
+                const { error } = await appState.supabase
+                    .from('dives')
+                    .delete()
+                    .eq('id', diveId);
+
+                if (error) throw error;
+
+                // Rimuovi da stato locale
+                appState.dives = appState.dives.filter(d => d.id !== diveId);
+                
+                updateStats();
+                updateDivesList();
+                showLoading(false);
+                
+                showSuccess('🗑️ Immersione eliminata');
+
+            } catch (error) {
+                console.error('Errore eliminazione:', error);
+                showError('❌ Errore eliminazione: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        // Form management
         function setupForm() {
             const form = document.getElementById('diveForm');
             const atmIN = document.getElementById('atmIN');
@@ -768,24 +978,27 @@
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
+                if (!appState.connected) {
+                    showError('❌ Non connesso al database');
+                    return;
+                }
+
                 if (!validateForm()) return;
                 
                 const formData = new FormData(form);
                 
-                // Gestisci numerazione automatica
+                // Calcola numero immersione
                 let numeroImmersione;
                 if (appState.editingDive) {
-                    // Se stiamo modificando, mantieni il numero originale
                     numeroImmersione = appState.editingDive.numeroImmersione;
                 } else {
-                    // Nuova immersione: calcola numero progressivo
                     const maxNumero = appState.dives.length > 0 ? 
                         Math.max(...appState.dives.map(d => d.numeroImmersione || 0)) : 0;
                     numeroImmersione = maxNumero + 1;
                 }
                 
                 const dive = {
-                    id: appState.editingDive ? appState.editingDive.id : Date.now(),
+                    id: appState.editingDive ? appState.editingDive.id : null,
                     numeroImmersione: numeroImmersione,
                     data: formData.get('data'),
                     tipo: formData.get('tipo'),
@@ -800,95 +1013,21 @@
                     note: formData.get('note') || ''
                 };
 
-                // Salva
-                appState.dives.push(dive);
-                saveData();
-                
-                // UI
-                setLoading(true);
-                
                 try {
-                    // Invia a Netlify
-                    const response = await fetch('/', {
-                        method: 'POST',
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: new URLSearchParams(formData).toString()
-                    });
+                    setLoading(true);
+                    const savedDive = await saveDive(dive);
                     
                     const action = appState.editingDive ? 'modificata' : 'salvata';
-                    showSuccess(`✅ Immersione #${numeroImmersione} ${action}!`);
+                    showSuccess(`✅ Immersione #${savedDive.numeroImmersione} ${action} nel cloud!`);
+                    
+                    resetForm();
                 } catch (error) {
-                    const action = appState.editingDive ? 'modificata' : 'salvata';
-                    showSuccess(`💾 Immersione #${numeroImmersione} ${action} localmente!`);
-                }
-                
-                // Reset stato editing
-                appState.editingDive = null;
-                
-                resetForm();
-                updateStats();
-                updateDivesList();
-                setLoading(false);
-            });
-        }
-
-        function setupFileUpload() {
-            const fileDrop = document.getElementById('fileDrop');
-            const csvFile = document.getElementById('csvFile');
-
-            // Drag & Drop
-            fileDrop.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                fileDrop.style.borderColor = '#00d4aa';
-                fileDrop.style.backgroundColor = 'rgba(0, 212, 170, 0.05)';
-            });
-            
-            fileDrop.addEventListener('dragleave', () => {
-                fileDrop.style.borderColor = '#ddd';
-                fileDrop.style.backgroundColor = '#fafbfc';
-            });
-            
-            fileDrop.addEventListener('drop', (e) => {
-                e.preventDefault();
-                fileDrop.style.borderColor = '#ddd';
-                fileDrop.style.backgroundColor = '#fafbfc';
-                
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    handleFileUpload(files[0]);
+                    // Error già mostrato in saveDive
+                } finally {
+                    setLoading(false);
+                    appState.editingDive = null;
                 }
             });
-
-            // File input
-            csvFile.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    handleFileUpload(e.target.files[0]);
-                }
-            });
-
-            // Click on drop area
-            fileDrop.addEventListener('click', () => {
-                csvFile.click();
-            });
-        }
-
-        function handleFileUpload(file) {
-            if (!file.name.toLowerCase().endsWith('.csv')) {
-                showError('⚠️ Seleziona solo file CSV');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('csvData').value = e.target.result;
-                showSuccess(`📄 File "${file.name}" caricato! Clicca "Importa Dati" per procedere`);
-            };
-            
-            reader.onerror = function() {
-                showError('❌ Errore nella lettura del file');
-            };
-            
-            reader.readAsText(file);
         }
 
         function validateForm() {
@@ -907,7 +1046,7 @@
             document.getElementById('diveForm').reset();
             document.getElementById('data').value = new Date().toISOString().split('T')[0];
             document.getElementById('ariaUsata').value = '';
-            appState.editingDive = null; // Reset editing state
+            appState.editingDive = null;
         }
 
         function setLoading(loading) {
@@ -918,6 +1057,11 @@
             text.textContent = loading ? '⏳ Salvataggio...' : '💾 Salva Immersione';
         }
 
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        // Stats and display
         function updateStats() {
             const dives = appState.dives;
             const currentYear = new Date().getFullYear();
@@ -939,67 +1083,20 @@
         }
 
         function updateDivesList() {
-            filterDives();
-            updateYearFilter();
-            renderDives();
-        }
-
-        function updateYearFilter() {
-            const yearSelect = document.getElementById('filterYear');
-            const years = [...new Set(appState.dives.map(d => new Date(d.data).getFullYear()))].sort((a, b) => b - a);
-            
-            const currentValue = yearSelect.value;
-            yearSelect.innerHTML = '<option value="">Tutti gli anni</option>';
-            
-            years.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                if (year.toString() === currentValue) option.selected = true;
-                yearSelect.appendChild(option);
-            });
-        }
-
-        function filterDives() {
-            const yearFilter = document.getElementById('filterYear').value;
-            const typeFilter = document.getElementById('filterType').value;
-            
-            appState.filteredDives = appState.dives.filter(dive => {
-                if (yearFilter && new Date(dive.data).getFullYear().toString() !== yearFilter) {
-                    return false;
-                }
-                if (typeFilter && dive.tipo !== typeFilter) {
-                    return false;
-                }
-                return true;
-            }).sort((a, b) => new Date(b.data) - new Date(a.data));
-            
-            appState.currentPage = 1;
-        }
-
-        function renderDives() {
             const container = document.getElementById('divesContainer');
-            const dives = appState.filteredDives;
+            const dives = appState.dives;
             
             if (dives.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">🌊</div>
-                        <h3>Nessuna immersione trovata</h3>
-                        <p>Aggiungi la tua prima immersione o modifica i filtri</p>
+                    <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+                        <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">🌊</div>
+                        <h3>Nessuna immersione registrata</h3>
+                        <p>Aggiungi la tua prima immersione nel cloud</p>
                     </div>
                 `;
-                document.getElementById('pagination').innerHTML = '';
                 return;
             }
 
-            // Paginazione
-            const totalPages = Math.ceil(dives.length / appState.itemsPerPage);
-            const startIndex = (appState.currentPage - 1) * appState.itemsPerPage;
-            const endIndex = startIndex + appState.itemsPerPage;
-            const currentDives = dives.slice(startIndex, endIndex);
-
-            // Tabella
             let html = `
                 <table class="dive-table">
                     <thead>
@@ -1019,7 +1116,7 @@
                     <tbody>
             `;
 
-            currentDives.forEach(dive => {
+            dives.forEach(dive => {
                 const date = new Date(dive.data).toLocaleDateString('it-IT');
                 html += `
                     <tr>
@@ -1034,7 +1131,7 @@
                         <td>${dive.tempH2Omax}°C</td>
                         <td class="actions">
                             <button class="btn btn-secondary" onclick="editDive(${dive.id})" title="Modifica">✏️</button>
-                            <button class="btn btn-danger" onclick="deleteDive(${dive.id})" title="Elimina">🗑️</button>
+                            <button class="btn btn-danger" onclick="confirmDeleteDive(${dive.id})" title="Elimina">🗑️</button>
                         </td>
                     </tr>
                 `;
@@ -1042,49 +1139,13 @@
 
             html += '</tbody></table>';
             container.innerHTML = html;
-
-            // Paginazione
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            const pagination = document.getElementById('pagination');
-            
-            if (totalPages <= 1) {
-                pagination.innerHTML = '';
-                return;
-            }
-
-            let html = '';
-            
-            // Precedente
-            html += `<button class="btn btn-secondary" ${appState.currentPage === 1 ? 'disabled' : ''} onclick="changePage(${appState.currentPage - 1})">‹ Prec</button>`;
-            
-            // Pagine
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === appState.currentPage) {
-                    html += `<button class="btn btn-primary">${i}</button>`;
-                } else {
-                    html += `<button class="btn btn-secondary" onclick="changePage(${i})">${i}</button>`;
-                }
-            }
-            
-            // Successiva
-            html += `<button class="btn btn-secondary" ${appState.currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${appState.currentPage + 1})">Succ ›</button>`;
-            
-            pagination.innerHTML = html;
-        }
-
-        function changePage(page) {
-            appState.currentPage = page;
-            renderDives();
         }
 
         function editDive(diveId) {
             const dive = appState.dives.find(d => d.id === diveId);
             if (!dive) return;
 
-            // Popola form (senza numero immersione - rimane lo stesso)
+            // Popola form
             document.getElementById('data').value = dive.data;
             document.getElementById('tipo').value = dive.tipo;
             document.getElementById('atmIN').value = dive.atmIN;
@@ -1097,14 +1158,7 @@
             document.getElementById('sito').value = dive.sito;
             document.getElementById('note').value = dive.note;
 
-            // Salva il numero originale per la modifica
             appState.editingDive = dive;
-
-            // Rimuovi dall'array (sarà ri-aggiunta quando salvi)
-            appState.dives = appState.dives.filter(d => d.id !== diveId);
-            saveData();
-            updateStats();
-            updateDivesList();
 
             // Vai al tab aggiungi
             switchTab('add');
@@ -1112,109 +1166,13 @@
             showSuccess(`✏️ Immersione #${dive.numeroImmersione} caricata per la modifica`);
         }
 
-        function deleteDive(diveId) {
-            if (!confirm('Sei sicuro di voler eliminare questa immersione?')) return;
-
-            appState.dives = appState.dives.filter(d => d.id !== diveId);
-            saveData();
-            updateStats();
-            updateDivesList();
-            
-            showSuccess('🗑️ Immersione eliminata');
-        }
-
-        // Import/Export Functions
-        function generateTemplate() {
-            const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (minuti)', 'Prof MAX (metri)', 'Temp. H2O min', 'Temp. H2O max', 'Sito', 'Note'];
-            const template = [
-                headers.join(','),
-                '1,2024-08-10,Barca,200,50,150,45,25.5,18,20,Portofino,Ottima visibilità',
-                '2,2024-08-11,Riva,180,60,120,35,12,20,22,Cinque Terre,Corrente leggera'
-            ].join('\n');
-            
-            document.getElementById('csvData').value = template;
-            showSuccess('📝 Template CSV generato!');
-        }
-
-        function importCSV() {
-            const csvData = document.getElementById('csvData').value.trim();
-            if (!csvData) {
-                showError('⚠️ Inserisci i dati CSV');
-                return;
-            }
-
-            try {
-                const lines = csvData.split('\n');
-                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                
-                const imported = [];
-                for (let i = 1; i < lines.length; i++) {
-                    if (!lines[i].trim()) continue;
-                    
-                    const values = parseCSVLine(lines[i]);
-                    if (values.length < 10) continue;
-
-                    const dive = {
-                        id: Date.now() + i,
-                        numeroImmersione: parseInt(values[0]) || (appState.dives.length + i + 1),
-                        data: values[1] || new Date().toISOString().split('T')[0],
-                        tipo: values[2] || 'Barca',
-                        atmIN: parseInt(values[3]) || 200,
-                        atmOUT: parseInt(values[4]) || 50,
-                        ariaUsata: parseInt(values[5]) || (parseInt(values[3]) - parseInt(values[4])),
-                        tempoMinuti: parseInt(values[6]) || 30,
-                        profMAX: parseFloat(values[7]) || 10,
-                        tempH2Omin: parseFloat(values[8]) || 20,
-                        tempH2Omax: parseFloat(values[9]) || parseFloat(values[8]) || 20,
-                        sito: values[10] || 'Mare',
-                        note: values[11] || ''
-                    };
-
-                    imported.push(dive);
-                }
-
-                if (imported.length === 0) {
-                    showError('⚠️ Nessuna riga valida trovata');
-                    return;
-                }
-
-                // Aggiungi alle immersioni esistenti
-                appState.dives.push(...imported);
-                saveData();
-                updateStats();
-                updateDivesList();
-
-                showSuccess(`✅ Importate ${imported.length} immersioni!`);
-                document.getElementById('csvData').value = '';
-
-            } catch (error) {
-                console.error('Errore import:', error);
-                showError('❌ Errore nell\'importazione');
+        function confirmDeleteDive(diveId) {
+            if (confirm('Sei sicuro di voler eliminare questa immersione dal cloud?')) {
+                deleteDive(diveId);
             }
         }
 
-        function parseCSVLine(line) {
-            const values = [];
-            let current = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    values.push(current.trim());
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            values.push(current.trim());
-            
-            return values;
-        }
-
+        // Export functions
         function exportCSV() {
             if (appState.dives.length === 0) {
                 showError('⚠️ Nessuna immersione da esportare');
@@ -1240,7 +1198,7 @@
                 ].join(','))
             ].join('\n');
 
-            downloadFile(`immersioni_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
+            downloadFile(`immersioni_cloud_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
             showSuccess('📊 Export CSV completato!');
         }
 
@@ -1251,7 +1209,7 @@
             }
 
             const jsonContent = JSON.stringify(appState.dives, null, 2);
-            downloadFile(`immersioni_backup_${new Date().toISOString().split('T')[0]}.json`, jsonContent, 'application/json');
+            downloadFile(`immersioni_cloud_backup_${new Date().toISOString().split('T')[0]}.json`, jsonContent, 'application/json');
             showSuccess('🔧 Export JSON completato!');
         }
 
@@ -1287,225 +1245,23 @@
                 updateDivesList();
             } else if (tabName === 'export') {
                 updateExportStats();
-            } else if (tabName === 'manage') {
-                updateStorageInfo();
             }
-        }
-
-        // Funzioni di gestione
-        function updateStorageInfo() {
-            const info = document.getElementById('storageInfo');
-            if (!info) return;
-
-            const data = localStorage.getItem('divelog_data');
-            const size = data ? new Blob([data]).size : 0;
-            const sizeKB = (size / 1024).toFixed(2);
-            
-            info.innerHTML = `
-                <strong>Immersioni salvate:</strong> ${appState.dives.length}<br>
-                <strong>Spazio utilizzato:</strong> ${sizeKB} KB<br>
-                <strong>Ultimo salvataggio:</strong> ${data ? new Date().toLocaleString('it-IT') : 'Mai'}<br>
-                <strong>Browser:</strong> ${navigator.userAgent.split(' ')[0]}
-            `;
-        }
-
-        function downloadBackup() {
-            const backupData = {
-                version: '1.0',
-                timestamp: new Date().toISOString(),
-                totalDives: appState.dives.length,
-                dives: appState.dives,
-                metadata: {
-                    exported: new Date().toISOString(),
-                    browser: navigator.userAgent,
-                    app: 'DiveLog Pro'
-                }
-            };
-
-            const content = JSON.stringify(backupData, null, 2);
-            downloadFile(`divelog_backup_${new Date().toISOString().split('T')[0]}.json`, content, 'application/json');
-            showSuccess('💾 Backup completo scaricato!');
-        }
-
-        function restoreBackup() {
-            const fileInput = document.getElementById('backupFile');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-                showError('⚠️ Seleziona un file di backup');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const backupData = JSON.parse(e.target.result);
-                    
-                    if (backupData.dives && Array.isArray(backupData.dives)) {
-                        const confirmMessage = `Ripristinare ${backupData.dives.length} immersioni?\n\n⚠️ I dati attuali (${appState.dives.length} immersioni) saranno sostituiti.\n\nContinuare?`;
-                        
-                        if (confirm(confirmMessage)) {
-                            appState.dives = backupData.dives;
-                            saveData();
-                            updateStats();
-                            updateDivesList();
-                            updateStorageInfo();
-                            showSuccess(`📂 Backup ripristinato! ${backupData.dives.length} immersioni caricate.`);
-                        }
-                    } else {
-                        showError('⚠️ File di backup non valido');
-                    }
-                } catch (error) {
-                    showError('❌ Errore nel ripristino: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function clearAllData() {
-            const confirmMsg = `⚠️ ATTENZIONE: Eliminare TUTTE le ${appState.dives.length} immersioni?\n\nQuesta azione è IRREVERSIBILE!\n\nDigita "ELIMINA TUTTO" per confermare:`;
-            const userInput = prompt(confirmMsg);
-            
-            if (userInput === 'ELIMINA TUTTO') {
-                appState.dives = [];
-                localStorage.removeItem('divelog_data');
-                updateStats();
-                updateDivesList();
-                updateStorageInfo();
-                showSuccess('🗑️ Tutte le immersioni sono state eliminate');
-            } else if (userInput !== null) {
-                showError('❌ Operazione annullata - testo non corrispondente');
-            }
-        }
-
-        function clearDuplicates() {
-            const originalCount = appState.dives.length;
-            
-            // Rimuovi duplicati basati su data + profondità + durata
-            const unique = appState.dives.filter((dive, index, arr) => {
-                return index === arr.findIndex(d => 
-                    d.data === dive.data && 
-                    d.profMAX === dive.profMAX && 
-                    d.tempoMinuti === dive.tempoMinuti
-                );
-            });
-            
-            const duplicatesRemoved = originalCount - unique.length;
-            
-            if (duplicatesRemoved > 0) {
-                appState.dives = unique;
-                saveData();
-                updateStats();
-                updateDivesList();
-                updateStorageInfo();
-                showSuccess(`🧹 Rimossi ${duplicatesRemoved} duplicati`);
-            } else {
-                showSuccess('✅ Nessun duplicato trovato');
-            }
-        }
-
-        function validateData() {
-            const issues = [];
-            
-            appState.dives.forEach((dive, index) => {
-                if (!dive.data) issues.push(`Immersione ${index + 1}: data mancante`);
-                if (!dive.tipo) issues.push(`Immersione ${index + 1}: tipo mancante`);
-                if (dive.atmOUT >= dive.atmIN) issues.push(`Immersione ${index + 1}: pressioni non valide`);
-                if (dive.profMAX <= 0) issues.push(`Immersione ${index + 1}: profondità non valida`);
-                if (dive.tempoMinuti <= 0) issues.push(`Immersione ${index + 1}: durata non valida`);
-            });
-
-            const result = document.getElementById('operationResult');
-            const resultText = result.querySelector('div');
-            
-            if (issues.length === 0) {
-                resultText.textContent = '✅ Tutti i dati sono validi!\n\nNessun problema rilevato.';
-                result.style.display = 'block';
-                showSuccess('✅ Validazione completata - tutto OK');
-            } else {
-                resultText.textContent = `⚠️ Trovati ${issues.length} problemi:\n\n${issues.join('\n')}`;
-                result.style.display = 'block';
-                showError(`⚠️ Validazione completata - ${issues.length} problemi trovati`);
-            }
-        }
-
-        function compactData() {
-            // Rimuovi campi non necessari e ottimizza
-            const originalSize = JSON.stringify(appState.dives).length;
-            
-            appState.dives = appState.dives.map(dive => ({
-                id: dive.id,
-                numeroImmersione: dive.numeroImmersione,
-                data: dive.data,
-                tipo: dive.tipo,
-                atmIN: dive.atmIN,
-                atmOUT: dive.atmOUT,
-                ariaUsata: dive.ariaUsata,
-                tempoMinuti: dive.tempoMinuti,
-                profMAX: dive.profMAX,
-                tempH2Omin: dive.tempH2Omin,
-                tempH2Omax: dive.tempH2Omax,
-                sito: dive.sito,
-                note: dive.note || ''
-            }));
-            
-            const newSize = JSON.stringify(appState.dives).length;
-            const saved = originalSize - newSize;
-            
-            saveData();
-            updateStorageInfo();
-            
-            showSuccess(`📦 Compattazione completata - risparmiati ${saved} caratteri`);
-        }
-
-        function showDataInfo() {
-            const result = document.getElementById('operationResult');
-            const resultText = result.querySelector('div');
-            
-            const stats = {
-                total: appState.dives.length,
-                types: [...new Set(appState.dives.map(d => d.tipo))],
-                years: [...new Set(appState.dives.map(d => new Date(d.data).getFullYear()))],
-                maxDepth: Math.max(...appState.dives.map(d => d.profMAX), 0),
-                totalTime: appState.dives.reduce((sum, d) => sum + d.tempoMinuti, 0),
-                avgDepth: appState.dives.length > 0 ? (appState.dives.reduce((sum, d) => sum + d.profMAX, 0) / appState.dives.length).toFixed(1) : 0
-            };
-            
-            resultText.textContent = `📊 INFORMAZIONI DETTAGLIATE:
-
-Totale immersioni: ${stats.total}
-Anni coperti: ${stats.years.sort().join(', ')}
-Tipi immersione: ${stats.types.join(', ')}
-
-Profondità massima: ${stats.maxDepth}m
-Profondità media: ${stats.avgDepth}m
-Tempo totale: ${stats.totalTime} minuti (${(stats.totalTime / 60).toFixed(1)} ore)
-
-Dimensione dati: ${(JSON.stringify(appState.dives).length / 1024).toFixed(2)} KB
-Prima immersione: ${appState.dives.length > 0 ? new Date(Math.min(...appState.dives.map(d => new Date(d.data)))).toLocaleDateString('it-IT') : 'N/A'}
-Ultima immersione: ${appState.dives.length > 0 ? new Date(Math.max(...appState.dives.map(d => new Date(d.data)))).toLocaleDateString('it-IT') : 'N/A'}`;
-            
-            result.style.display = 'block';
-        }
-
-        function clearCSVData() {
-            document.getElementById('csvData').value = '';
-            showSuccess('🧹 Area CSV pulita');
         }
 
         function updateExportStats() {
             const stats = document.getElementById('exportStats');
             if (stats && appState.dives.length > 0) {
-                const sortedDives = appState.dives.sort((a, b) => new Date(a.data) - new Date(b.data));
+                const sortedDives = [...appState.dives].sort((a, b) => new Date(a.data) - new Date(b.data));
                 stats.innerHTML = `
                     <strong>Totale immersioni:</strong> ${appState.dives.length}<br>
                     <strong>Prima immersione:</strong> ${new Date(sortedDives[0].data).toLocaleDateString('it-IT')}<br>
                     <strong>Ultima immersione:</strong> ${new Date(sortedDives[sortedDives.length - 1].data).toLocaleDateString('it-IT')}<br>
-                    <strong>Profondità massima:</strong> ${Math.max(...appState.dives.map(d => d.profMAX))}m
+                    <strong>Profondità massima:</strong> ${Math.max(...appState.dives.map(d => d.profMAX))}m<br>
+                    <strong>Fonte dati:</strong> Database Cloud Supabase
                 `;
             } else if (stats) {
                 stats.innerHTML = `
-                    <strong>Nessuna immersione registrata</strong><br>
+                    <strong>Nessuna immersione registrata nel cloud</strong><br>
                     Aggiungi la tua prima immersione per vedere le statistiche.
                 `;
             }
@@ -1518,7 +1274,6 @@ Ultima immersione: ${appState.dives.length > 0 ? new Date(Math.max(...appState.d
             el.style.display = 'block';
             setTimeout(() => el.style.display = 'none', 5000);
             
-            // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1528,12 +1283,11 @@ Ultima immersione: ${appState.dives.length > 0 ? new Date(Math.max(...appState.d
             el.style.display = 'block';
             setTimeout(() => el.style.display = 'none', 6000);
             
-            // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        console.log('🌊 DiveLog Pro - Versione pulita e funzionante caricata');
-        console.log('📊 Campi CSV supportati: Data,Tipo,Atm IN,Atm OUT,Aria usata,Tempo (minuti),Prof MAX (metri),Temp. H2O min,Temp. H2O max,Sito,Note');
+        console.log('🌊 DiveLog Pro Cloud - Versione con database caricata');
+        console.log('☁️ I dati vengono salvati in Supabase PostgreSQL');
     </script>
 </body>
 </html>
