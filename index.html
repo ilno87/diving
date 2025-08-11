@@ -334,6 +334,19 @@
             font-size: 18px;
         }
 
+        .config-panel {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .config-panel h4 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .input-row {
@@ -357,29 +370,32 @@
             <p class="app-subtitle">Registro delle tue immersioni sincronizzato con Google Sheets</p>
         </div>
 
-        <!-- Setup Panel -->
-        <div id="setupPanel" class="setup-panel">
-            <h3>📊 Configurazione Google Sheets</h3>
-            <p style="margin-bottom: 15px;">
-                <strong>SUPER SEMPLICE!</strong> Basta l'URL del tuo Google Sheets già esistente.
-            </p>
-            
+        <!-- Configurazione URL Google Sheets -->
+        <div class="config-panel">
+            <h4>📊 Configurazione Google Sheets</h4>
             <div class="input-group">
                 <label>🔗 URL Google Sheets:</label>
-                <input type="url" id="sheetsUrl" placeholder="https://docs.google.com/spreadsheets/d/1ABC.../edit#gid=0">
+                <input type="url" id="googleSheetsUrl" placeholder="https://docs.google.com/spreadsheets/d/1ABC.../edit#gid=0">
                 <small style="color: #666; font-size: 12px;">
-                    L'URL deve essere quello completo del tuo Google Sheets
+                    Inserisci l'URL completo del tuo Google Sheets (deve essere condiviso pubblicamente per la lettura)
                 </small>
             </div>
             
-            <button class="btn btn-primary" onclick="setupSheets()">
-                📊 Connetti Google Sheets
-            </button>
-        </div>
-
-        <!-- Connection Status -->
-        <div id="connectionStatus" style="text-align: center; margin-bottom: 20px; color: white;">
-            <span id="statusIndicator">📊 Configura Google Sheets per iniziare</span>
+            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="setGoogleSheetsUrl()">
+                    💾 Salva URL
+                </button>
+                <button class="btn btn-secondary" onclick="testConnection()">
+                    🔍 Test Connessione
+                </button>
+                <button class="btn btn-warning" onclick="createTemplate()">
+                    📋 Crea Template
+                </button>
+            </div>
+            
+            <div id="connectionStatus" style="margin-top: 15px; padding: 10px; border-radius: 8px; background: #f8f9fa;">
+                <strong>Stato:</strong> <span id="statusText">Non configurato</span>
+            </div>
         </div>
 
         <!-- Statistiche -->
@@ -410,8 +426,7 @@
         <div class="tabs">
             <div class="tab active" onclick="switchTab('add', this)">➕ Aggiungi</div>
             <div class="tab" onclick="switchTab('list', this)">📋 Elenco</div>
-            <div class="tab" onclick="switchTab('sync', this)">🔄 Sincronizza</div>
-            <div class="tab" onclick="switchTab('settings', this)">⚙️ Impostazioni</div>
+            <div class="tab" onclick="switchTab('export', this)">📤 Esporta</div>
         </div>
 
         <!-- Messages -->
@@ -423,7 +438,7 @@
             <div class="main-card">
                 <div class="card-header">
                     <h2>➕ Nuova Immersione</h2>
-                    <p>Si aggiunge automaticamente al tuo Google Sheets</p>
+                    <p>Prepara i dati per Google Sheets</p>
                 </div>
                 <div class="form-container">
                     <form id="diveForm">
@@ -508,7 +523,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <span id="submitText">📊 Aggiungi a Google Sheets</span>
+                            <span id="submitText">📋 Prepara per Google Sheets</span>
                         </button>
                     </form>
                 </div>
@@ -520,16 +535,16 @@
             <div class="main-card">
                 <div class="card-header">
                     <h2>📋 Le Tue Immersioni</h2>
-                    <p>Dati dal tuo Google Sheets</p>
+                    <p>Dati caricati da Google Sheets</p>
                 </div>
                 <div class="form-container">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <button class="btn btn-primary" onclick="loadFromSheets()">
-                            🔄 Aggiorna da Google Sheets
+                            🔄 Carica da Google Sheets
                         </button>
-                        <a id="openSheetsBtn" href="#" target="_blank" class="btn btn-secondary" style="display: none;">
+                        <button class="btn btn-secondary" onclick="openGoogleSheets()" id="openSheetsBtn" style="display: none;">
                             📊 Apri Google Sheets
-                        </a>
+                        </button>
                     </div>
                     
                     <div id="divesContainer">
@@ -541,69 +556,36 @@
             </div>
         </div>
 
-        <!-- TAB: Sincronizza -->
-        <div id="tab-sync" class="tab-content">
+        <!-- TAB: Esporta -->
+        <div id="tab-export" class="tab-content">
             <div class="main-card">
                 <div class="card-header">
-                    <h2>🔄 Sincronizzazione</h2>
-                    <p>Gestisci i dati con Google Sheets</p>
+                    <h2>📤 Esporta Dati</h2>
+                    <p>Gestisci e condividi i tuoi dati</p>
                 </div>
                 <div class="form-container">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <button class="btn btn-primary" onclick="loadFromSheets()">
-                            📥 Carica da Sheets
+                        <button class="btn btn-success" onclick="exportAllToCSV()">
+                            📊 Esporta tutto CSV
                         </button>
-                        <button class="btn btn-success" onclick="exportToSheets()">
-                            📤 Esporta verso Sheets
+                        <button class="btn btn-warning" onclick="copyTemplateToClipboard()">
+                            📋 Copia Template
                         </button>
-                        <button class="btn btn-secondary" onclick="validateSheetsFormat()">
-                            ✅ Valida Formato
-                        </button>
-                        <button class="btn btn-warning" onclick="createSheetsTemplate()">
-                            📋 Crea Template
+                        <button class="btn btn-secondary" onclick="showInstructions()">
+                            📖 Istruzioni Setup
                         </button>
                     </div>
 
-                    <div style="margin-top: 30px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
-                        <h4>🔄 Stato Sincronizzazione:</h4>
-                        <div id="syncStatus">
-                            <p>📊 Connetti Google Sheets per vedere lo stato</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB: Impostazioni -->
-        <div id="tab-settings" class="tab-content">
-            <div class="main-card">
-                <div class="card-header">
-                    <h2>⚙️ Impostazioni</h2>
-                    <p>Configura Google Sheets</p>
-                </div>
-                <div class="form-container">
-                    <div style="background: #e3f2fd; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
-                        <h4 style="color: #1976d2; margin-bottom: 15px;">📊 Google Sheets</h4>
-                        <div id="connectionInfo">
-                            <p>Nessun foglio connesso</p>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>🔗 URL Google Sheets:</label>
-                        <input type="url" id="settingsUrl" placeholder="https://docs.google.com/spreadsheets/d/...">
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
-                        <button class="btn btn-primary" onclick="updateSheetsConfig()">
-                            💾 Aggiorna URL
-                        </button>
-                        <button class="btn btn-secondary" onclick="testSheetsConnection()">
-                            🔍 Test Connessione
-                        </button>
-                        <button class="btn btn-warning" onclick="resetSheetsConfig()">
-                            🔄 Reset
-                        </button>
+                    <div id="instructionsPanel" style="display: none; margin-top: 20px; background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                        <h4>📖 Come configurare Google Sheets:</h4>
+                        <ol style="margin-left: 20px; line-height: 1.6;">
+                            <li>Crea un nuovo Google Sheets</li>
+                            <li>Aggiungi gli headers nella prima riga: Numero, Data, Tipo, Atm IN, Atm OUT, Aria usata, Tempo (min), Prof MAX, Temp min, Temp max, Sito, Note</li>
+                            <li>Vai su File → Condividi → Condividi con altri</li>
+                            <li>Imposta la condivisione su "Chiunque abbia il link può visualizzare"</li>
+                            <li>Copia l'URL e incollalo nella configurazione sopra</li>
+                            <li>Testa la connessione con il pulsante "Test Connessione"</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -614,11 +596,17 @@
     <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div>
             <div style="font-size: 48px; margin-bottom: 20px;">📊</div>
-            <div>Sincronizzazione con Google Sheets...</div>
+            <div>Caricamento da Google Sheets...</div>
         </div>
     </div>
 
     <script>
+        // CONFIGURAZIONE - URL Google Sheets parametrizzato
+        const CONFIG = {
+            GOOGLE_SHEETS_URL: '', // Sarà configurato dall'utente
+            STORAGE_KEY: 'divelog_config'
+        };
+
         // Stato dell'applicazione
         let appState = {
             dives: [],
@@ -627,21 +615,112 @@
             connected: false
         };
 
-        // Configurazione
-        const SHEETS_CONFIG_KEY = 'divelog_sheets_config';
-
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
-            loadSheetsConfig();
+            loadConfiguration();
             setupForm();
             
             // Set data default
-            document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('data').value = today;
             
-            console.log('🌊 DiveLog Pro Google Sheets caricato!');
+            console.log('🌊 DiveLog Pro caricato!');
         });
 
-        // Tab Management
+        // CONFIGURAZIONE GOOGLE SHEETS
+        function loadConfiguration() {
+            const saved = localStorage.getItem(CONFIG.STORAGE_KEY);
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    if (config.googleSheetsUrl) {
+                        appState.sheetsUrl = config.googleSheetsUrl;
+                        appState.sheetsId = extractSheetsId(config.googleSheetsUrl);
+                        document.getElementById('googleSheetsUrl').value = config.googleSheetsUrl;
+                        updateConnectionStatus('Configurato', 'success');
+                        
+                        // Mostra pulsante per aprire sheets
+                        const openBtn = document.getElementById('openSheetsBtn');
+                        if (openBtn) {
+                            openBtn.style.display = 'inline-flex';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Errore caricamento configurazione:', error);
+                }
+            }
+        }
+
+        function setGoogleSheetsUrl() {
+            const url = document.getElementById('googleSheetsUrl').value.trim();
+            
+            if (!url) {
+                showError('⚠️ Inserisci l\'URL del Google Sheets');
+                return;
+            }
+
+            const sheetsId = extractSheetsId(url);
+            if (!sheetsId) {
+                showError('⚠️ URL non valido. Deve essere un link di Google Sheets');
+                return;
+            }
+
+            // Salva configurazione
+            const config = { googleSheetsUrl: url };
+            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(config));
+            
+            appState.sheetsUrl = url;
+            appState.sheetsId = sheetsId;
+            
+            updateConnectionStatus('Configurato correttamente', 'success');
+            showSuccess('✅ URL Google Sheets salvato correttamente!');
+            
+            // Mostra pulsante per aprire sheets
+            const openBtn = document.getElementById('openSheetsBtn');
+            if (openBtn) {
+                openBtn.style.display = 'inline-flex';
+            }
+        }
+
+        function extractSheetsId(url) {
+            if (!url) return null;
+            
+            // Estrai ID da URL Google Sheets
+            const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            return match ? match[1] : null;
+        }
+
+        function updateConnectionStatus(message, type = 'info') {
+            const statusText = document.getElementById('statusText');
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            statusText.textContent = message;
+            
+            // Aggiorna colore in base al tipo
+            connectionStatus.style.background = 
+                type === 'success' ? '#d4edda' : 
+                type === 'error' ? '#f8d7da' : '#f8f9fa';
+            connectionStatus.style.color = 
+                type === 'success' ? '#155724' : 
+                type === 'error' ? '#721c24' : '#333';
+        }
+
+        function testConnection() {
+            if (!appState.sheetsId) {
+                showError('❌ Configura prima l\'URL di Google Sheets');
+                return;
+            }
+            
+            loadFromSheets();
+        }
+
+        function openGoogleSheets() {
+            if (appState.sheetsUrl) {
+                window.open(appState.sheetsUrl, '_blank');
+            }
+        }
+
+        // TAB MANAGEMENT
         function switchTab(tabName, clickedTab) {
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -659,134 +738,178 @@
             // Update data if needed
             if (tabName === 'list') {
                 updateDivesList();
-            } else if (tabName === 'sync') {
-                updateSyncStatus();
             }
         }
 
-        // Gestione configurazione Google Sheets
-        function loadSheetsConfig() {
-            const saved = localStorage.getItem(SHEETS_CONFIG_KEY);
-            if (saved) {
+        // FORM MANAGEMENT
+        function setupForm() {
+            const form = document.getElementById('diveForm');
+            const atmIN = document.getElementById('atmIN');
+            const atmOUT = document.getElementById('atmOUT');
+            const ariaUsata = document.getElementById('ariaUsata');
+
+            // Calcolo automatico aria usata
+            function calcolaAria() {
+                const ingresso = parseInt(atmIN.value) || 0;
+                const uscita = parseInt(atmOUT.value) || 0;
+                const usata = Math.max(0, ingresso - uscita);
+                ariaUsata.value = usata;
+            }
+
+            atmIN.addEventListener('input', calcolaAria);
+            atmOUT.addEventListener('input', calcolaAria);
+
+            // Submit form
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!validateForm()) return;
+                
+                const formData = new FormData(form);
+                
+                // Calcola numero immersione
+                const maxNumero = appState.dives.length > 0 ? 
+                    Math.max(...appState.dives.map(d => d.numeroImmersione || 0)) : 0;
+                const numeroImmersione = maxNumero + 1;
+                
+                const dive = {
+                    numeroImmersione: numeroImmersione,
+                    data: formData.get('data'),
+                    tipo: formData.get('tipo'),
+                    atmIN: parseInt(formData.get('atmIN')),
+                    atmOUT: parseInt(formData.get('atmOUT')),
+                    ariaUsata: parseInt(formData.get('ariaUsata')),
+                    tempoMinuti: parseInt(formData.get('tempoMinuti')),
+                    profMAX: parseFloat(formData.get('profMAX')),
+                    tempH2Omin: parseFloat(formData.get('tempH2Omin')),
+                    tempH2Omax: parseFloat(formData.get('tempH2Omax')) || parseFloat(formData.get('tempH2Omin')),
+                    sito: formData.get('sito'),
+                    note: formData.get('note') || ''
+                };
+
                 try {
-                    const config = JSON.parse(saved);
-                    appState.sheetsUrl = config.url;
-                    appState.sheetsId = extractSheetsId(config.url);
-                    document.getElementById('settingsUrl').value = config.url;
+                    setSubmitLoading(true);
                     
-                    if (appState.sheetsId) {
-                        initializeSheets();
-                        hideSetupPanel();
-                    } else {
-                        showSetupPanel();
-                    }
+                    // Prepara riga CSV
+                    const csvRow = formatDiveToCSV(dive);
+                    
+                    // Copia negli appunti
+                    await copyToClipboard(csvRow);
+                    
+                    // Aggiungi localmente per aggiornare le statistiche
+                    appState.dives.unshift(dive);
+                    updateStats();
+                    updateDivesList();
+                    
+                    showSuccess('📋 Dati copiati negli appunti! Incollali come nuova riga nel tuo Google Sheets.');
+                    resetForm();
+                    
                 } catch (error) {
-                    console.error('Errore caricamento config:', error);
-                    showSetupPanel();
+                    console.error('Errore:', error);
+                    // Fallback se clipboard non funziona
+                    const csvRow = formatDiveToCSV(dive);
+                    showDataInModal(csvRow, dive);
+                } finally {
+                    setSubmitLoading(false);
                 }
+            });
+        }
+
+        function validateForm() {
+            const atmIN = parseInt(document.getElementById('atmIN').value);
+            const atmOUT = parseInt(document.getElementById('atmOUT').value);
+            
+            if (atmOUT >= atmIN) {
+                showError('⚠️ Atm OUT deve essere minore di Atm IN!');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function resetForm() {
+            document.getElementById('diveForm').reset();
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            document.getElementById('ariaUsata').value = '';
+        }
+
+        function setSubmitLoading(loading) {
+            const btn = document.querySelector('#diveForm button[type="submit"]');
+            const text = document.getElementById('submitText');
+            
+            btn.disabled = loading;
+            text.textContent = loading ? '⏳ Preparazione...' : '📋 Prepara per Google Sheets';
+        }
+
+        function formatDiveToCSV(dive) {
+            const values = [
+                dive.numeroImmersione,
+                dive.data,
+                dive.tipo,
+                dive.atmIN,
+                dive.atmOUT,
+                dive.ariaUsata,
+                dive.tempoMinuti,
+                dive.profMAX,
+                dive.tempH2Omin,
+                dive.tempH2Omax,
+                `"${(dive.sito || '').replace(/"/g, '""')}"`,
+                `"${(dive.note || '').replace(/"/g, '""')}"`
+            ];
+            return values.join(',');
+        }
+
+        async function copyToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(text);
             } else {
-                showSetupPanel();
+                // Fallback per browser più vecchi
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
             }
         }
 
-        function extractSheetsId(url) {
-            if (!url) return null;
-            
-            // Estrai ID da URL Google Sheets
-            const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-            return match ? match[1] : null;
+        function showDataInModal(csvRow, dive) {
+            const modalHtml = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 80%; max-height: 80%; overflow: auto;">
+                        <h3>📋 Dati dell'immersione</h3>
+                        <p>Copia questi dati e incollali come nuova riga nel tuo Google Sheets:</p>
+                        <textarea readonly style="width: 100%; height: 100px; margin: 15px 0; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">${csvRow}</textarea>
+                        <div style="text-align: center;">
+                            <button onclick="this.closest('div').parentElement.remove()" style="background: #00d4aa; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Chiudi</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
 
-        function showSetupPanel() {
-            document.getElementById('setupPanel').style.display = 'block';
-            updateConnectionStatus('📊 Configura Google Sheets per iniziare');
-        }
-
-        function hideSetupPanel() {
-            document.getElementById('setupPanel').style.display = 'none';
-        }
-
-        function setupSheets() {
-            const url = document.getElementById('sheetsUrl').value.trim();
-            
-            if (!url) {
-                showError('⚠️ Inserisci l\'URL del Google Sheets');
-                return;
-            }
-
-            const sheetsId = extractSheetsId(url);
-            if (!sheetsId) {
-                showError('⚠️ URL non valido. Deve essere un link di Google Sheets');
-                return;
-            }
-
-            const config = { url };
-            localStorage.setItem(SHEETS_CONFIG_KEY, JSON.stringify(config));
-            
-            appState.sheetsUrl = url;
-            appState.sheetsId = sheetsId;
-            document.getElementById('settingsUrl').value = url;
-            
-            initializeSheets();
-            hideSetupPanel();
-        }
-
-        function initializeSheets() {
-            try {
-                appState.connected = true;
-                updateConnectionStatus('✅ Connesso a Google Sheets');
-                updateConnectionInfo();
-                
-                // Imposta link per aprire sheets
-                const openBtn = document.getElementById('openSheetsBtn');
-                if (openBtn) {
-                    openBtn.href = appState.sheetsUrl;
-                    openBtn.style.display = 'inline-flex';
-                }
-                
-                // Carica dati
-                loadFromSheets();
-                
-            } catch (error) {
-                console.error('Errore inizializzazione:', error);
-                showError('❌ Errore connessione: ' + error.message);
-            }
-        }
-
-        function updateConnectionStatus(message) {
-            document.getElementById('statusIndicator').textContent = message;
-        }
-
-        function updateConnectionInfo() {
-            const info = document.getElementById('connectionInfo');
-            if (info && appState.connected) {
-                const timestamp = new Date().toLocaleString('it-IT');
-                info.innerHTML = `
-                    <strong>Google Sheets connesso:</strong> ✅<br>
-                    <strong>URL:</strong> <a href="${appState.sheetsUrl}" target="_blank">Apri Sheets</a><br>
-                    <strong>ID:</strong> ${appState.sheetsId}<br>
-                    <strong>Ultima sincronizzazione:</strong> ${timestamp}
-                `;
-            }
-        }
-
-        // Gestione dati Google Sheets
+        // CARICAMENTO DATI DA GOOGLE SHEETS
         async function loadFromSheets() {
             if (!appState.sheetsId) {
-                showError('❌ Google Sheets non configurato');
+                showError('❌ Configura prima l\'URL di Google Sheets');
                 return;
             }
 
             try {
                 showLoading(true);
-                updateConnectionStatus('🔄 Caricamento da Google Sheets...');
+                updateConnectionStatus('Caricamento in corso...', 'info');
 
                 // Usa l'API pubblica di Google Sheets (CSV export)
                 const csvUrl = `https://docs.google.com/spreadsheets/d/${appState.sheetsId}/export?format=csv&gid=0`;
                 
                 const response = await fetch(csvUrl);
                 if (!response.ok) {
-                    throw new Error('Sheets non accessibile. Verifica che sia condiviso pubblicamente.');
+                    throw new Error('Sheets non accessibile. Verifica che sia condiviso pubblicamente in lettura.');
                 }
 
                 const csvText = await response.text();
@@ -795,15 +918,14 @@
                 appState.dives = dives;
                 updateStats();
                 updateDivesList();
-                updateSyncStatus();
                 
                 showSuccess(`📊 Caricate ${dives.length} immersioni da Google Sheets!`);
-                updateConnectionStatus('✅ Sincronizzato con Google Sheets');
+                updateConnectionStatus(`${dives.length} immersioni caricate`, 'success');
                 
             } catch (error) {
                 console.error('Errore caricamento:', error);
                 showError('❌ Errore caricamento: ' + error.message);
-                updateConnectionStatus('❌ Errore sincronizzazione');
+                updateConnectionStatus('Errore di connessione', 'error');
             } finally {
                 showLoading(false);
             }
@@ -908,142 +1030,7 @@
             }
         }
 
-        // Form management
-        function setupForm() {
-            const form = document.getElementById('diveForm');
-            const atmIN = document.getElementById('atmIN');
-            const atmOUT = document.getElementById('atmOUT');
-            const ariaUsata = document.getElementById('ariaUsata');
-
-            // Calcolo automatico aria usata
-            function calcolaAria() {
-                const ingresso = parseInt(atmIN.value) || 0;
-                const uscita = parseInt(atmOUT.value) || 0;
-                ariaUsata.value = Math.max(0, ingresso - uscita);
-            }
-
-            atmIN.addEventListener('input', calcolaAria);
-            atmOUT.addEventListener('input', calcolaAria);
-
-            // Submit form
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                if (!appState.connected) {
-                    showError('❌ Google Sheets non configurato');
-                    return;
-                }
-
-                if (!validateForm()) return;
-                
-                const formData = new FormData(form);
-                
-                // Calcola numero immersione
-                const maxNumero = appState.dives.length > 0 ? 
-                    Math.max(...appState.dives.map(d => d.numeroImmersione || 0)) : 0;
-                const numeroImmersione = maxNumero + 1;
-                
-                const dive = {
-                    id: Date.now(),
-                    numeroImmersione: numeroImmersione,
-                    data: formData.get('data'),
-                    tipo: formData.get('tipo'),
-                    atmIN: parseInt(formData.get('atmIN')),
-                    atmOUT: parseInt(formData.get('atmOUT')),
-                    ariaUsata: parseInt(formData.get('ariaUsata')),
-                    tempoMinuti: parseInt(formData.get('tempoMinuti')),
-                    profMAX: parseFloat(formData.get('profMAX')),
-                    tempH2Omin: parseFloat(formData.get('tempH2Omin')),
-                    tempH2Omax: parseFloat(formData.get('tempH2Omax')) || parseFloat(formData.get('tempH2Omin')),
-                    sito: formData.get('sito'),
-                    note: formData.get('note') || ''
-                };
-
-                try {
-                    setLoading(true);
-                    
-                    // Prepara riga CSV
-                    const csvRow = [
-                        dive.numeroImmersione,
-                        dive.data,
-                        dive.tipo,
-                        dive.atmIN,
-                        dive.atmOUT,
-                        dive.ariaUsata,
-                        dive.tempoMinuti,
-                        dive.profMAX,
-                        dive.tempH2Omin,
-                        dive.tempH2Omax,
-                        dive.sito,
-                        dive.note
-                    ].join(',');
-                    
-                    // Copia negli appunti
-                    await navigator.clipboard.writeText(csvRow);
-                    showSuccess('📋 Dati copiati negli appunti! Incollali come nuova riga nel tuo Google Sheets.');
-                    
-                    // Aggiungi localmente per aggiornare le statistiche
-                    appState.dives.unshift(dive);
-                    updateStats();
-                    updateDivesList();
-                    
-                    resetForm();
-                } catch (error) {
-                    // Fallback se clipboard non funziona
-                    const csvRow = [
-                        dive.numeroImmersione,
-                        dive.data,
-                        dive.tipo,
-                        dive.atmIN,
-                        dive.atmOUT,
-                        dive.ariaUsata,
-                        dive.tempoMinuti,
-                        dive.profMAX,
-                        dive.tempH2Omin,
-                        dive.tempH2Omax,
-                        dive.sito,
-                        dive.note
-                    ].join(',');
-                    
-                    prompt('Copia questa riga e incollala nel tuo Google Sheets:', csvRow);
-                    showSuccess('📊 Immersione preparata! Copia la riga nel tuo Google Sheets.');
-                } finally {
-                    setLoading(false);
-                }
-            });
-        }
-
-        function validateForm() {
-            const atmIN = parseInt(document.getElementById('atmIN').value);
-            const atmOUT = parseInt(document.getElementById('atmOUT').value);
-            
-            if (atmOUT >= atmIN) {
-                showError('⚠️ Atm OUT deve essere minore di Atm IN!');
-                return false;
-            }
-            
-            return true;
-        }
-
-        function resetForm() {
-            document.getElementById('diveForm').reset();
-            document.getElementById('data').value = new Date().toISOString().split('T')[0];
-            document.getElementById('ariaUsata').value = '';
-        }
-
-        function setLoading(loading) {
-            const btn = document.querySelector('#diveForm button[type="submit"]');
-            const text = document.getElementById('submitText');
-            
-            btn.disabled = loading;
-            text.textContent = loading ? '⏳ Preparazione...' : '📊 Aggiungi a Google Sheets';
-        }
-
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
-        }
-
-        // Stats and display
+        // STATISTICHE E VISUALIZZAZIONE
         function updateStats() {
             const dives = appState.dives;
             const currentYear = new Date().getFullYear();
@@ -1118,21 +1105,8 @@
             container.innerHTML = html;
         }
 
-        function updateSyncStatus() {
-            const status = document.getElementById('syncStatus');
-            if (status && appState.connected) {
-                const timestamp = new Date().toLocaleString('it-IT');
-                status.innerHTML = `
-                    <strong>📊 Google Sheets:</strong> Connesso<br>
-                    <strong>🔄 Ultima sincronizzazione:</strong> ${timestamp}<br>
-                    <strong>📋 Immersioni caricate:</strong> ${appState.dives.length}<br>
-                    <strong>🔗 Foglio:</strong> <a href="${appState.sheetsUrl}" target="_blank">Apri Google Sheets</a>
-                `;
-            }
-        }
-
-        // Funzioni avanzate
-        function exportToSheets() {
+        // FUNZIONI DI ESPORTAZIONE
+        function exportAllToCSV() {
             if (appState.dives.length === 0) {
                 showError('⚠️ Nessuna immersione da esportare');
                 return;
@@ -1141,36 +1115,14 @@
             const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
             const csvContent = [
                 headers.join(','),
-                ...appState.dives.map(dive => [
-                    dive.numeroImmersione,
-                    dive.data,
-                    dive.tipo,
-                    dive.atmIN,
-                    dive.atmOUT,
-                    dive.ariaUsata,
-                    dive.tempoMinuti,
-                    dive.profMAX,
-                    dive.tempH2Omin,
-                    dive.tempH2Omax,
-                    `"${(dive.sito || '').replace(/"/g, '""')}"`,
-                    `"${(dive.note || '').replace(/"/g, '""')}"`
-                ].join(','))
+                ...appState.dives.map(dive => formatDiveToCSV(dive))
             ].join('\n');
 
-            navigator.clipboard.writeText(csvContent).then(() => {
-                showSuccess('📋 Tutti i dati copiati! Incollali nel tuo Google Sheets per sostituire tutto.');
-            }).catch(() => {
-                downloadFile(`immersioni_export_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
-                showSuccess('📊 File CSV scaricato!');
-            });
+            downloadFile(`immersioni_export_${new Date().toISOString().split('T')[0]}.csv`, csvContent, 'text/csv');
+            showSuccess('📊 File CSV scaricato!');
         }
 
-        function validateSheetsFormat() {
-            const requiredColumns = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
-            showSuccess(`✅ Formato corretto!\n\nColonne richieste:\n${requiredColumns.map((col, i) => `${String.fromCharCode(65 + i)}: ${col}`).join('\n')}`);
-        }
-
-        function createSheetsTemplate() {
+        function copyTemplateToClipboard() {
             const headers = ['Numero', 'Data', 'Tipo', 'Atm IN', 'Atm OUT', 'Aria usata', 'Tempo (min)', 'Prof MAX', 'Temp min', 'Temp max', 'Sito', 'Note'];
             const template = [
                 headers.join(','),
@@ -1178,60 +1130,24 @@
                 '2,2024-08-11,Riva,180,60,120,35,12,20,22,Cinque Terre,Corrente leggera'
             ].join('\n');
 
-            navigator.clipboard.writeText(template).then(() => {
-                showSuccess('📋 Template copiato! Incollalo in un nuovo Google Sheets.');
+            copyToClipboard(template).then(() => {
+                showSuccess('📋 Template copiato negli appunti! Incollalo in un nuovo Google Sheets.');
             }).catch(() => {
                 downloadFile('template_immersioni.csv', template, 'text/csv');
                 showSuccess('📊 Template scaricato!');
             });
         }
 
-        // Configurazione
-        function updateSheetsConfig() {
-            const url = document.getElementById('settingsUrl').value.trim();
-            
-            if (!url) {
-                showError('⚠️ Inserisci un URL valido');
-                return;
-            }
-
-            const sheetsId = extractSheetsId(url);
-            if (!sheetsId) {
-                showError('⚠️ URL non valido');
-                return;
-            }
-
-            const config = { url };
-            localStorage.setItem(SHEETS_CONFIG_KEY, JSON.stringify(config));
-            
-            appState.sheetsUrl = url;
-            appState.sheetsId = sheetsId;
-            
-            initializeSheets();
-            showSuccess('🔄 Configurazione aggiornata');
+        function createTemplate() {
+            copyTemplateToClipboard();
         }
 
-        function testSheetsConnection() {
-            if (!appState.sheetsId) {
-                showError('❌ Google Sheets non configurato');
-                return;
-            }
-            loadFromSheets();
+        function showInstructions() {
+            const panel = document.getElementById('instructionsPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
 
-        function resetSheetsConfig() {
-            if (confirm('Rimuovere la configurazione Google Sheets?')) {
-                localStorage.removeItem(SHEETS_CONFIG_KEY);
-                appState.sheetsUrl = '';
-                appState.sheetsId = '';
-                appState.connected = false;
-                document.getElementById('settingsUrl').value = '';
-                showSetupPanel();
-                showSuccess('🔄 Configurazione rimossa');
-            }
-        }
-
-        // Utility Functions
+        // UTILITY FUNCTIONS
         function showSuccess(message) {
             const el = document.getElementById('successMessage');
             el.textContent = message;
@@ -1246,6 +1162,10 @@
             el.style.display = 'block';
             setTimeout(() => el.style.display = 'none', 6000);
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
         }
 
         function downloadFile(filename, content, contentType) {
