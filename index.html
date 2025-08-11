@@ -780,16 +780,16 @@
                 
                 html += `
                     <tr>
-                        <td data-label="Num."><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></td>
-                        <td data-label="Data">${date}</td>
-                        <td data-label="Sito">${dive.sito || '<span class="na-value">N/D</span>'}</td>
-                        <td data-label="Tipo"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></td>
-                        <td data-label="Prof MAX"><strong>${formatValue(dive.profMAX, 'm')}</strong></td>
-                        <td data-label="Tempo">${formatValue(dive.tempoMinuti, 'min')}</td>
-                        <td data-label="Aria">${formatValue(dive.ariaUsata, 'bar')}</td>
-                        <td data-label="Temp min">${formatValue(dive.tempH2Omin, '°C')}</td>
-                        <td data-label="Temp max">${formatValue(dive.tempH2Omax, '°C')}</td>
-                        <td data-label="Note" title="${dive.note || ''}">${dive.note || '<span class="na-value">N/D</span>'}</td>
+                        <td data-label="Num."><span class="content"><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></span></td>
+                        <td data-label="Data"><span class="content">${date}</span></td>
+                        <td data-label="Sito"><span class="content">${dive.sito || '<span class="na-value">N/D</span>'}</span></td>
+                        <td data-label="Tipo"><span class="content"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></span></td>
+                        <td data-label="Prof MAX"><span class="content"><strong>${formatValue(dive.profMAX, 'm')}</strong></span></td>
+                        <td data-label="Tempo"><span class="content">${formatValue(dive.tempoMinuti, 'min')}</span></td>
+                        <td data-label="Aria"><span class="content">${formatValue(dive.ariaUsata, 'bar')}</span></td>
+                        <td data-label="Temp min"><span class="content">${formatValue(dive.tempH2Omin, '°C')}</span></td>
+                        <td data-label="Temp max"><span class="content">${formatValue(dive.tempH2Omax, '°C')}</span></td>
+                        <td data-label="Note"><span class="content">${dive.note || '<span class="na-value">N/D</span>'}</span></td>
                     </tr>
                 `;
             });
