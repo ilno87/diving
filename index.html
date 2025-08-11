@@ -629,8 +629,12 @@
                 total: validDives.length,
                 maxDepth: validDives.length > 0 ? Math.max(...validDives.map(d => d.profMAX || 0)) : 0,
                 totalTime: validDives.reduce((sum, d) => sum + (d.tempoMinuti || 0), 0),
-                avgTemp: validDives.length > 0 ? 
-                    (validDives.reduce((sum, d) => sum + (d.tempH2Omin || 0), 0) / validDives.length).toFixed(1) : 0,
+                // Filtra solo temperature valide (> 0 e non null)
+                const validTemps = validDives
+                    .map(d => d.tempH2Omin)
+                    .filter(temp => temp !== null && temp !== undefined && temp > 0);
+                avgTemp: validTemps.length > 0 ? 
+                    (validTemps.reduce((sum, temp) => sum + temp, 0) / validTemps.length).toFixed(1) : 0
                 thisYear: validDives.filter(d => d.data && new Date(d.data).getFullYear() === currentYear).length
             };
 
@@ -781,3 +785,4 @@
     </script>
 </body>
 </html>
+
