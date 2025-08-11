@@ -526,7 +526,7 @@
                     tipo: safeString(values[2]) || 'N/D',
                     atmIN: safeParseInt(values[3]),
                     atmOUT: safeParseInt(values[4]),
-                    ariaUsata: safeParseInt(values[5]) || (safeParseInt(values[3]) - safeParseInt(values[4])) || 0,
+                    ariaUsata: safeParseInt(values[5]) || (safeParseInt(values[3]) && safeParseInt(values[4]) ? safeParseInt(values[3]) - safeParseInt(values[4]) : null),
                     tempoMinuti: safeParseInt(values[6]),
                     profMAX: safeParseFloat(values[7]),
                     tempH2Omin: safeParseFloat(values[8]),
@@ -791,3 +791,4 @@
     </script>
 </body>
 </html>
+
