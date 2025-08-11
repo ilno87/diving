@@ -390,8 +390,9 @@
     </div>
 
     <script>
-        // CONFIGURAZIONE FISSA - Modifica qui il tuo Google Sheets ID
-        const GOOGLE_SHEETS_ID = '16oQKi4aMWHaSQe4tdMcDJaAlgT_DTXs6gRphMnKyCdM'; // ⬅️ INSERISCI QUI IL TUO SHEETS ID
+        // ⬇️⬇️⬇️ CAMBIA QUI IL TUO GOOGLE SHEETS ID ⬇️⬇️⬇️
+        const GOOGLE_SHEETS_ID = '16oQKi4aMWHaSQe4tdMcDJaAlgT_DTXs6gRphMnKyCdM';
+        // ⬆️⬆️⬆️ CAMBIA QUI IL TUO GOOGLE SHEETS ID ⬆️⬆️⬆️
         
         // Stato dell'applicazione
         let appState = {
@@ -623,20 +624,25 @@
             const dives = appState.dives;
             const currentYear = new Date().getFullYear();
             
-            const validDives = dives.filter(d => d.numeroImmersione); // Solo immersioni valide
+            const validDives = dives.filter(d => d.numeroImmersione);
+            
+            // 🌡️ CALCOLO TEMPERATURA MEDIA CORRETTO - SOLO TEMPERATURE VALIDE
+            const validTemperatures = validDives
+                .map(d => d.tempH2Omin)
+                .filter(temp => temp !== null && temp !== undefined && temp > 0);
+            
+            console.log('🌡️ Temperature valide trovate:', validTemperatures);
             
             const stats = {
                 total: validDives.length,
                 maxDepth: validDives.length > 0 ? Math.max(...validDives.map(d => d.profMAX || 0)) : 0,
                 totalTime: validDives.reduce((sum, d) => sum + (d.tempoMinuti || 0), 0),
-                // Filtra solo temperature valide (> 0 e non null)
-                const validTemps = validDives
-                    .map(d => d.tempH2Omin)
-                    .filter(temp => temp !== null && temp !== undefined && temp > 0);
-                avgTemp: validTemps.length > 0 ? 
-                    (validTemps.reduce((sum, temp) => sum + temp, 0) / validTemps.length).toFixed(1) : 0
-                thisYear: validDives.filter(d => d.data && new Date(d.data).getFullYear() === currentYear).length
+                avgTemp: validTemperatures.length > 0 ? 
+                    (validTemperatures.reduce((sum, temp) => sum + temp, 0) / validTemperatures.length).toFixed(1) : 0,
+                thisYear: validDives.filter(d => d.data && d.data !== 'N/D' && new Date(d.data).getFullYear() === currentYear).length
             };
+
+            console.log('📊 Statistiche calcolate:', stats);
 
             document.getElementById('statTotal').textContent = stats.total;
             document.getElementById('statMaxDepth').textContent = stats.maxDepth + 'm';
@@ -739,9 +745,9 @@
 
         function showError(message) {
             const el = document.getElementById('errorMessage');
-            el.innerHTML = message.replace(/\n/g, '<br>'); // Permette line breaks
+            el.innerHTML = message.replace(/\n/g, '<br>');
             el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 10000); // Più tempo per leggere errori
+            setTimeout(() => el.style.display = 'none', 10000);
         }
 
         function showDebugInfo() {
@@ -785,4 +791,3 @@
     </script>
 </body>
 </html>
-
