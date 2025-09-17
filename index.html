@@ -38,6 +38,10 @@
       button, a.btn{width:100%}
       .card{border-radius:14px}
     }
+    /* Fit-to-screen: niente scroll verticale */
+    html, body{height:100%; overflow:hidden}
+    .wrap{min-height:100dvh}
+    .card{max-height:calc(100dvh - clamp(12px,3vw,24px)*2); overflow:hidden}
   </style>
 </head>
 <body>
@@ -48,7 +52,7 @@
       <p id="phrase">Caricamento…</p>
 
       <figure id="figure" class="hidden">
-        <div class="imgbox">
+        <div class="imgbox" id="imgbox">
           <img id="img" alt="" loading="lazy" decoding="async" />
         </div>
         <figcaption id="caption"></figcaption>
@@ -140,6 +144,7 @@
     const btnPrev = document.getElementById('prev');
     const btnNext = document.getElementById('next');
     const btnNextShuffle = document.getElementById('nextShuffle');
+    const imgbox = document.getElementById('imgbox');
 
     let item;
     if(MODE==='shuffle'){
@@ -169,6 +174,60 @@
       setHidden(elFig, true); setHidden(aOpen, true);
       elImg.removeAttribute('src'); elImg.alt = ''; elCap.textContent = '';
     }
+
+    // Fit-to-viewport: calcola altezza massima immagine per evitare scroll
+    requestAnimationFrame(() => fitToViewport());
+
+    // Se l'immagine cambia dimensioni dopo il load, ricalcola
+    if(elImg){ elImg.onload = () => fitToViewport(); }
+  } else { // daily
+      const now = nowInTZ(TIMEZONE);
+      const view = new Date(now.getTime() + offsetDays*86400000);
+      const perm = seededShuffle(ITEMS.map((_,i)=>i), SEED);
+      const idx = daysSinceEpochTZ(view, TIMEZONE) % ITEMS.length;
+      item = ITEMS[perm[idx]];
+      const fmt = new Intl.DateTimeFormat('it-IT', { timeZone: TIMEZONE, weekday:'long', year:'numeric', month:'long', day:'numeric' });
+      elDate.textContent = fmt.format(view);
+      setHidden(btnPrev, false); setHidden(btnNext, false); setHidden(btnNextShuffle, true);
+    }
+
+    elPhrase.textContent = item.text || '';
+
+    if(item.img){
+      elImg.src = item.img; elImg.alt = item.alt || '';
+      elCap.textContent = item.caption || '';
+      setHidden(elFig, false); setHidden(aOpen, false); aOpen.href = item.img;
+    } else {
+      setHidden(elFig, true); setHidden(aOpen, true);
+      elImg.removeAttribute('src'); elImg.alt = ''; elCap.textContent = '';
+    }
+  }
+
+  // === Fit-to-screen helper ===
+  function fitToViewport(){
+    const wrap = document.querySelector('.wrap');
+    const card = document.querySelector('.card');
+    const imgbox = document.getElementById('imgbox');
+    const elFig = document.getElementById('figure');
+    if(!imgbox || elFig.classList.contains('hidden')) return;
+
+    const padd = parseFloat(getComputedStyle(wrap).paddingLeft)*2;
+    const cardPadTop = parseFloat(getComputedStyle(card).paddingTop);
+    const cardPadBottom = parseFloat(getComputedStyle(card).paddingBottom);
+
+    const headerH = document.querySelector('h1').offsetHeight + document.getElementById('date').offsetHeight;
+    const phraseH = document.getElementById('phrase').offsetHeight;
+    const footerH = document.querySelector('.footer').offsetHeight;
+
+    const gutters = 16; // margini interni vari
+    const available = Math.max(140, window.innerHeight - padd - cardPadTop - cardPadBottom - headerH - phraseH - footerH - gutters);
+
+    imgbox.style.maxHeight = available + 'px';
+    // assicurati che l'immagine stia dentro
+    const img = document.getElementById('img');
+    img.style.maxHeight = '100%';
+    img.style.width = '100%';
+    img.style.objectFit = 'contain';
   }
 
   // === Init ===
@@ -179,20 +238,13 @@
       ITEMS = items; ITEMS_HASH = hash;
       if(!ITEMS.length) throw new Error('Nessun elemento in items.json');
       render();
+      window.addEventListener('resize', fitToViewport);
+      window.addEventListener('orientationchange', fitToViewport);
     }catch(err){
       setHidden(elError, false);
-      elError.textContent = err.message + '
-Assicurati che esista items.json valido (array di oggetti con almeno {"text":"..."}).';
+      elError.textContent = err.message + '\nAssicurati che esista items.json valido (array di oggetti con almeno {"text":"..."}).';
     }
   }
-
-  // === Eventi ===
-  document.getElementById('prev').addEventListener('click', ()=>{ if(MODE==='daily'){ offsetDays--; render(); } });
-  document.getElementById('next').addEventListener('click', ()=>{ if(MODE==='daily'){ offsetDays++; render(); } });
-  document.getElementById('nextShuffle').addEventListener('click', ()=>{ if(MODE==='shuffle'){ render(); } });
-  document.getElementById('copy').addEventListener('click', async ()=>{
-    try { await navigator.clipboard.writeText(document.getElementById('phrase').textContent); const btn=document.getElementById('copy'); const t=btn.textContent; btn.textContent='Copiato!'; setTimeout(()=>btn.textContent=t, 1200); } catch(e){ alert('Impossibile copiare: '+e); }
-  });
 
   init();
   </script>
