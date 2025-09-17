@@ -1,849 +1,200 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DiveLog Pro - Visualizzatore</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary: #00d4aa;
-            --primary-dark: #00b894;
-            --secondary: #0984e3;
-            --accent: #fd79a8;
-            --success: #00b894;
-            --warning: #fdcb6e;
-            --error: #e84393;
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: rgba(255, 255, 255, 0.2);
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perla del Giorno</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#12172d; --text:#f5f7ff; --muted:#dfe5ff; --line:#2b3363;
+      --accent:#7aa2ff; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    html, body{height:100%;margin:0}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Noto Sans";background:var(--bg);color:var(--text);}
+    .wrap{min-height:100%;display:grid;place-items:center;padding:clamp(12px,3vw,24px);overflow-x:hidden}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    .card{width:min(1024px, 100%);background:var(--card);border-radius:18px;box-shadow:var(--shadow);
+          padding:clamp(16px,3.5vw,28px);}
+    h1{margin:0 0 6px;font-weight:700;font-size:clamp(1.1rem,2.5vw,1.6rem);}
+    .meta{opacity:.75;font-size:.92rem;margin-top:2px}
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    p#phrase{font-size:clamp(1.05rem,2.6vw,1.5rem);line-height:1.6;margin:12px 0 0;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    figure{margin:14px 0 0;width:100%}
+    .imgbox{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.35);background:#0e1430;max-width:100%}
+    .imgbox img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
+    /* Evita scroll orizzontale anche con immagini gigantesche */
+    img, svg, video, canvas{max-width:100%}
+    figcaption{font-size:.95rem;opacity:.9;margin-top:8px;word-break:break-word;overflow-wrap:anywhere}
 
-        .app-header {
-            text-align: center;
-            margin-bottom: 30px;
-            color: white;
-        }
+    .footer{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+    button, a.btn{background:#1f2647;color:var(--muted);border:1px solid var(--line);padding:10px 14px;border-radius:12px;cursor:pointer;font-size:1rem;text-decoration:none}
+    button:hover, a.btn:hover{filter:brightness(1.08)}
+    .hidden{display:none!important}
 
-        .app-title {
-            font-size: clamp(28px, 6vw, 40px);
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-
-        .app-subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-
-        .cloud-badge {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin-left: 10px;
-            backdrop-filter: blur(10px);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .main-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-            position: relative;
-        }
-
-        .card-header h2 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .refresh-btn {
-            position: absolute;
-            right: 25px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .refresh-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-50%) scale(1.05);
-        }
-
-        .refresh-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: translateY(-50%);
-        }
-
-        .form-container {
-            padding: 30px;
-        }
-
-        .dive-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .dive-table th {
-            background: var(--primary);
-            color: white;
-            padding: 15px 10px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .dive-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-        }
-
-        .dive-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .dive-table tr:nth-child(even) {
-            background: #fafbfc;
-        }
-
-        .dive-table tr:nth-child(even):hover {
-            background: #f0f2f5;
-        }
-
-        .message {
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 500;
-            display: none;
-        }
-
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            color: white;
-            font-size: 18px;
-        }
-
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #28a745;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .tipo-badge {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .numero-badge {
-            background: var(--primary);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .na-value {
-            color: #999;
-            font-style: italic;
-            font-size: 12px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .refresh-btn {
-                position: static;
-                transform: none;
-                margin-top: 10px;
-            }
-            
-            .card-header {
-                text-align: center;
-            }
-            
-            /* Tabella responsive per mobile */
-            .dive-table {
-                font-size: 11px;
-                display: block;
-                width: 100%;
-                border: 0;
-            }
-            
-            .dive-table thead {
-                display: none;
-            }
-            
-            .dive-table tbody {
-                display: block;
-            }
-            
-            .dive-table tr {
-                border: 1px solid #ccc;
-                margin-bottom: 10px;
-                border-radius: 8px;
-                background: white;
-                display: block;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                padding: 8px 10px;
-            }
-            
-            .dive-table td {
-                display: flex;
-                align-items: flex-start;
-                padding: 5px 0;
-                border: none;
-                font-size: 12px;
-                line-height: 1.4;
-                word-break: break-word;
-            }
-            
-            .dive-table td:before {
-                content: attr(data-label) ":";
-                flex: 0 0 85px; /* larghezza fissa per tutte le label */
-                font-weight: bold;
-                color: var(--primary);
-                white-space: nowrap;
-                padding-right: 6px;
-            }
-            
-            .dive-table td:last-child {
-                border-bottom: none;
-            }
-        }
-    </style>
+    /* Mobile-first tweaks */
+    @media (max-width: 720px){
+      .footer{flex-direction:column}
+      button, a.btn{width:100%}
+      .card{border-radius:14px}
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="app-header">
-            <h1 class="app-title">
-                🌊 DiveLog Pro
-                <span class="cloud-badge">📊 Viewer</span>
-            </h1>
-            <p class="app-subtitle">Visualizzatore delle tue immersioni da Google Sheets</p>
-        </div>
+  <div class="wrap">
+    <div class="card">
+      <h1>Perla del giorno 💎</h1>
+      <div class="meta" id="date"></div>
+      <p id="phrase">Caricamento…</p>
 
-        <!-- Statistiche -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="statTotal">0</div>
-                <div class="stat-label">Immersioni Totali</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statMaxDepth">0m</div>
-                <div class="stat-label">Profondità Max</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statTotalTime">0min</div>
-                <div class="stat-label">Tempo Totale</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statAvgTemp">0°C</div>
-                <div class="stat-label">Temp. Media</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statThisYear">0</div>
-                <div class="stat-label">Quest'Anno</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statLastUpdate">--:--</div>
-                <div class="stat-label">Ultimo Aggiornamento</div>
-            </div>
+      <figure id="figure" class="hidden">
+        <div class="imgbox">
+          <img id="img" alt="" loading="lazy" decoding="async" />
         </div>
+        <figcaption id="caption"></figcaption>
+      </figure>
 
-        <!-- Messages -->
-        <div id="successMessage" class="message success"></div>
-        <div id="errorMessage" class="message error"></div>
+      <div id="error" class="hidden" style="margin-top:12px;background:#2a1330;border:1px solid #7b2a3c;color:#ffd6de;padding:10px 12px;border-radius:12px"></div>
 
-        <!-- Lista Immersioni -->
-        <div class="main-card">
-            <div class="card-header">
-                <h2>📋 Le Tue Immersioni</h2>
-                <p>Dati caricati automaticamente da Google Sheets</p>
-                <button class="refresh-btn" onclick="loadFromSheets()" id="refreshBtn">
-                    🔄 Aggiorna
-                </button>
-            </div>
-            <div class="form-container">
-                <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span id="statusText">Caricamento automatico...</span>
-                </div>
-                
-                <div id="divesContainer">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <h3>Caricamento immersioni...</h3>
-                        <p>Connessione al Google Sheets in corso</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div class="footer">
+        <button id="prev" title="Giorno precedente">◀︎ Giorno precedente</button>
+        <button id="next" title="Giorno successivo">Giorno successivo ▶︎</button>
+        <button id="copy">Copia testo</button>
+        <a id="openImg" class="btn hidden" href="#" target="_blank" rel="noopener">Apri immagine</a>
+        <button id="nextShuffle" class="hidden" title="Mostra un'altra perla">Prossima perla ↻</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-        <div>
-            <div style="font-size: 48px; margin-bottom: 20px;">📊</div>
-            <div id="loadingText">Caricamento da Google Sheets...</div>
-        </div>
-    </div>
+  <script>
+  // === CONFIG ===
+  const MODE = 'shuffle';   // 'shuffle' = ordine casuale senza ripetizioni (persistente con localStorage) | 'daily' = 1 al giorno
+  const TIMEZONE = 'Europe/Rome';
+  const SEED = 'perle-v4';  // usato solo in daily
 
-    <script>
-        // ═══════════════════════════════════════════════════════════════
-        // 🔧 CONFIGURAZIONE - MODIFICA QUI I TUOI PARAMETRI
-        // ═══════════════════════════════════════════════════════════════
-        
-        // ⬇️ GOOGLE SHEETS ID - Prendi dalla URL del tuo foglio
-        const GOOGLE_SHEETS_ID = '16oQKi4aMWHaSQe4tdMcDJaAlgT_DTXs6gRphMnKyCdM';
-        
-        // ⬇️ TEMPO AUTO-REFRESH (in millisecondi)
-        const AUTO_REFRESH_INTERVAL = 1800000; // 30 minuti = 1800000ms
-        // Altri esempi:
-        // 60000   = 1 minuto
-        // 180000  = 3 minuti  
-        // 600000  = 10 minuti
-        // 1800000 = 30 minuti
-        
-        // ═══════════════════════════════════════════════════════════════
-        // 📊 CODICE APPLICAZIONE - NON MODIFICARE SOTTO QUESTA RIGA
-        // ═══════════════════════════════════════════════════════════════
-        
-        // Stato dell'applicazione
-        let appState = {
-            dives: [],
-            lastUpdate: null,
-            autoRefreshInterval: null
-        };
+  // === Carica items.json ===
+  async function loadItems(){
+    const res = await fetch('items.json', { cache: 'no-cache' });
+    if(!res.ok) throw new Error('Impossibile caricare items.json: '+res.status);
+    const txt = await res.text();
+    const data = JSON.parse(txt);
+    if(!Array.isArray(data)) throw new Error('items.json non è un array');
+    return { items: data, hash: hashString(txt) };
+  }
 
-        // Inizializzazione
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🌊 DiveLog Pro Viewer caricato!');
-            console.log('📊 Google Sheets ID:', GOOGLE_SHEETS_ID);
-            
-            // Verifica se l'ID è configurato
-            if (GOOGLE_SHEETS_ID === 'TUO_GOOGLE_SHEETS_ID_QUI') {
-                showError('❌ Devi configurare il GOOGLE_SHEETS_ID nel codice!');
-                updateStatus('Configura Google Sheets ID nel codice', 'error');
-                return;
-            }
-            
-            // Carica immediatamente i dati
-            loadFromSheets();
-            
-            // Auto-refresh ogni 30 secondi
-            startAutoRefresh();
-        });
+  // === Utilità ===
+  function xmur3(str){ let h=1779033703^str.length; for(let i=0;i<str.length;i++){ h=Math.imul(h^str.charCodeAt(i),3432918353); h=h<<13|h>>>19; } return function(){ h=Math.imul(h^(h>>>16),2246822507); h=Math.imul(h^(h>>>13),3266489909); return (h^(h>>>16))>>>0; } }
+  function mulberry32(a){ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^(t>>>15),1|t); t^=t+Math.imul(t^(t>>>7),61|t); return ((t^(t>>>14))>>>0)/4294967296; } }
+  function seededShuffle(arr, seedStr){ const seed = xmur3(seedStr)(); const rand = mulberry32(seed); const a = arr.slice(); for (let i=a.length-1; i>0; i--){ const j = Math.floor(rand()*(i+1)); [a[i], a[j]]=[a[j], a[i]]; } return a; }
+  function hashString(str){ const seedFn = xmur3(str); return seedFn(); }
+  function nowInTZ(tz){ return new Date(new Date().toLocaleString('en-GB', { timeZone: tz })); }
+  function startOfDayTZ(d, tz){ const p=new Intl.DateTimeFormat('en-CA',{ timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(d); const y=+p.find(q=>q.type==='year').value; const m=+p.find(q=>q.type==='month').value; const day=+p.find(q=>q.type==='day').value; return new Date(Date.UTC(y, m-1, day)); }
+  function daysSinceEpochTZ(d, tz){ const sod=startOfDayTZ(d, tz); return Math.floor(sod.getTime()/86400000); }
 
-        // CARICAMENTO DATI DA GOOGLE SHEETS
-        async function loadFromSheets() {
-            try {
-                setRefreshLoading(true);
-                updateStatus('Caricamento da Google Sheets...', 'loading');
+  // === Stato ===
+  let ITEMS = [];
+  let ITEMS_HASH = 0;
+  let offsetDays = 0; // solo per daily
 
-                // Verifica configurazione
-                if (GOOGLE_SHEETS_ID === 'TUO_GOOGLE_SHEETS_ID_QUI') {
-                    throw new Error('Google Sheets ID non configurato nel codice');
-                }
-
-                // Usa l'API pubblica di Google Sheets (CSV export)
-                const csvUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/export?format=csv&gid=0`;
-                
-                console.log('📡 Tentativo connessione a:', csvUrl);
-                
-                const response = await fetch(csvUrl, {
-                    method: 'GET',
-                    mode: 'cors',
-                    credentials: 'omit'
-                });
-                
-                console.log('📡 Response status:', response.status);
-                
-                if (!response.ok) {
-                    if (response.status === 403) {
-                        throw new Error('Google Sheets non è pubblico. Vai su Condividi → "Chiunque con il link può visualizzare"');
-                    } else if (response.status === 404) {
-                        throw new Error('Google Sheets non trovato. Verifica l\'ID nel codice');
-                    } else {
-                        throw new Error(`Errore HTTP ${response.status}: ${response.statusText}`);
-                    }
-                }
-
-                const csvText = await response.text();
-                console.log('📊 CSV ricevuto, lunghezza:', csvText.length);
-                
-                if (!csvText || csvText.trim().length === 0) {
-                    throw new Error('Il Google Sheets sembra essere vuoto');
-                }
-                
-                const dives = parseCSVToDives(csvText);
-                console.log('🔍 Immersioni parsate:', dives.length);
-                
-                appState.dives = dives;
-                appState.lastUpdate = new Date();
-                
-                updateStats();
-                updateDivesList();
-                
-                if (dives.length > 0) {
-                    showSuccess(`📊 Caricate ${dives.length} immersioni da Google Sheets!`);
-                    updateStatus(`${dives.length} immersioni caricate`, 'success');
-                } else {
-                    updateStatus('Google Sheets vuoto o nessun dato dalle riga 4 in poi', 'warning');
-                }
-                
-            } catch (error) {
-                console.error('❌ Errore dettagliato:', error);
-                
-                let errorMessage = 'Errore sconosciuto';
-                
-                if (error.message.includes('Failed to fetch')) {
-                    errorMessage = 'Impossibile connettersi a Google Sheets. Verifica:\n' +
-                                 '1. Il Google Sheets ID è corretto\n' +
-                                 '2. Il foglio è condiviso pubblicamente\n' +
-                                 '3. La connessione internet funziona';
-                } else if (error.message.includes('CORS')) {
-                    errorMessage = 'Errore CORS. Assicurati che il Google Sheets sia pubblico';
-                } else {
-                    errorMessage = error.message;
-                }
-                
-                showError('❌ ' + errorMessage);
-                updateStatus('Errore di connessione', 'error');
-                
-                // Mostra istruzioni di debug
-                showDebugInfo();
-                
-            } finally {
-                setRefreshLoading(false);
-            }
+  // === Shuffle senza ripetizioni (persistente) ===
+  const LS_KEY_PREFIX = 'perle_state_';
+  function loadShuffleState(len, hash){
+    const key = LS_KEY_PREFIX + hash;
+    try{
+      const raw = localStorage.getItem(key);
+      if(raw){
+        const st = JSON.parse(raw);
+        if(Array.isArray(st.order) && st.order.length===len && Number.isInteger(st.pos)){
+          let pos = st.pos; if(pos < 0) pos = 0; if(pos > len) pos = len; // consenti pos==len per trigger fine giro
+          return { key, order: st.order, pos };
         }
+      }
+    }catch{}
+    const order = seededShuffle(Array.from({length: len}, (_,i)=>i), String(hash));
+    return { key, order, pos: 0 };
+  }
+  function saveShuffleState(state){ localStorage.setItem(state.key, JSON.stringify({order: state.order, pos: state.pos})); }
+  function nextShuffleItem(items, state){
+    if(items.length===0) return { item:{text:'— (nessuna frase) —'}, state };
+    if(state.pos >= state.order.length){
+      state.order = seededShuffle(Array.from({length: items.length}, (_,i)=>i), String(ITEMS_HASH ^ Date.now()));
+      state.pos = 0;
+    }
+    const idx = state.order[state.pos];
+    const item = items[idx];
+    state.pos += 1;
+    saveShuffleState(state);
+    return { item, state };
+  }
 
-        function parseCSVToDives(csvText) {
-            const lines = csvText.trim().split('\n');
-            const dives = [];
-            
-            // Salta le prime 3 righe (header + 2 righe da ignorare)
-            const startRow = 3;
-            
-            for (let i = startRow; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                
-                const values = parseCSVLine(line);
-                if (values.length < 8) continue; // Minimo 8 colonne richieste
-                
-                // Mappa le colonne del Google Sheets con gestione N/D per valori vuoti
-                const dive = {
-                    id: i,
-                    numeroImmersione: safeParseInt(values[0]) || (i - startRow + 1),
-                    data: formatDate(values[1]) || 'N/D',
-                    tipo: safeString(values[2]) || 'N/D',
-                    atmIN: safeParseInt(values[3]),
-                    atmOUT: safeParseInt(values[4]),
-                    ariaUsata: safeParseInt(values[5]) || (safeParseInt(values[3]) && safeParseInt(values[4]) ? safeParseInt(values[3]) - safeParseInt(values[4]) : null),
-                    tempoMinuti: safeParseInt(values[6]),
-                    profMAX: safeParseFloat(values[7]),
-                    tempH2Omin: safeParseFloat(values[8]),
-                    tempH2Omax: safeParseFloat(values[9]) || safeParseFloat(values[8]),
-                    sito: safeString(values[10]) || 'N/D',
-                    note: safeString(values[11]) || ''
-                };
-                
-                dives.push(dive);
-            }
-            
-            // Ordina per numero immersione (più recente prima)
-            dives.sort((a, b) => (b.numeroImmersione || 0) - (a.numeroImmersione || 0));
-            
-            return dives;
-        }
+  // === Rendering ===
+  function setHidden(el, yes){ el.classList.toggle('hidden', !!yes); }
 
-        function parseCSVLine(line) {
-            const values = [];
-            let current = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    values.push(current.trim());
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            values.push(current.trim());
-            
-            return values;
-        }
+  function render(){
+    const elDate = document.getElementById('date');
+    const elPhrase = document.getElementById('phrase');
+    const elFig = document.getElementById('figure');
+    const elImg = document.getElementById('img');
+    const elCap = document.getElementById('caption');
+    const aOpen = document.getElementById('openImg');
+    const btnPrev = document.getElementById('prev');
+    const btnNext = document.getElementById('next');
+    const btnNextShuffle = document.getElementById('nextShuffle');
 
-        // Funzioni helper per gestire valori vuoti
-        function safeString(value) {
-            return value && value.trim() !== '' ? value.trim() : null;
-        }
+    let item;
+    if(MODE==='shuffle'){
+      const st = loadShuffleState(ITEMS.length, ITEMS_HASH);
+      const res = nextShuffleItem(ITEMS, st);
+      item = res.item;
+      elDate.textContent = '';
+      setHidden(btnPrev, true); setHidden(btnNext, true); setHidden(btnNextShuffle, false);
+    } else { // daily
+      const now = nowInTZ(TIMEZONE);
+      const view = new Date(now.getTime() + offsetDays*86400000);
+      const perm = seededShuffle(ITEMS.map((_,i)=>i), SEED);
+      const idx = daysSinceEpochTZ(view, TIMEZONE) % ITEMS.length;
+      item = ITEMS[perm[idx]];
+      const fmt = new Intl.DateTimeFormat('it-IT', { timeZone: TIMEZONE, weekday:'long', year:'numeric', month:'long', day:'numeric' });
+      elDate.textContent = fmt.format(view);
+      setHidden(btnPrev, false); setHidden(btnNext, false); setHidden(btnNextShuffle, true);
+    }
 
-        function safeParseInt(value) {
-            const num = parseInt(value);
-            return isNaN(num) ? null : num;
-        }
+    elPhrase.textContent = item.text || '';
 
-        function safeParseFloat(value) {
-            const num = parseFloat(value);
-            return isNaN(num) ? null : num;
-        }
+    if(item.img){
+      elImg.src = item.img; elImg.alt = item.alt || '';
+      elCap.textContent = item.caption || '';
+      setHidden(elFig, false); setHidden(aOpen, false); aOpen.href = item.img;
+    } else {
+      setHidden(elFig, true); setHidden(aOpen, true);
+      elImg.removeAttribute('src'); elImg.alt = ''; elCap.textContent = '';
+    }
+  }
 
-        function formatValue(value, suffix = '') {
-            return value !== null && value !== undefined ? value + suffix : 'N/D';
-        }
+  // === Init ===
+  async function init(){
+    const elError = document.getElementById('error');
+    try{
+      const {items, hash} = await loadItems();
+      ITEMS = items; ITEMS_HASH = hash;
+      if(!ITEMS.length) throw new Error('Nessun elemento in items.json');
+      render();
+    }catch(err){
+      setHidden(elError, false);
+      elError.textContent = err.message + '
+Assicurati che esista items.json valido (array di oggetti con almeno {"text":"..."}).';
+    }
+  }
 
-        function formatDate(dateStr) {
-            if (!dateStr || dateStr.trim() === '') return null;
-            
-            // Prova diversi formati di data
-            const formats = [
-                /^(\d{4})-(\d{2})-(\d{2})$/, // YYYY-MM-DD
-                /^(\d{2})\/(\d{2})\/(\d{4})$/, // DD/MM/YYYY
-                /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/ // D/M/YYYY
-            ];
-            
-            for (const format of formats) {
-                const match = dateStr.match(format);
-                if (match) {
-                    if (format.source.startsWith('^\\d{4}')) {
-                        return dateStr;
-                    } else {
-                        const day = match[1].padStart(2, '0');
-                        const month = match[2].padStart(2, '0');
-                        const year = match[3];
-                        return `${year}-${month}-${day}`;
-                    }
-                }
-            }
-            
-            try {
-                const date = new Date(dateStr);
-                if (!isNaN(date.getTime())) {
-                    return date.toISOString().split('T')[0];
-                }
-            } catch {}
-            
-            return null;
-        }
+  // === Eventi ===
+  document.getElementById('prev').addEventListener('click', ()=>{ if(MODE==='daily'){ offsetDays--; render(); } });
+  document.getElementById('next').addEventListener('click', ()=>{ if(MODE==='daily'){ offsetDays++; render(); } });
+  document.getElementById('nextShuffle').addEventListener('click', ()=>{ if(MODE==='shuffle'){ render(); } });
+  document.getElementById('copy').addEventListener('click', async ()=>{
+    try { await navigator.clipboard.writeText(document.getElementById('phrase').textContent); const btn=document.getElementById('copy'); const t=btn.textContent; btn.textContent='Copiato!'; setTimeout(()=>btn.textContent=t, 1200); } catch(e){ alert('Impossibile copiare: '+e); }
+  });
 
-        // STATISTICHE E VISUALIZZAZIONE
-        function updateStats() {
-            const dives = appState.dives;
-            const currentYear = new Date().getFullYear();
-            
-            const validDives = dives.filter(d => d.numeroImmersione);
-            
-            // 🌡️ CALCOLO TEMPERATURA MEDIA CORRETTO - SOLO TEMPERATURE VALIDE
-            const validTemperatures = validDives
-                .map(d => d.tempH2Omin)
-                .filter(temp => temp !== null && temp !== undefined && temp > 0);
-            
-            console.log('🌡️ Temperature valide trovate:', validTemperatures);
-            
-            const stats = {
-                total: validDives.length,
-                maxDepth: validDives.length > 0 ? Math.max(...validDives.map(d => d.profMAX || 0)) : 0,
-                totalTime: validDives.reduce((sum, d) => sum + (d.tempoMinuti || 0), 0),
-                avgTemp: validTemperatures.length > 0 ? 
-                    (validTemperatures.reduce((sum, temp) => sum + temp, 0) / validTemperatures.length).toFixed(1) : 0,
-                thisYear: validDives.filter(d => d.data && d.data !== 'N/D' && new Date(d.data).getFullYear() === currentYear).length
-            };
-
-            console.log('📊 Statistiche calcolate:', stats);
-
-            document.getElementById('statTotal').textContent = stats.total;
-            document.getElementById('statMaxDepth').textContent = stats.maxDepth + 'm';
-            document.getElementById('statTotalTime').textContent = stats.totalTime + 'min';
-            document.getElementById('statAvgTemp').textContent = stats.avgTemp + '°C';
-            document.getElementById('statThisYear').textContent = stats.thisYear;
-            
-            // Aggiorna timestamp ultimo aggiornamento
-            if (appState.lastUpdate) {
-                const time = appState.lastUpdate.toLocaleTimeString('it-IT', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-                document.getElementById('statLastUpdate').textContent = time;
-            }
-        }
-
-        function updateDivesList() {
-            const container = document.getElementById('divesContainer');
-            const dives = appState.dives;
-            
-            if (dives.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <h3>Nessuna immersione trovata</h3>
-                        <p>Il Google Sheets è vuoto o non accessibile</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = `
-                <table class="dive-table">
-                    <thead>
-                        <tr>
-                            <th>Num.</th>
-                            <th>Data</th>
-                            <th>Sito</th>
-                            <th>Tipo</th>
-                            <th>Prof MAX</th>
-                            <th>Tempo</th>
-                            <th>Aria usata</th>
-                            <th>Temp min</th>
-                            <th>Temp max</th>
-                            <th>Note</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            dives.forEach(dive => {
-                const date = dive.data && dive.data !== 'N/D' ? 
-                    new Date(dive.data).toLocaleDateString('it-IT') : 'N/D';
-                
-                html += `
-                    <tr>
-                        <td data-label="Num."><span class="content-wrapper"><span class="numero-badge">#${dive.numeroImmersione || 'N/D'}</span></span></td>
-                        <td data-label="Data"><span class="content-wrapper">${date}</span></td>
-                        <td data-label="Sito"><span class="content-wrapper">${dive.sito || '<span class="na-value">N/D</span>'}</span></td>
-                        <td data-label="Tipo"><span class="content-wrapper"><span class="tipo-badge">${dive.tipo || 'N/D'}</span></span></td>
-                        <td data-label="Prof MAX"><span class="content-wrapper"><strong>${formatValue(dive.profMAX, 'm')}</strong></span></td>
-                        <td data-label="Tempo"><span class="content-wrapper">${formatValue(dive.tempoMinuti, 'min')}</span></td>
-                        <td data-label="Aria usata"><span class="content-wrapper">${formatValue(dive.ariaUsata, 'bar')}</span></td>
-                        <td data-label="Temp min"><span class="content-wrapper">${formatValue(dive.tempH2Omin, '°C')}</span></td>
-                        <td data-label="Temp max"><span class="content-wrapper">${formatValue(dive.tempH2Omax, '°C')}</span></td>
-                        <td data-label="Note"><span class="content-wrapper">${dive.note || '<span class="na-value">N/D</span>'}</span></td>
-                    </tr>
-                `;
-            });
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        // UTILITY FUNCTIONS
-        function updateStatus(message, type = 'info') {
-            const statusText = document.getElementById('statusText');
-            statusText.textContent = message;
-            
-            const statusDot = document.querySelector('.status-dot');
-            statusDot.style.background = 
-                type === 'success' ? '#28a745' : 
-                type === 'error' ? '#dc3545' : 
-                type === 'warning' ? '#ffc107' : '#007bff';
-        }
-
-        function setRefreshLoading(loading) {
-            const btn = document.getElementById('refreshBtn');
-            btn.disabled = loading;
-            btn.textContent = loading ? '⏳ Caricando...' : '🔄 Aggiorna';
-        }
-
-        function showSuccess(message) {
-            const el = document.getElementById('successMessage');
-            el.textContent = message;
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 4000);
-        }
-
-        function showError(message) {
-            const el = document.getElementById('errorMessage');
-            el.innerHTML = message.replace(/\n/g, '<br>');
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 10000);
-        }
-
-        function showDebugInfo() {
-            console.log('🔧 DEBUG INFO:');
-            console.log('📊 Google Sheets ID:', GOOGLE_SHEETS_ID);
-            console.log('🔗 URL completo:', `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/export?format=csv&gid=0`);
-            console.log('📋 Per testare manualmente, apri questo URL nel browser:');
-            console.log(`https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/edit`);
-            
-            // Mostra info nella pagina
-            const debugHtml = `
-                <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-top: 20px;">
-                    <h4 style="color: #495057; margin-bottom: 10px;">🔧 Debug Info:</h4>
-                    <p><strong>Google Sheets ID:</strong> <code>${GOOGLE_SHEETS_ID}</code></p>
-                    <p><strong>URL di test:</strong> <a href="https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/edit" target="_blank">Apri Google Sheets</a></p>
-                    <p><strong>URL CSV:</strong> <a href="https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/export?format=csv&gid=0" target="_blank">Test download CSV</a></p>
-                    <p style="font-size: 12px; color: #6c757d; margin-top: 10px;">
-                        Se l'URL CSV non funziona, il foglio non è pubblico o l'ID è sbagliato.
-                    </p>
-                </div>
-            `;
-            
-            const container = document.getElementById('divesContainer');
-            container.innerHTML = debugHtml;
-        }
-
-        // AUTO-REFRESH
-        function startAutoRefresh() {
-            // Usa il tempo configurato in cima al file
-            appState.autoRefreshInterval = setInterval(() => {
-                loadFromSheets();
-            }, AUTO_REFRESH_INTERVAL);
-        }
-
-        // Cleanup quando si chiude la pagina
-        window.addEventListener('beforeunload', () => {
-            if (appState.autoRefreshInterval) {
-                clearInterval(appState.autoRefreshInterval);
-            }
-        });
-    </script>
+  init();
+  </script>
 </body>
 </html>
-
